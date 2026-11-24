@@ -45,6 +45,10 @@ Generate or check repository-scoped instructions with `navi agents`; list origin
 
 `navi skill-scan` inventories local ZIPs; `navi context` selects explicitly reviewed variants under a byte budget. No automatic approval or execution. [Guide](docs/SKILL_REGISTRY.md).
 
+## Agent Bench (offline)
+
+`navi bench --mode reference` runs four synthetic engineering fixtures. External JSON answers may be evaluated without executing code. No real agent or Nexus performance claims. [Guide](docs/AGENT_BENCH.md).
+
 ## GitHub Actions
 
 The reusable workflow checks out the consumer and a reviewed Core SHA, installs dependencies, validates its manifest and executes its gate with a read-only token. Pin both the reusable workflow and core_sha to the same reviewed commit. Do not use with secrets or pull_request_target on untrusted code. See [integration guide](docs/GITHUB.md).
