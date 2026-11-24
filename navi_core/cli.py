@@ -182,6 +182,12 @@ def main(argv=None):
     p.add_argument("--max-risk",choices=("low","medium","high","critical"),default="low")
     p.add_argument("--output",type=pathlib.Path,help="Optional private context packet; no overwrite")
     p.add_argument("--archives",nargs="+",type=pathlib.Path,default=[])
+    p=sub.add_parser("bench",help="Offline synthetic benchmark; no agent or candidate code execution")
+    p.add_argument("--mode",choices=("catalog","reference","evaluate"),default="catalog")
+    p.add_argument("--case")
+    p.add_argument("--submission",type=pathlib.Path)
+    p.add_argument("--output",type=pathlib.Path)
+    p.add_argument("--budget-bytes",type=int,default=4096)
     p=sub.add_parser("validate");p.add_argument("kind",choices=CONTRACTS);p.add_argument("file",type=pathlib.Path)
     args=parser.parse_args(argv)
     try:
@@ -208,6 +214,17 @@ def main(argv=None):
                 content=packet(out,args.archives,args.budget_bytes)
                 write_private(args.output,content)
                 out={"status":"packet-created","selected":len(out["selected"]),"scope":"private-local; no execution or upload"}
+        elif args.command=="bench":
+            from .agent_bench import catalog, run_reference, evaluate, check_options
+            from .skill_registry import read_json, write_private
+            check_options(args.mode,args.case,args.submission,args.budget_bytes)
+            if args.mode=="catalog": out=catalog()
+            elif args.mode=="reference": out=run_reference(args.case,args.budget_bytes)
+            else: out=evaluate(args.case,read_json(args.submission),args.budget_bytes)
+            if args.output is not None:
+                write_private(args.output,out)
+            if out.get("status")=="failed":
+                print(json.dumps(out,ensure_ascii=False,indent=2));return 1
         elif args.command=="validate":
             s=args.file.read_text(encoding="utf-8");validate(args.kind,tomllib.loads(s) if args.file.suffix==".toml" else json.loads(s));out={"status":"valid","contract":args.kind}
         else:
