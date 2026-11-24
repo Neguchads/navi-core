@@ -1,0 +1,128 @@
+[
+  {
+    "contract": {
+      "schema_version": 1,
+      "id": "architecture-plan",
+      "version": "0.1.0",
+      "source": "NAVI original metadata",
+      "license": "MIT",
+      "status": "candidate",
+      "risk": "low",
+      "hosts": [
+        "codex",
+        "claude",
+        "copilot",
+        "nexus"
+      ],
+      "required_tools": []
+    },
+    "category": "architecture",
+    "purpose": "Plan scoped changes and define acceptance criteria.",
+    "handler": null
+  },
+  {
+    "contract": {
+      "schema_version": 1,
+      "id": "implementation",
+      "version": "0.1.0",
+      "source": "NAVI original metadata",
+      "license": "MIT",
+      "status": "candidate",
+      "risk": "medium",
+      "hosts": [
+        "codex",
+        "claude",
+        "copilot",
+        "nexus"
+      ],
+      "required_tools": []
+    },
+    "category": "engineering",
+    "purpose": "Implement small reversible changes using the existing stack.",
+    "handler": null
+  },
+  {
+    "contract": {
+      "schema_version": 1,
+      "id": "verification",
+      "version": "0.1.0",
+      "source": "NAVI original metadata",
+      "license": "MIT",
+      "status": "candidate",
+      "risk": "low",
+      "hosts": [
+        "codex",
+        "claude",
+        "copilot",
+        "nexus"
+      ],
+      "required_tools": []
+    },
+    "category": "verification",
+    "purpose": "Run authorized gates and document evidence.",
+    "handler": null
+  },
+  {
+    "contract": {
+      "schema_version": 1,
+      "id": "security-review",
+      "version": "0.1.0",
+      "source": "NAVI original metadata",
+      "license": "MIT",
+      "status": "candidate",
+      "risk": "medium",
+      "hosts": [
+        "codex",
+        "claude",
+        "copilot",
+        "nexus"
+      ],
+      "required_tools": []
+    },
+    "category": "verification",
+    "purpose": "Review privacy boundaries, dependencies and permissions.",
+    "handler": null
+  },
+  {
+    "contract": {
+      "schema_version": 1,
+      "id": "context-retrieval",
+      "version": "0.1.0",
+      "source": "NAVI original metadata",
+      "license": "MIT",
+      "status": "candidate",
+      "risk": "low",
+      "hosts": [
+        "codex",
+        "claude",
+        "copilot",
+        "nexus"
+      ],
+      "required_tools": []
+    },
+    "category": "knowledge",
+    "purpose": "Select relevant local documentation and decisions.",
+    "handler": null
+  },
+  {
+    "contract": {
+      "schema_version": 1,
+      "id": "release-review",
+      "version": "0.1.0",
+      "source": "NAVI original metadata",
+      "license": "MIT",
+      "status": "candidate",
+      "risk": "high",
+      "hosts": [
+        "codex",
+        "claude",
+        "copilot",
+        "nexus"
+      ],
+      "required_tools": []
+    },
+    "category": "verification",
+    "purpose": "Review release requirements without publishing.",
+    "handler": null
+  }
+]
