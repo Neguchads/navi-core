@@ -188,6 +188,27 @@ def main(argv=None):
     p.add_argument("--submission",type=pathlib.Path)
     p.add_argument("--output",type=pathlib.Path)
     p.add_argument("--budget-bytes",type=int,default=4096)
+    p=sub.add_parser("providers",help="List providers or run a synthetic Ollama case explicitly")
+    p.add_argument("--model")
+    p.add_argument("--case")
+    p.add_argument("--execute",action="store_true")
+    p.add_argument("--max-output-tokens",type=int,default=512)
+    p.add_argument("--timeout",type=int,default=60)
+    p.add_argument("--output",type=pathlib.Path)
+    p=sub.add_parser("proof",help="Recompute synthetic benchmark evidence")
+    p.add_argument("--case",required=True)
+    p.add_argument("--submission",required=True,type=pathlib.Path)
+    p.add_argument("--budget-bytes",type=int,default=4096)
+    p.add_argument("--output",type=pathlib.Path)
+    p=sub.add_parser("sentinel",help="Read-only local project policy preflight")
+    p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+    p.add_argument("--output",type=pathlib.Path)
+    p=sub.add_parser("rollout",help="Generate a non-mutating adoption plan")
+    p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+    p.add_argument("--core-sha",required=True)
+    p.add_argument("--output",type=pathlib.Path)
+    p=sub.add_parser("public-status",help="Produce allowlisted synthetic Core metrics only")
+    p.add_argument("--output",type=pathlib.Path)
     p=sub.add_parser("validate");p.add_argument("kind",choices=CONTRACTS);p.add_argument("file",type=pathlib.Path)
     args=parser.parse_args(argv)
     try:
@@ -224,6 +245,22 @@ def main(argv=None):
             if args.output is not None:
                 write_private(args.output,out)
             if out.get("status")=="failed":
+                print(json.dumps(out,ensure_ascii=False,indent=2));return 1
+        elif args.command in ("providers","proof","sentinel","rollout","public-status"):
+            from . import providers, governance
+            from .skill_registry import read_json, write_private
+            if args.command=="providers":
+                out=providers.run(args.model,args.case,args.max_output_tokens,args.timeout) if args.execute else providers.plan(args.model,args.case,args.max_output_tokens,args.timeout)
+            elif args.command=="proof":
+                out=governance.proof(args.case,read_json(args.submission),args.budget_bytes)
+            elif args.command=="sentinel":
+                out=governance.preflight(args.root)
+            elif args.command=="rollout":
+                out=governance.rollout(args.root,args.core_sha)
+            else: out=governance.public_status()
+            if args.output is not None:
+                write_private(args.output,out)
+            if out.get("status") in ("failed","blocked"):
                 print(json.dumps(out,ensure_ascii=False,indent=2));return 1
         elif args.command=="validate":
             s=args.file.read_text(encoding="utf-8");validate(args.kind,tomllib.loads(s) if args.file.suffix==".toml" else json.loads(s));out={"status":"valid","contract":args.kind}
