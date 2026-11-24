@@ -49,7 +49,7 @@ jobs:
         working-directory: ${{ runner.temp }}
         run: navi doctor
   reusable-smoke:
-    uses: ./.github/workflows/reusable-ci.yml
+    uses: $/.github/workflows/reusable-ci.yml
     with:
       core_sha: ${{ github.sha }}
   sentinel:
