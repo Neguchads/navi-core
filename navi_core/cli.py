@@ -209,6 +209,13 @@ def main(argv=None):
     p.add_argument("--output",type=pathlib.Path)
     p=sub.add_parser("public-status",help="Produce allowlisted synthetic Core metrics only")
     p.add_argument("--output",type=pathlib.Path)
+    p=sub.add_parser("proof-run",help="Run trusted project gate and create private evidence")
+    p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+    p.add_argument("--output-dir",type=pathlib.Path,required=True)
+    p.add_argument("--execute",action="store_true")
+    p.add_argument("--timeout",type=int,default=900)
+    p=sub.add_parser("proof-check",help="Verify local log integrity; not attestation")
+    p.add_argument("directory",type=pathlib.Path)
     p=sub.add_parser("validate");p.add_argument("kind",choices=CONTRACTS);p.add_argument("file",type=pathlib.Path)
     args=parser.parse_args(argv)
     try:
@@ -245,6 +252,14 @@ def main(argv=None):
             if args.output is not None:
                 write_private(args.output,out)
             if out.get("status")=="failed":
+                print(json.dumps(out,ensure_ascii=False,indent=2));return 1
+        elif args.command in ("proof-run","proof-check"):
+            from . import engineering_proof
+            if args.command=="proof-run":
+                if not args.execute: raise NaviError("Trusted code execution requires --execute")
+                out=engineering_proof.capture(args.root,args.output_dir,args.timeout)
+            else: out=engineering_proof.check(args.directory)
+            if out["status"]!="passed":
                 print(json.dumps(out,ensure_ascii=False,indent=2));return 1
         elif args.command in ("providers","proof","sentinel","rollout","public-status"):
             from . import providers, governance
