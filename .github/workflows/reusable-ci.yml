@@ -1,0 +1,53 @@
+name: NAVI reusable verification
+on:
+  workflow_call:
+    inputs:
+      core_sha:
+        description: Reviewed commit SHA of the NAVI Core repository
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Validate pinned core ref
+        env:
+          CORE_SHA: ${{ inputs.core_sha }}
+        run: '[[ "$CORE_SHA" =~ ^[0-9a-f]{40}$ ]]'
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          path: project
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: Neguchads/navi-core
+          ref: ${{ inputs.core_sha }}
+          persist-credentials: false
+          path: core
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+      - name: Install core
+        run: |
+          python3 -m pip install -r core/requirements-ci.txt
+          python3 -m pip install --no-build-isolation --no-deps ./core
+          python3 -m pip check
+      - name: Validate and preview
+        run: |
+          navi validate project project/.navi/project.toml
+          navi verify --root project
+      - name: Prepare backend dependencies (explicit profile only)
+        run: |
+          python3 -c 'import tomllib; p=tomllib.load(open("project/.navi/project.toml","rb")); print(p["project"]["profile"])' > /tmp/navi-profile
+          if [ "$(cat /tmp/navi-profile)" = typescript-backend ]; then
+            node -e 'if (+process.versions.node.split(".")[0] !== 24) process.exit(1)'
+            (cd project && npm ci)
+          fi
+      - name: Execute gate
+        run: navi verify --root project --execute

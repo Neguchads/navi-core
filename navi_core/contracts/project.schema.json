@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "project": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,99}$"
+        },
+        "visibility": {
+          "enum": [
+            "public",
+            "private",
+            "internal",
+            "unknown"
+          ]
+        },
+        "maturity": {
+          "enum": [
+            "experimental",
+            "development",
+            "stable",
+            "maintenance"
+          ]
+        },
+        "profile": {
+          "enum": [
+            "typescript-backend",
+            "python-tooling",
+            "cpp-native",
+            "documentation",
+            "static-website",
+            "typescript-frontend",
+            "game-recomp",
+            "reverse-engineering",
+            "godot-game",
+            "ai-workflow",
+            "knowledge-system"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "visibility",
+        "maturity",
+        "profile"
+      ],
+      "additionalProperties": false
+    },
+    "verification": {
+      "type": "object",
+      "properties": {
+        "require_real_tests": {
+          "const": true
+        },
+        "timeout_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3600
+        }
+      },
+      "required": [
+        "require_real_tests",
+        "timeout_seconds"
+      ],
+      "additionalProperties": false
+    },
+    "knowledge": {
+      "type": "object",
+      "properties": {
+        "public_export": {
+          "const": false
+        }
+      },
+      "required": [
+        "public_export"
+      ],
+      "additionalProperties": false
+    },
+    "agents": {
+      "type": "object",
+      "properties": {
+        "approval_for_production": {
+          "const": true
+        },
+        "parallel_workers": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4
+        }
+      },
+      "required": [
+        "approval_for_production",
+        "parallel_workers"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "project",
+    "verification",
+    "knowledge",
+    "agents"
+  ],
+  "additionalProperties": false
+}
