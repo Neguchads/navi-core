@@ -40,6 +40,11 @@ jobs:
       - run: python -m unittest discover -s tests -v
       - name: Offline benchmark reference smoke
         run: navi bench --mode reference
+      - name: Read-only foundation smoke
+        run: |
+          navi providers
+          navi sentinel --root .
+          navi public-status
       - name: Installed CLI outside source tree
         working-directory: ${{ runner.temp }}
         run: navi doctor
