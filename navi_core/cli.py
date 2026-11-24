@@ -82,6 +82,7 @@ def load_manifest(root):
     return validate("project",tomllib.loads(p.read_text(encoding="utf-8")))
 
 def plan(root):
+    root = root.resolve(strict=True)
     data=load_manifest(root); profile=data["project"]["profile"]; p=REGISTRY[profile]
     if p["status"] != "supported": raise NaviError("Profile planned, not executable")
     missing=[name for name in p["required"] if not (root/name).is_file()]
@@ -104,6 +105,7 @@ def plan(root):
 
 LINK = re.compile(r"(?<!!)\[[^\]\n]+\]\(([^\s)]+)\)")
 def check_docs(root):
+    root = root.resolve(strict=True)
     # Scoped lightweight checker, not a Markdown parser. README inline links only.
     content=(root/"README.md").read_text(encoding="utf-8")
     checked=0; errors=[]
@@ -129,6 +131,7 @@ def executable(name):
     return resolved
 
 def verify(root, execute=False):
+    root = root.resolve(strict=True)
     p=plan(root)
     if not execute: return {"status":"planned",**p}
     # Project scripts are trusted code, not a sandbox. No arbitrary commands in manifests.
