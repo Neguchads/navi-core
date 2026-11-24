@@ -163,10 +163,25 @@ def main(argv=None):
         if name=="init":
             p.add_argument("--profile",choices=REGISTRY);p.add_argument("--visibility",choices=("public","private","internal","unknown"),default="unknown")
         if name=="verify":p.add_argument("--execute",action="store_true",help="Run trusted project code; not sandboxed")
+    p=sub.add_parser("agents",help="Plan, check or create repository agent adapters")
+    p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+    p.add_argument("--host",choices=("all","codex","claude","copilot"),default="all")
+    p.add_argument("--mode",choices=("plan","check","apply"),default="plan")
+    p=sub.add_parser("skills",help="List reviewed metadata candidates; never execute skills")
+    p.add_argument("--host",choices=("codex","claude","copilot","nexus"))
+    p.add_argument("--category",choices=("architecture","engineering","verification","knowledge"))
     p=sub.add_parser("validate");p.add_argument("kind",choices=CONTRACTS);p.add_argument("file",type=pathlib.Path)
     args=parser.parse_args(argv)
     try:
         if args.command=="doctor": out=doctor()
+        elif args.command=="agents":
+            from .agent_bridge import adapters
+            out=adapters(args.root,args.host,args.mode)
+            if out["status"] in ("conflict","drift"):
+                print(json.dumps(out,ensure_ascii=False,indent=2));return 1
+        elif args.command=="skills":
+            from .agent_bridge import list_skills
+            out=list_skills(args.host,args.category)
         elif args.command=="validate":
             s=args.file.read_text(encoding="utf-8");validate(args.kind,tomllib.loads(s) if args.file.suffix==".toml" else json.loads(s));out={"status":"valid","contract":args.kind}
         else:

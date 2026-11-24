@@ -12,4 +12,4 @@ navi = "navi_core.cli:main"
 [tool.setuptools.packages.find]
 include = ["navi_core*"]
 [tool.setuptools.package-data]
-navi_core = ["contracts/*.json", "profiles/*.json", "policies/*.toml"]
+navi_core = ["contracts/*.json", "profiles/*.json", "policies/*.toml", "agents/*.json"]

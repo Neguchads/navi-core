@@ -18,3 +18,7 @@ A CI inclui Linux e Windows, teste de instalação, contratos, CMake/CTest, Node
 [Integração GitHub](docs/GITHUB.md) · [Roadmap](docs/ROADMAP.md) · [Decisões](docs/DECISIONS.md).
 
 Nenhuma configuração privada é distribuída. Licença MIT.
+
+## Agent Bridge (prévia)
+
+`navi agents` planeja ou cria instruções de repositório sem sobrescrever arquivos existentes. `navi skills` lista metadados de candidatos, sem executar skills. Consulte [o guia](docs/AGENT_BRIDGE.md).
