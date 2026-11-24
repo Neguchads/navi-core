@@ -170,6 +170,18 @@ def main(argv=None):
     p=sub.add_parser("skills",help="List reviewed metadata candidates; never execute skills")
     p.add_argument("--host",choices=("codex","claude","copilot","nexus"))
     p.add_argument("--category",choices=("architecture","engineering","verification","knowledge"))
+    p=sub.add_parser("skill-scan",help="Inventory local ZIP metadata without extracting or executing")
+    p.add_argument("archives",nargs="+",type=pathlib.Path)
+    p.add_argument("--output",required=True,type=pathlib.Path)
+    p=sub.add_parser("context",help="Select reviewed local skill variants; no execution")
+    p.add_argument("--inventory",required=True,type=pathlib.Path)
+    p.add_argument("--approvals",required=True,type=pathlib.Path)
+    p.add_argument("--host",required=True,choices=("codex","claude","copilot","nexus"))
+    p.add_argument("--query",required=True)
+    p.add_argument("--budget-bytes",type=int,default=24000)
+    p.add_argument("--max-risk",choices=("low","medium","high","critical"),default="low")
+    p.add_argument("--output",type=pathlib.Path,help="Optional private context packet; no overwrite")
+    p.add_argument("--archives",nargs="+",type=pathlib.Path,default=[])
     p=sub.add_parser("validate");p.add_argument("kind",choices=CONTRACTS);p.add_argument("file",type=pathlib.Path)
     args=parser.parse_args(argv)
     try:
@@ -182,6 +194,20 @@ def main(argv=None):
         elif args.command=="skills":
             from .agent_bridge import list_skills
             out=list_skills(args.host,args.category)
+        elif args.command=="skill-scan":
+            from .skill_registry import scan, write_private
+            inventory=scan(args.archives)
+            write_private(args.output,inventory)
+            out={"status":"quarantined","summary":inventory["summary"]}
+        elif args.command=="context":
+            from .skill_registry import read_json, select, packet, write_private
+            inventory=read_json(args.inventory)
+            approvals=read_json(args.approvals)
+            out=select(inventory,approvals,args.host,args.query,args.budget_bytes,args.max_risk)
+            if args.output is not None:
+                content=packet(out,args.archives,args.budget_bytes)
+                write_private(args.output,content)
+                out={"status":"packet-created","selected":len(out["selected"]),"scope":"private-local; no execution or upload"}
         elif args.command=="validate":
             s=args.file.read_text(encoding="utf-8");validate(args.kind,tomllib.loads(s) if args.file.suffix==".toml" else json.loads(s));out={"status":"valid","contract":args.kind}
         else:
