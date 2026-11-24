@@ -2,8 +2,8 @@
 
 - Phase 1A: five schemas, CLI, policy, profile registry and draft CI. Local synthetic fixtures passed.
 - Phase 1B: publish to GitHub, verify clean installation and Linux/Windows CI, reusable workflow smoke, reviewed dependency pins, pilot integration.
-- Phase 2A: canonical advisory policy, deterministic repository adapters, drift/conflict detection and candidate metadata registry. CI pending on the PR.
-- Phase 2B: private skill provenance/license review, version resolution, context selection and actual host acceptance. No wholesale import of private configurations.
+- Phase 2A: canonical advisory policy, deterministic repository adapters, drift/conflict detection and candidate metadata registry. CI passed and merged.
+- Phase 2B: local quarantine scanner, exact-hash review, conflict resolution, bounded context packet and tests. Manual license review and actual host acceptance remain pending.
 - Phase 3: Nexus orchestration, checkpoints, approval and isolation.
 - Phase 4: evidence integration.
 - Phase 5: Sentinel security.
