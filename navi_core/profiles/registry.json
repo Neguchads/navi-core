@@ -1,0 +1,147 @@
+{
+  "typescript-backend": {
+    "status": "supported",
+    "markers": [
+      "package.json",
+      "tsconfig.json"
+    ],
+    "required": [
+      "package.json",
+      "package-lock.json"
+    ],
+    "tools": [
+      "node",
+      "npm"
+    ],
+    "commands": [
+      [
+        "npm",
+        "run",
+        "verify"
+      ]
+    ],
+    "install": [
+      [
+        "npm",
+        "ci"
+      ]
+    ],
+    "description": "Node TypeScript API with a verify script"
+  },
+  "python-tooling": {
+    "status": "supported",
+    "markers": [
+      "pyproject.toml"
+    ],
+    "required": [
+      "pyproject.toml"
+    ],
+    "tools": [
+      "python"
+    ],
+    "commands": [
+      [
+        "python",
+        "-c",
+        "import sys, unittest; suite = unittest.defaultTestLoader.discover(\"tests\"); count = suite.countTestCases(); print(\"Discovered tests:\", count); sys.exit(1 if count == 0 else int(not unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful()))"
+      ]
+    ],
+    "install": [],
+    "description": "Python standard-library unittest profile; install project dependencies separately"
+  },
+  "cpp-native": {
+    "status": "supported",
+    "markers": [
+      "CMakeLists.txt"
+    ],
+    "required": [
+      "CMakeLists.txt"
+    ],
+    "tools": [
+      "cmake",
+      "ctest"
+    ],
+    "commands": [
+      [
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        ".navi/build",
+        "-DBUILD_TESTING=ON"
+      ],
+      [
+        "cmake",
+        "--build",
+        ".navi/build",
+        "--config",
+        "Release"
+      ],
+      [
+        "ctest",
+        "--test-dir",
+        ".navi/build",
+        "-C",
+        "Release",
+        "--output-on-failure",
+        "--no-tests=error"
+      ]
+    ],
+    "install": [],
+    "description": "CMake + CTest; fresh workspace recommended"
+  },
+  "documentation": {
+    "status": "supported",
+    "markers": [
+      "README.md"
+    ],
+    "required": [
+      "README.md"
+    ],
+    "tools": [
+      "python"
+    ],
+    "commands": [],
+    "install": [],
+    "description": "Local Markdown link and UTF-8 validation via core"
+  },
+  "static-website": {
+    "status": "supported",
+    "markers": [
+      "index.html"
+    ],
+    "required": [
+      "index.html"
+    ],
+    "tools": [
+      "node"
+    ],
+    "commands": [],
+    "install": [],
+    "description": "Syntax check of tracked standalone JavaScript; no browser test"
+  },
+  "typescript-frontend": {
+    "status": "planned",
+    "markers": []
+  },
+  "game-recomp": {
+    "status": "planned",
+    "markers": []
+  },
+  "reverse-engineering": {
+    "status": "planned",
+    "markers": []
+  },
+  "godot-game": {
+    "status": "planned",
+    "markers": []
+  },
+  "ai-workflow": {
+    "status": "planned",
+    "markers": []
+  },
+  "knowledge-system": {
+    "status": "planned",
+    "markers": []
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,99}$"
+    },
+    "type": {
+      "enum": [
+        "task.created",
+        "task.started",
+        "task.finished",
+        "verification.finished",
+        "approval.requested",
+        "approval.recorded"
+      ]
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,99}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "scope": {
+      "enum": [
+        "private",
+        "public-approved"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "id",
+    "type",
+    "task_id",
+    "timestamp",
+    "scope"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,14 @@
+schema_version = 1
+[engineering]
+minimal_dependencies = true
+require_real_tests = true
+require_review_for_policy_changes = true
+[execution]
+implicit_execution = false
+shell = false
+max_timeout_seconds = 3600
+[privacy]
+public_export = false
+[publication]
+automatic_merge = false
+require_approval = true

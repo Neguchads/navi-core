@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "navi-engineering-core"
+version = "0.1.0"
+description = "Local-first engineering contracts and verification profiles"
+requires-python = ">=3.11"
+dependencies = ["jsonschema==4.26.0"]
+[project.scripts]
+navi = "navi_core.cli:main"
+[tool.setuptools.packages.find]
+include = ["navi_core*"]
+[tool.setuptools.package-data]
+navi_core = ["contracts/*.json", "profiles/*.json", "policies/*.toml"]
