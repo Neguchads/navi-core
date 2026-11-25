@@ -1,4 +1,4 @@
-# NAVI Core 0.4.0rc1 — functional preview
+# NAVI Core 0.6.0rc1 — functional preview
 
 This version is a release candidate, not stable production certification.
 The main CI builds and attests the wheel, then tests the exact downloaded
@@ -35,14 +35,24 @@ the preview. A stable version needs the separate acceptance issue gates.
 - Explicit Ollama fixture calls reserve before transport and settle reported usage. Live run 45546679286 passed: reservation 4352, settlement 142 tokens, 4210 unused. Not a hard account billing cap.
 - All acceptance criteria for production remain tracked separately in issue #15. No general stable production claim. The optional Nexus code remains private.
 
-## UAI and managed workflow in 0.4.0rc1
+## UAI and managed workflow in 0.6.0rc1
 
 Portable Markdown/JSON, structured handoff, optional SDK-backed MCP, gated managed operations and private lesson revocation. Verify exact CI and artifact before adoption. The optional SDK has separate dependency risks; no authenticated external agent is certified by the protocol smoke.
 
 The RC1 wheel smoke failed at `navi standard` on all three platforms because the CLI assumed a status field. RC2 corrects status-free catalog responses and tests installed commands pre-merge. RC1 was not published.
 
-## Runtime 0.4.0rc1
+## Runtime 0.6.0rc1
 
 Private revisioned SQLite sessions, explicit brief lifecycle, checkpoint/resume and candidate native context hooks. Review the selected host separately. No automatic install or tool permission enforcement is claimed.
 
 Managed session run binds execution to the exact accepted brief hash and current revision. Exact installed-wheel smoke covers private session creation and resume.
+
+## AKE 0.6.0rc1
+
+Reviewed local evidence, exact-digest approval, FTS5/BM25, Graphify node-link ingestion and bounded checkpoint-preserving graph retrieval. Semantic embeddings and native host quality evaluation are separate.
+
+## Intelligence and Control Center 0.6.0rc1
+
+Bounded Python static analysis and private offline portfolio report. No full semantic architecture certification or administrative actions.
+
+Offline versioned wheel bundle provision/update and exact-inventory uninstall are tested with actual synthetic CI wheel bundles. The initial bootstrap and third-party provenance review remain explicit owner steps.

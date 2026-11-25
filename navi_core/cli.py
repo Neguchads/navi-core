@@ -16,7 +16,7 @@ from . import __version__
 
 RES = files("navi_core")
 REGISTRY = json.loads(RES.joinpath("profiles/registry.json").read_text(encoding="utf-8"))
-CONTRACTS = ("project", "task", "skill", "evidence", "event", "brief", "lesson", "handoff")
+CONTRACTS = ("project", "task", "skill", "evidence", "event", "brief", "lesson", "handoff", "knowledge", "embeddings", "embedding-query", "architecture-policy")
 
 class NaviError(Exception):
     pass
@@ -277,6 +277,39 @@ def main(argv=None):
     p.add_argument("--submission",type=pathlib.Path)
     p.add_argument("--reported-version")
     p.add_argument("--output",type=pathlib.Path)
+    for name in ("install","update","uninstall"):
+        p=sub.add_parser(name,help="Explicit offline versioned environment management")
+        p.add_argument("--destination",required=True,type=pathlib.Path)
+        p.add_argument("--apply",action="store_true")
+        if name!="uninstall":
+            p.add_argument("--manifest",required=True,type=pathlib.Path)
+            p.add_argument("--manifest-sha256",required=True)
+    p=sub.add_parser("architecture",help="Read-only Python dependency and explicit boundary analysis")
+    p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+    p.add_argument("--source-root",default=".")
+    p.add_argument("--policy",type=pathlib.Path)
+    p=sub.add_parser("control-center",help="Read-only private local project portfolio")
+    p.add_argument("--config",required=True,type=pathlib.Path)
+    p.add_argument("--html",type=pathlib.Path)
+    p=sub.add_parser("knowledge",help="Reviewed local knowledge and bounded hybrid retrieval")
+    p.add_argument("action",choices=("ingest","revoke","retrieve"))
+    p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+    p.add_argument("--store",required=True,type=pathlib.Path)
+    p.add_argument("--id")
+    p.add_argument("--kind",choices=("document","graph","embeddings"))
+    p.add_argument("--file",type=pathlib.Path)
+    p.add_argument("--approve-digest")
+    p.add_argument("--apply",action="store_true")
+    p.add_argument("--query-file",type=pathlib.Path)
+    p.add_argument("--session-id")
+    p.add_argument("--embedding-query",type=pathlib.Path)
+    p.add_argument("--skill-inventory",type=pathlib.Path)
+    p.add_argument("--skill-approvals",type=pathlib.Path)
+    p.add_argument("--skill-archives",nargs="+",type=pathlib.Path)
+    p.add_argument("--skill-host",choices=("codex","claude","gemini","copilot","nexus"))
+    p.add_argument("--skill-budget",type=int,default=2048)
+    p.add_argument("--skill-max-risk",choices=("low","medium","high","critical"),default="low")
+    p.add_argument("--budget-bytes",type=int,default=8192)
     sub.add_parser("hosts",help="Discover agent executables without running them")
     p=sub.add_parser("capabilities",help="Describe one host's declared integration capabilities")
     p.add_argument("--host",required=True,choices=("codex","claude","gemini","copilot","manus","generic","none"))
@@ -355,6 +388,37 @@ def main(argv=None):
     args=parser.parse_args(argv)
     try:
         if args.command=="doctor": out=doctor()
+        elif args.command in ("install","update","uninstall"):
+            from . import installer
+            if args.command=="uninstall":out=installer.uninstall(args.destination,args.apply)
+            else:out=installer.provision(args.manifest,args.manifest_sha256,args.destination,args.apply)
+            if out["status"]=="review-required":
+                print(json.dumps(out,ensure_ascii=False,indent=2));return 1
+        elif args.command in ("architecture","control-center"):
+            from . import intelligence,control_center
+            from .skill_registry import read_json
+            if args.command=="architecture":
+                out=intelligence.analyze(args.root,read_json(args.policy) if args.policy else None,args.source_root)
+                if out["status"] in ("violations","review-required"):
+                    print(json.dumps(out,ensure_ascii=False,indent=2));return 1
+            else:
+                out=control_center.portfolio(read_json(args.config))
+                if args.html is not None:
+                    control_center.save_html(args.html,out)
+                    out={"status":"created","projects":len(out["projects"]),"scope":"Local private HTML; no publication."}
+        elif args.command=="knowledge":
+            from . import knowledge
+            from .skill_registry import read_json,write_private
+            if args.action=="ingest":
+                if not args.file or not args.id or not args.kind:raise NaviError("Ingest needs file, id and kind")
+                out=knowledge.ingest(args.root,args.store,args.id,read_json(args.file),args.kind,args.approve_digest)
+            elif args.action=="revoke":out=knowledge.revoke(args.root,args.store,args.id,args.kind,args.apply)
+            else:
+                if not args.query_file:raise NaviError("Retrieve needs a local query file")
+                skill_args=(args.skill_inventory,args.skill_approvals,args.skill_archives,args.skill_host)
+                if any(skill_args) and not all(skill_args):raise NaviError("Skill retrieval requires inventory, approvals, archives and one host")
+                skill_inputs={"inventory":read_json(args.skill_inventory),"approvals":read_json(args.skill_approvals),"archives":args.skill_archives,"host":args.skill_host,"budget":args.skill_budget,"risk":args.skill_max_risk} if all(skill_args) else None
+                out=knowledge.retrieve(args.root,args.store,args.query_file,args.budget_bytes,args.session_id,read_json(args.embedding_query) if args.embedding_query else None,skill_inputs)
         elif args.command in ("hosts","capabilities","connect","disconnect","health","hook","session"):
             from . import runtime,runtime_hooks
             from .skill_registry import read_json

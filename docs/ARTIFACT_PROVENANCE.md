@@ -10,7 +10,7 @@ write permissions are restricted to this job; PRs cannot execute it.
 To independently verify a downloaded wheel:
 
 ```sh
-gh attestation verify navi_engineering_core-0.4.0rc1-py3-none-any.whl --repo Neguchads/navi-core
+gh attestation verify navi_engineering_core-0.6.0rc1-py3-none-any.whl --repo Neguchads/navi-core
 ```
 
 This authenticates the artifact's association with the GitHub repository and
