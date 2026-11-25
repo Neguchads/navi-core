@@ -19,7 +19,7 @@ class CopilotFreeTests(unittest.TestCase):
             self.assertEqual(c.plan(**self.options(**args))["provider"],"local-review")
     def test_size_and_complexity(self):
         for args in (dict(files=3),dict(lines=81),dict(kind="complex")):
-            self.assertEqual(c.plan(**self.options(**args))["provider"],"codex-review")
+            self.assertEqual(c.plan(**self.options(**args))["provider"],"human-review")
     def test_privacy(self):
         for visibility in ("private","internal","unknown"):
             self.assertEqual(c.plan(**self.options(visibility=visibility))["provider"],"local-review")
@@ -33,5 +33,9 @@ class CopilotFreeTests(unittest.TestCase):
         for args in (dict(files=-1),dict(lines=True),dict(used=101),dict(estimate=-1)):
             with self.assertRaises(cli.NaviError):c.plan(**self.options(**args))
     def test_compact_adapter_matches(self):
-        self.assertEqual(agent_bridge.render("copilot","python-tooling"),c.INSTRUCTIONS.encode("utf-8"))
+        self.assertIn(c.INSTRUCTIONS.encode("utf-8"),agent_bridge.render("copilot","python-tooling"))
+        self.assertIn(b"Provider independence",agent_bridge.render("copilot","python-tooling"))
         self.assertNotEqual(agent_bridge.render("codex","python-tooling"),c.INSTRUCTIONS.encode("utf-8"))
+
+    def test_architecture_does_not_switch_provider(self):
+        self.assertEqual(c.plan(**self.options(kind="architecture"))["provider"],"human-review")

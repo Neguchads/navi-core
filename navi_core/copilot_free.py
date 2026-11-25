@@ -6,7 +6,7 @@ SMALL=("docs","unit-test","small-fix","explain")
 KINDS=(*SMALL,"format","lint","complex","architecture","security","release")
 RISKS=("low","medium","high","critical")
 VISIBILITY=("public","private","internal","unknown")
-INSTRUCTIONS = "# NAVI — Copilot Free micro-tasks\n\nUse Copilot only for small, low-risk, public-code tasks: concise explanations,\ndocumentation, small isolated fixes and simple unit tests. Prefer deterministic\ntools for formatting, linting and known checks. Keep the task within two files\nand 80 changed lines; if it expands, stop and ask the user to route elsewhere.\nRead only relevant excerpts. Return a short proposed patch and one verification\ncommand. No unrelated refactoring, new dependencies, parallel agents, retries,\nwhole-repo analysis, secrets, private context, authentication changes, releases,\nremote writes, merges or deployments. Never claim tests passed without evidence.\nUse automatic model selection. Confirm the current monthly credit allowance\nand disable paid additional usage in GitHub billing before requesting inference.\nNAVI reserves 30% of the included allowance; use the manual copilot-plan gate\nbefore starting a task. This instruction file is advisory, not a spending cap.\n"
+INSTRUCTIONS = "## Optional Copilot Free micro-task profile\n\nWhen the user explicitly selects this Free quota profile, use Copilot only for small, low-risk, public-code tasks: concise explanations,\ndocumentation, small isolated fixes and simple unit tests. Prefer deterministic\ntools for formatting, linting and known checks. Keep the task within two files\nand 80 changed lines; if it expands, stop for human review; never switch providers automatically.\nRead only relevant excerpts. Return a short proposed patch and one verification\ncommand. No unrelated refactoring, new dependencies, parallel agents, retries,\nwhole-repo analysis, secrets, private context, authentication changes, releases,\nremote writes, merges or deployments. Never claim tests passed without evidence.\nUse automatic model selection. Confirm the current monthly credit allowance\nand disable paid additional usage in GitHub billing before requesting inference.\nNAVI reserves 30% of the included allowance; use the manual copilot-plan gate\nbefore starting a task. This instruction file is advisory, not a spending cap.\n"
 
 def plan(kind,risk,visibility,files,lines,used=None,estimate=None,checked_on=None,paid_usage_blocked=False):
     if kind not in KINDS or risk not in RISKS or visibility not in VISIBILITY:
@@ -32,9 +32,9 @@ def plan(kind,risk,visibility,files,lines,used=None,estimate=None,checked_on=Non
     if visibility!="public":
         return choose("local-review","Private or unknown context is not eligible")
     if kind=="architecture":
-        return choose("claude-review","Architecture requires separate review")
+        return choose("human-review","Architecture exceeds the Free micro-task policy; no automatic provider switch")
     if kind not in SMALL or files>2 or lines>80:
-        return choose("codex-review","Task exceeds micro-task scope")
+        return choose("human-review","Task exceeds micro-task scope; no automatic provider switch")
     today=datetime.datetime.now(datetime.timezone.utc).date().isoformat()
     if not paid_usage_blocked or used is None or estimate is None or checked_on!=today:
         return choose("local-review","Current UTC-day usage, estimate and zero-overage confirmation required")

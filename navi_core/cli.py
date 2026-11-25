@@ -193,10 +193,10 @@ def main(argv=None):
         if name=="verify":p.add_argument("--execute",action="store_true",help="Run trusted project code; not sandboxed")
     p=sub.add_parser("agents",help="Plan, check or create repository agent adapters")
     p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
-    p.add_argument("--host",choices=("all","codex","claude","copilot"),default="all")
+    p.add_argument("--host",choices=("all","codex","claude","copilot","gemini"))
     p.add_argument("--mode",choices=("plan","check","apply"),default="plan")
     p=sub.add_parser("skills",help="List reviewed metadata candidates; never execute skills")
-    p.add_argument("--host",choices=("codex","claude","copilot","nexus"))
+    p.add_argument("--host",choices=("codex","claude","copilot","gemini","nexus"))
     p.add_argument("--category",choices=("architecture","engineering","verification","knowledge"))
     p=sub.add_parser("skill-scan",help="Inventory local ZIP metadata without extracting or executing")
     p.add_argument("archives",nargs="+",type=pathlib.Path)
@@ -204,7 +204,7 @@ def main(argv=None):
     p=sub.add_parser("context",help="Select reviewed local skill variants; no execution")
     p.add_argument("--inventory",required=True,type=pathlib.Path)
     p.add_argument("--approvals",required=True,type=pathlib.Path)
-    p.add_argument("--host",required=True,choices=("codex","claude","copilot","nexus"))
+    p.add_argument("--host",required=True,choices=("codex","claude","copilot","gemini","nexus"))
     p.add_argument("--query",required=True)
     p.add_argument("--budget-bytes",type=int,default=24000)
     p.add_argument("--max-risk",choices=("low","medium","high","critical"),default="low")
@@ -266,7 +266,7 @@ def main(argv=None):
     p=sub.add_parser("host-lab",help="Prepare or verify manual synthetic host acceptance")
     p.add_argument("--mode",required=True,choices=("prepare","check"))
     p.add_argument("--directory",required=True,type=pathlib.Path)
-    p.add_argument("--host",choices=("codex","claude","copilot"))
+    p.add_argument("--host",choices=("codex","claude","copilot","gemini"))
     p.add_argument("--submission",type=pathlib.Path)
     p.add_argument("--reported-version")
     p.add_argument("--output",type=pathlib.Path)
@@ -281,8 +281,8 @@ def main(argv=None):
             from . import host_lab
             from .skill_registry import read_json,write_private
             if args.mode=="prepare":
-                if args.host or args.submission or args.reported_version or args.output: raise NaviError("Prepare only accepts directory")
-                out=host_lab.create(args.directory)
+                if args.submission or args.reported_version or args.output: raise NaviError("Prepare accepts directory and optional host")
+                out=host_lab.create(args.directory,args.host)
             else:
                 if not args.host or not args.submission or not args.reported_version: raise NaviError("Check requires host, submission and reported version")
                 out=host_lab.check(args.directory,args.host,read_json(args.submission),args.reported_version)

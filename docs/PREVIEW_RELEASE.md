@@ -18,6 +18,6 @@ the preview. A stable version needs the separate acceptance issue gates.
 ## Changes since rc1
 
 - Local operation-bound, single-use approvals and atomic reservation ledger.
-- Manual Codex, Claude and Copilot host acceptance lab.
+- Manual single-host acceptance lab for Codex, Claude, Gemini or Copilot (optional comparison).
 - Explicit Ollama fixture calls reserve before transport and settle reported usage. Live run 45546679286 passed: reservation 4352, settlement 142 tokens, 4210 unused. Not a hard account billing cap.
 - All acceptance criteria for production remain tracked separately in issue #15. No general stable production claim. The optional Nexus code remains private.

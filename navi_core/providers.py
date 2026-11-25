@@ -21,6 +21,8 @@ def plan(model=None,case=None,max_output=512,timeout=60):
             "available":[{"id":"ollama-loopback","state":"experimental-http-adapter"},
                          {"id":"codex","state":"external-json-submission"},
                          {"id":"claude","state":"external-json-submission"},
+                         {"id":"gemini","state":"external-json-submission"},
+                         {"id":"copilot","state":"external-json-submission"},
                          {"id":"nexus","state":"blocked-pending-comparative-validation"}],
             "limitations":"No hard total deadline or server cancellation; loopback is not proof of offline inference. No private inputs or tools."}
 
