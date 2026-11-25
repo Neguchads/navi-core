@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "goal": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "deliverable": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "complexity": {
+      "enum": [
+        "simple",
+        "nontrivial"
+      ]
+    },
+    "acceptance": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "string",
+        "maxLength": 500
+      }
+    },
+    "constraints_state": {
+      "enum": [
+        "known",
+        "none",
+        "unknown"
+      ]
+    },
+    "ambiguity": {
+      "enum": [
+        "none",
+        "material"
+      ]
+    },
+    "questions": {
+      "type": "array",
+      "maxItems": 5,
+      "items": {
+        "type": "string",
+        "maxLength": 500
+      }
+    },
+    "risk": {
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "approved": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schema_version",
+    "goal",
+    "deliverable",
+    "complexity",
+    "acceptance",
+    "constraints_state",
+    "ambiguity",
+    "questions",
+    "risk",
+    "approved"
+  ],
+  "additionalProperties": false
+}

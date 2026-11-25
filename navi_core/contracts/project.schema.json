@@ -43,6 +43,29 @@
             "knowledge-system",
             "javascript-tooling"
           ]
+        },
+        "architecture_profile": {
+          "enum": [
+            "typescript-backend",
+            "typescript-frontend",
+            "python-tooling",
+            "cpp-native",
+            "documentation",
+            "static-website",
+            "javascript-tooling",
+            "game-recomp",
+            "reverse-engineering",
+            "godot-game",
+            "ai-workflow",
+            "knowledge-system",
+            "full-stack",
+            "library",
+            "desktop",
+            "mobile",
+            "unity-game",
+            "unreal-game",
+            "infrastructure"
+          ]
         }
       },
       "required": [

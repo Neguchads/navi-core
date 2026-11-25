@@ -199,6 +199,9 @@ jobs:
           printf "# Zero AI fixture\n" > "$canonical_temp/navi-zero-ai/README.md"
           "$py" -I -m navi_core init --root "$canonical_temp/navi-zero-ai" --profile documentation --visibility public --host none
           "$py" -I -m navi_core verify --root "$canonical_temp/navi-zero-ai" --execute
+          "$py" -I -m navi_core standard --profile game-recomp
+          "$py" -I -m navi_core scaffold --root "$canonical_temp/navi-zero-ai" --apply
+          "$py" -I -m navi_core audit --root "$canonical_temp/navi-zero-ai"
           "$py" -I -m navi_core copilot-plan --kind lint --risk low --visibility public --files 1 --lines 5
   publish-preview:
     if: github.repository == 'Neguchads/navi-core' && github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -221,12 +224,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          wheel=navi_engineering_core-0.2.0rc3-py3-none-any.whl
+          wheel=navi_engineering_core-0.3.0rc1-py3-none-any.whl
           if [ ! -f "$wheel" ]; then echo "Not the requested preview version"; exit 0; fi
           sha256sum --check MANIFEST.sha256
           gh attestation verify "$wheel" --repo Neguchads/navi-core
-          if gh release view v0.2.0rc3 --repo Neguchads/navi-core >/dev/null 2>&1; then
+          if gh release view v0.3.0rc1 --repo Neguchads/navi-core >/dev/null 2>&1; then
             echo "Preview already exists; refusing overwrite"
             exit 0
           fi
-          gh release create v0.2.0rc3 "$wheel" MANIFEST.sha256 core-status.json --repo Neguchads/navi-core --target "$GITHUB_SHA" --prerelease --title "NAVI Core 0.2.0rc3 — functional preview" --notes "Signed Core preview; Linux, Windows and macOS wheel installation, security gates, synthetic reference, separate host lab preparation and zero-AI fixture passed. Includes provider-independent adapters and optional single-host project selection. Not a stable production release. Nexus, durable backups, agent/skill acceptance and rollout remain separate gates."
+          gh release create v0.3.0rc1 "$wheel" MANIFEST.sha256 core-status.json --repo Neguchads/navi-core --target "$GITHUB_SHA" --prerelease --title "NAVI Core 0.3.0rc1 — functional preview" --notes "Signed Core preview; Linux, Windows and macOS wheel installation, security gates, synthetic reference, separate host lab preparation and zero-AI fixture passed. Includes provider-independent adapters, NEF reference profiles, roadmap/handoff, additive scaffolding and reviewed local learning. Not a stable production release. Nexus, durable backups, agent/skill acceptance and rollout remain separate gates."

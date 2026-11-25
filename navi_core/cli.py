@@ -15,7 +15,7 @@ from . import __version__
 
 RES = files("navi_core")
 REGISTRY = json.loads(RES.joinpath("profiles/registry.json").read_text(encoding="utf-8"))
-CONTRACTS = ("project", "task", "skill", "evidence", "event")
+CONTRACTS = ("project", "task", "skill", "evidence", "event", "brief", "lesson")
 
 class NaviError(Exception):
     pass
@@ -52,7 +52,7 @@ def detect(root):
     if not matches and (root/"README.md").is_file(): matches.append("documentation")
     return matches
 
-def init(root, profile, visibility, host=None):
+def init(root, profile, visibility, host=None, architecture_profile=None):
     if not root.is_dir(): raise NaviError("Project root must exist")
     if profile is None:
         candidates = detect(root)
@@ -62,6 +62,8 @@ def init(root, profile, visibility, host=None):
     data = {"schema_version":1,"project":{"name":name,"visibility":visibility,"maturity":"experimental","profile":profile},"verification":{"require_real_tests":True,"timeout_seconds":900},"knowledge":{"public_export":False},"agents":{"approval_for_production":True,"parallel_workers":1}}
     if host is not None:
         data["agents"]["host"] = host
+    if architecture_profile is not None:
+        data["project"]["architecture_profile"] = architecture_profile
     validate("project", data)
     directory = root/".navi"
     if directory.is_symlink(): raise NaviError("Refusing symlink .navi")
@@ -193,6 +195,7 @@ def main(argv=None):
         if name=="init":
             p.add_argument("--profile",choices=REGISTRY);p.add_argument("--visibility",choices=("public","private","internal","unknown"),default="unknown")
             p.add_argument("--host",choices=("codex","claude","gemini","copilot","none"),help="Optional single preferred agent; no host required")
+            p.add_argument("--architecture-profile",choices=tuple(json.loads(RES.joinpath("profiles/nef.json").read_text(encoding="utf-8"))["profiles"]),help="Optional NEF reference profile, independent of verification")
         if name=="verify":p.add_argument("--execute",action="store_true",help="Run trusted project code; not sandboxed")
     p=sub.add_parser("agents",help="Plan, check or create repository agent adapters")
     p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
@@ -273,10 +276,49 @@ def main(argv=None):
     p.add_argument("--submission",type=pathlib.Path)
     p.add_argument("--reported-version")
     p.add_argument("--output",type=pathlib.Path)
+    p=sub.add_parser("standard",help="NEF architecture and documentation references")
+    p.add_argument("--profile")
+    for name in ("audit","scaffold","migrate"):
+        p=sub.add_parser(name,help="NEF additive project structure workflow")
+        p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+        p.add_argument("--profile")
+        p.add_argument("--mapping",type=pathlib.Path,help="Optional topic-to-existing-path JSON mapping")
+        if name!="audit":p.add_argument("--apply",action="store_true")
+        if name=="scaffold":
+            p.add_argument("--sections",nargs="+")
+            p.add_argument("--include-folders",action="store_true")
+    p=sub.add_parser("intake",help="Validate an agent-supplied task brief")
+    p.add_argument("--brief",required=True,type=pathlib.Path)
+    for name in ("learn","recall"):
+        p=sub.add_parser(name,help="Explicit private reviewed learning, no model training")
+        p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+        p.add_argument("--store",required=True,type=pathlib.Path)
+        if name=="learn":
+            p.add_argument("--lesson",required=True,type=pathlib.Path)
+            p.add_argument("--approve",action="store_true")
+        else:
+            selection=p.add_mutually_exclusive_group(required=True)
+            selection.add_argument("--ids",nargs="+")
+            selection.add_argument("--query-file",type=pathlib.Path,help="Local prompt excerpt for lexical recall; not persisted")
+            p.add_argument("--budget-bytes",type=int,default=8192)
     p=sub.add_parser("validate");p.add_argument("kind",choices=CONTRACTS);p.add_argument("file",type=pathlib.Path)
     args=parser.parse_args(argv)
     try:
         if args.command=="doctor": out=doctor()
+        elif args.command in ("standard","audit","scaffold","migrate","intake","learn","recall"):
+            from . import nef
+            from .skill_registry import read_json
+            if args.command=="standard":out=nef.standard(args.profile)
+            elif args.command in ("audit","scaffold","migrate"):
+                mapping=read_json(args.mapping) if args.mapping is not None else None
+                if args.command=="audit":out=nef.inspect(args.root,args.profile,mapping)
+                elif args.command=="scaffold":out=nef.scaffold(args.root,args.profile,args.sections,args.apply,args.include_folders,mapping)
+                else:out=nef.migration(args.root,args.profile,args.apply,mapping)
+            elif args.command=="intake":out=nef.intake(read_json(args.brief))
+            elif args.command=="learn":out=nef.learn(args.root,args.store,read_json(args.lesson),args.approve)
+            else:out=nef.search_lessons(args.root,args.store,args.query_file,args.budget_bytes) if args.query_file else nef.recall(args.root,args.store,args.ids,args.budget_bytes)
+            if out["status"] in ("clarify","blocked","review-required"):
+                print(json.dumps(out,ensure_ascii=False,indent=2));return 1
         elif args.command=="copilot-plan":
             from .copilot_free import plan as copilot_plan
             out=copilot_plan(args.kind,args.risk,args.visibility,args.files,args.lines,args.used_percent,args.estimate_percent,args.checked_on,args.paid_usage_blocked)
@@ -362,7 +404,7 @@ def main(argv=None):
             root=args.root.resolve(strict=True)
             if not root.is_dir(): raise NaviError("Project root must be a directory")
             if args.command=="detect":out={"candidates":detect(root)}
-            elif args.command=="init":out=init(root,args.profile,args.visibility,args.host)
+            elif args.command=="init":out=init(root,args.profile,args.visibility,args.host,args.architecture_profile)
             else:out=verify(root,args.execute)
         print(json.dumps(out,ensure_ascii=False,indent=2));return 0
     except (NaviError,OSError,ValueError,TypeError,KeyError,subprocess.SubprocessError) as exc:

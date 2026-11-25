@@ -74,3 +74,7 @@ MIT License.
 See [host acceptance](docs/HOST_ACCEPTANCE.md), [operation reservation](docs/EXECUTION_GATE.md) and [preview release](docs/PREVIEW_RELEASE.md). The ledger and host challenge tools are not production agent authorization or verified authenticated host execution.
 
 For new projects, `navi init --root . --profile documentation --host gemini` saves an optional preferred host. Use `--host none` for a no-AI project. The Core remains independent of any subscription.
+
+## NAVI Engineering Framework (NEF)
+
+Provider-independent engineering references, 19 architecture profiles, adaptable documentation, roadmap and handoff templates, additive scaffolding/migration, structural inspection, structured clarification and explicitly reviewed local lessons. See [NEF guide](docs/NEF.md). Reference profiles do not imply executable project test gates.

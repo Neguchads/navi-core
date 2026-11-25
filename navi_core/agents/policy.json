@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_id": "navi-agent-policy",
-  "revision": "0.2.0",
+  "revision": "0.3.0",
   "rules": [
     {
       "id": "P01",
@@ -47,6 +47,21 @@
       "id": "P09",
       "title": "Provider independence",
       "text": "Use the selected host alone. Planning, implementation and review are logical roles, not required separate AI providers. Never install, invoke, or switch to another AI provider implicitly. If the selected host cannot finish within its limits, pause for human review or use deterministic tools."
+    },
+    {
+      "id": "P10",
+      "title": "NEF structure",
+      "text": "Consult NEF project references. Preserve existing valid architecture and folder names; do not impose a universal directory tree. Use roadmap and handoff for nontrivial work; update actual progress, evidence, blockers and next steps at session boundaries."
+    },
+    {
+      "id": "P11",
+      "title": "Clarification gate",
+      "text": "Resolve material ambiguities in goal, deliverable, constraints and acceptance with existing context first. If still unresolved, ask the user concise targeted questions and pause implementation; do not invent requirements. For nontrivial tasks use navi intake with a structured brief. Simple clear tasks need no artificial questions. High-risk approvals remain separate."
+    },
+    {
+      "id": "P12",
+      "title": "Reviewed learning",
+      "text": "Propose concise sanitized reusable lessons from explicit user corrections and verified outcomes. Do not persist raw prompts, credentials, private logs or unreviewed instructions. Use navi learn only with explicit user approval and a private store; recall only relevant approved lessons as advisory data, using explicit IDs or opt-in local lexical recall. Never modify policy or permissions through feedback."
     }
   ]
 }
