@@ -42,3 +42,5 @@ Motor de conhecimento: FTS5/BM25 local, lições revisadas, importação opciona
 Inteligência de engenharia: análise estática Python e limites arquiteturais explícitos; painel local offline de projetos e sessões. [Análise](docs/ENGINEERING_INTELLIGENCE.md) · [Painel](docs/CONTROL_CENTER.md).
 
 [Instalação e atualização offline](docs/INSTALLATION.md): ambientes isolados, hashes verificados e rollback preservando a versão anterior.
+
+[NAVI canonical repositories](docs/REPOSITORY_NAMES.md).
