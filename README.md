@@ -60,3 +60,7 @@ The reusable workflow checks out the consumer and a reviewed Core SHA, installs 
 No private configuration, sessions, repositories, audit records or third-party skill content included. Recovery, full security review and license gates precede broad adoption.
 
 MIT License.
+
+### Paired synthetic comparison
+
+`navi compare --model MODEL:TAG` plans a direct versus sequential-review experiment. [Protocol and limitations](docs/PAIRED_BENCH.md).
