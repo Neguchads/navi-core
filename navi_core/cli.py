@@ -16,7 +16,7 @@ from . import __version__
 
 RES = files("navi_core")
 REGISTRY = json.loads(RES.joinpath("profiles/registry.json").read_text(encoding="utf-8"))
-CONTRACTS = ("project", "task", "skill", "evidence", "event", "brief", "lesson", "handoff", "knowledge")
+CONTRACTS = ("project", "task", "skill", "evidence", "event", "brief", "lesson", "handoff", "knowledge", "embeddings", "embedding-query")
 
 class NaviError(Exception):
     pass
@@ -282,12 +282,13 @@ def main(argv=None):
     p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
     p.add_argument("--store",required=True,type=pathlib.Path)
     p.add_argument("--id")
-    p.add_argument("--kind",choices=("document","graph"))
+    p.add_argument("--kind",choices=("document","graph","embeddings"))
     p.add_argument("--file",type=pathlib.Path)
     p.add_argument("--approve-digest")
     p.add_argument("--apply",action="store_true")
     p.add_argument("--query-file",type=pathlib.Path)
     p.add_argument("--session-id")
+    p.add_argument("--embedding-query",type=pathlib.Path)
     p.add_argument("--budget-bytes",type=int,default=8192)
     sub.add_parser("hosts",help="Discover agent executables without running them")
     p=sub.add_parser("capabilities",help="Describe one host's declared integration capabilities")
@@ -376,7 +377,7 @@ def main(argv=None):
             elif args.action=="revoke":out=knowledge.revoke(args.root,args.store,args.id,args.kind,args.apply)
             else:
                 if not args.query_file:raise NaviError("Retrieve needs a local query file")
-                out=knowledge.retrieve(args.root,args.store,args.query_file,args.budget_bytes,args.session_id)
+                out=knowledge.retrieve(args.root,args.store,args.query_file,args.budget_bytes,args.session_id,read_json(args.embedding_query) if args.embedding_query else None)
         elif args.command in ("hosts","capabilities","connect","disconnect","health","hook","session"):
             from . import runtime,runtime_hooks
             from .skill_registry import read_json

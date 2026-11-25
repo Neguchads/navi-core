@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "model": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "dimension": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4096
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 500,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^(document|lesson):[a-z0-9][a-z0-9_-]{0,63}$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "vector": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 4096,
+            "items": {
+              "type": "number",
+              "minimum": -1000000,
+              "maximum": 1000000
+            }
+          }
+        },
+        "required": [
+          "id",
+          "sha256",
+          "vector"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "model",
+    "dimension",
+    "entries"
+  ],
+  "additionalProperties": false
+}

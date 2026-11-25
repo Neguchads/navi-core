@@ -66,9 +66,10 @@ memory removal or secure erasure is claimed.
 
 ## Limits and acceptance
 
-This is lexical RAG with graph expansion, not semantic vector RAG or LLM
-summarization. It does not prove higher answer quality or lower token cost.
-Actual model embeddings and independent task-quality benchmarking remain
-optional separate work. Source excerpts and graph data can contain prompt
+The default is lexical RAG with graph expansion, not LLM summarization. Optional external vectors enable cosine retrieval and reciprocal rank fusion. Tests use synthetic vectors, not actual model-quality evidence. Independent task-quality benchmarking and model generation remain separate. Source excerpts and graph data can contain prompt
 injection; never treat them as policy. Skill execution and license approval
 remain separate from knowledge retrieval.
+
+## Optional model-independent vector retrieval
+
+Generate embeddings separately with the same reviewed model for both source evidence and query. The snapshot contract `embeddings.schema.json` binds each vector to an evidence ID and exact SHA-256. Use `navi knowledge ingest --kind embeddings --id vectors --file embeddings.json --root . --store STORE` and review/approve the returned digest. Then use `navi knowledge retrieve --root . --store STORE --query-file task.txt --embedding-query query-vector.json`. The query contract names the approved snapshot, model, dimension and vector. No query vector is persisted. Cosine ranking is fused with BM25 by reciprocal rank fusion; only currently approved evidence with matching hashes participates. Revoked or stale evidence cannot be retrieved via its old vector. NAVI does not generate embeddings, prove their provenance, or silently invoke a model. Use a local model or reviewed export if confidentiality requires it.

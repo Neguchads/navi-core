@@ -78,3 +78,28 @@ class KnowledgeTests(unittest.TestCase):
         with redirect_stdout(StringIO()) as out:
             self.assertEqual(cli.main(["knowledge","retrieve","--root",str(self.root),"--store",str(self.store),"--query-file",str(self.query)]),0)
         self.assertEqual(json.loads(out.getvalue())["status"],"selected")
+
+    def test_optional_vector_fusion_and_stale_digest(self):
+        self.save("csv",self.doc(),"document")
+        self.save("other",dict(self.doc("other","Completely different wording"),title="Unrelated title"),"document")
+        lexical=knowledge.retrieve(self.root,self.store,self.query)
+        self.assertEqual(len(lexical["evidence"]),1)
+        d=knowledge._digest(self.doc())
+        other=knowledge._digest(dict(self.doc("other","Completely different wording"),title="Unrelated title"))
+        snapshot={"schema_version":1,"model":"synthetic-test-v1","dimension":2,"entries":[
+            {"id":"document:csv","sha256":d,"vector":[0,1]},
+            {"id":"document:other","sha256":other,"vector":[1,0]}]}
+        self.save("vectors",snapshot,"embeddings")
+        q={"schema_version":1,"snapshot":"vectors","model":"synthetic-test-v1","dimension":2,"vector":[1,0]}
+        r=knowledge.retrieve(self.root,self.store,self.query,embedding_query=q)
+        self.assertTrue(r["retrieval"]["semantic_embeddings"])
+        self.assertEqual({x["id"] for x in r["evidence"]},{"document:csv","document:other"})
+        with self.assertRaises(cli.NaviError):knowledge.retrieve(self.root,self.store,self.query,embedding_query=dict(q,model="wrong"))
+        knowledge.revoke(self.root,self.store,"other","document",True)
+        self.assertEqual([x["id"] for x in knowledge.retrieve(self.root,self.store,self.query,embedding_query=q)["evidence"]],["document:csv"])
+        knowledge.revoke(self.root,self.store,"vectors","embeddings",True)
+        with self.assertRaises(cli.NaviError):knowledge.retrieve(self.root,self.store,self.query,embedding_query=q)
+    def test_invalid_vectors(self):
+        with self.assertRaises(cli.NaviError):knowledge._vector([0,0],2)
+        with self.assertRaises(cli.NaviError):knowledge._vector([float("nan"),1],2)
+        with self.assertRaises(cli.NaviError):knowledge._vector([1],2)

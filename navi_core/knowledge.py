@@ -76,12 +76,31 @@ def graphify(data):
         links.add((a,b,relation,confidence))
     return {"nodes":[nodes[k] for k in sorted(nodes)],"links":[dict(zip(("source","target","relation","confidence"),e)) for e in sorted(links)]}
 
+def _vector(values,dimension):
+    if type(values) is not list or len(values)!=dimension or not 1<=dimension<=4096:
+        raise NaviError("Invalid vector dimension")
+    if any(type(x) not in (int,float) or not math.isfinite(x) or abs(x)>1e6 for x in values):
+        raise NaviError("Invalid vector component")
+    norm=math.sqrt(sum(x*x for x in values))
+    if norm<=0:raise NaviError("Zero embedding vector")
+    return [x/norm for x in values]
+
+def _vectors(data):
+    validate("embeddings",data)
+    dimension=data["dimension"]
+    seen=set()
+    for entry in data["entries"]:
+        if entry["id"] in seen:raise NaviError("Duplicate embedded evidence")
+        seen.add(entry["id"]);_vector(entry["vector"],dimension)
+    return data
+
 def ingest(root,store,ident,data,kind,approve_digest=None):
     directory,scope=_store(root,store);_id(ident)
     if kind=="document":
         content=_document(data)
         if content["id"]!=ident:raise NaviError("Document id mismatch")
     elif kind=="graph":content=graphify(data)
+    elif kind=="embeddings":content=_vectors(data)
     else:raise NaviError("Unknown knowledge kind")
     digest=_digest(content)
     out={"status":"review-required","id":ident,"kind":kind,"sha256":digest,"scope":SCOPE,
@@ -112,7 +131,7 @@ def _revoked(directory,scope,ident,kind):
 
 def revoke(root,store,ident,kind,apply=False):
     directory,scope=_store(root,store)
-    if kind not in ("document","graph"):raise NaviError("Invalid knowledge kind")
+    if kind not in ("document","graph","embeddings"):raise NaviError("Invalid knowledge kind")
     _load(directory,scope,ident,kind)
     if _revoked(directory,scope,ident,kind):return {"status":"revoked","id":ident}
     if not apply:return {"status":"planned","id":ident,"kind":kind}
@@ -120,10 +139,10 @@ def revoke(root,store,ident,kind,apply=False):
     return {"status":"revoked","id":ident,"scope":"Excluded from retrieval, original remains on disk."}
 
 def _records(root,store):
-    directory,scope=_store(root,store);docs=[];graphs=[]
+    directory,scope=_store(root,store);docs=[];graphs=[];vectors=[]
     for i,path in enumerate(sorted(directory.iterdir())):
         if i>=1500:raise NaviError("Private directory scan limit exceeded")
-        m=re.fullmatch(r"knowledge-([a-z0-9][a-z0-9_-]{0,63})\.(document|graph)\.json",path.name)
+        m=re.fullmatch(r"knowledge-([a-z0-9][a-z0-9_-]{0,63})\.(document|graph|embeddings)\.json",path.name)
         if m:
             ident,kind=m.groups()
             meta=read_json(safe_target(directory,path.name))
@@ -134,7 +153,8 @@ def _records(root,store):
                 d=record["content"]
                 docs.append({"id":"document:"+ident,"kind":"document","title":d["title"],"text":d["text"],
                              "source":d["source"],"revision":d["revision"],"sha256":record["sha256"]})
-            else:graphs.append((ident,record))
+            elif kind=="graph":graphs.append((ident,record))
+            else:vectors.append((ident,record))
         elif ID.fullmatch(path.stem) and path.suffix==".json" and not path.name.startswith("hook-"):
             data=read_json(safe_target(directory,path.name))
             if type(data) is not dict or data.get("project_scope")!=scope:continue
@@ -143,8 +163,8 @@ def _records(root,store):
             docs.append({"id":"lesson:"+lesson["id"],"kind":"lesson","title":lesson["kind"],
                          "text":lesson["summary"],"source":lesson["source_reference"],
                          "validation":lesson["validation"],"sha256":_digest(lesson)})
-    if len(docs)>MAX_DOCS or len(graphs)>8:raise NaviError("Knowledge corpus limit exceeded")
-    return docs,graphs
+    if len(docs)>MAX_DOCS or len(graphs)>8 or len(vectors)>8:raise NaviError("Knowledge corpus limit exceeded")
+    return docs,graphs,vectors
 
 def _terms(text):
     return list(dict.fromkeys(w.casefold() for w in re.findall(r"[^\W_]+",text,re.UNICODE) if len(w)>=2))[:64]
@@ -193,12 +213,40 @@ def _graph_context(graphs,query):
     ids={n["id"] for n in selected}
     return selected,[e for e in edges if e["source"] in ids and e["target"] in ids],engine
 
-def retrieve(root,store,query_file,budget=8192,session_id=None):
+def _semantic(docs,vectors,query_data):
+    validate("embedding-query",query_data)
+    if not vectors:raise NaviError("No approved embedding snapshot")
+    snapshot=[r for ident,r in vectors if ident==query_data["snapshot"]]
+    if len(snapshot)!=1:raise NaviError("Selected embedding snapshot missing or revoked")
+    data=_vectors(snapshot[0]["content"])
+    if data["model"]!=query_data["model"] or data["dimension"]!=query_data["dimension"]:
+        raise NaviError("Embedding model or dimension mismatch")
+    q=_vector(query_data["vector"],data["dimension"])
+    current={d["id"]:d for d in docs}
+    scores=[]
+    for entry in data["entries"]:
+        d=current.get(entry["id"])
+        if d is None or d["sha256"]!=entry["sha256"]:continue
+        v=_vector(entry["vector"],data["dimension"])
+        score=sum(a*b for a,b in zip(q,v))
+        if score>0:scores.append((score,d))
+    return [d for _,d in sorted(scores,key=lambda x:(-x[0],x[1]["id"]))[:40]]
+
+def _fusion(a,b):
+    # Reciprocal rank fusion avoids assuming BM25 and cosine are comparable.
+    scores={};lookup={}
+    for ranked in (a,b):
+        for i,item in enumerate(ranked,1):
+            k=item["id"];lookup[k]=item;scores[k]=scores.get(k,0)+1/(60+i)
+    return [lookup[k] for k in sorted(scores,key=lambda k:(-scores[k],k))][:40]
+
+def retrieve(root,store,query_file,budget=8192,session_id=None,embedding_query=None):
     if type(budget) is not int or not 1024<=budget<=32768:raise NaviError("Budget must be 1024..32768 bytes")
-    query=_query(query_file);docs,graphs=_records(root,store)
+    query=_query(query_file);docs,graphs,vectors=_records(root,store)
     ranked,engine=_rank(docs,query,40)
+    if embedding_query is not None:ranked=_fusion(ranked,_semantic(docs,vectors,embedding_query))
     nodes,edges,graph_engine=_graph_context(graphs,query)
-    out={"status":"selected","scope":SCOPE,"retrieval":{"text":engine,"graph":graph_engine,"semantic_embeddings":False},
+    out={"status":"selected","scope":SCOPE,"retrieval":{"text":engine,"graph":graph_engine,"semantic_embeddings":embedding_query is not None},
          "checkpoint":None,"evidence":[],"graph":{"nodes":[],"links":[]},"omitted":0}
     if session_id is not None:out["checkpoint"]=runtime.context(root,store,session_id,32768)
     if _size(out)>budget:raise NaviError("Required checkpoint exceeds context budget; review a smaller handoff")

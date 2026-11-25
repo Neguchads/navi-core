@@ -25,3 +25,5 @@ Recovery, security and licensing gates must be reviewed before adopting in produ
 - Agent Runtime Integration (NEF phase 4): host discovery, declared capabilities, private revisioned SQLite lifecycle, checkpoint/resume and reversible candidate context hooks. Actual host events, installation lifecycle, semantic classification and enforcement remain separate acceptance work.
 
 - Adaptive Knowledge Engine: reviewed immutable local evidence, exact-digest approval, FTS5/BM25, Graphify node-link bridge, bounded graph expansion, revocation-aware retrieval and checkpoint-first packing. Semantic embeddings and measured host benefit remain separate.
+
+- Optional external embedding snapshots with exact evidence digest and model/dimension compatibility; cosine and reciprocal rank fusion. Actual embedding generation and benchmark remain separate.
