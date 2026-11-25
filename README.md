@@ -1,4 +1,4 @@
-# NAVI Engineering Core v0.1.0
+# NAVI Engineering Core
 
 **Universal · Local-first · Evidence-driven**
 
@@ -64,3 +64,7 @@ MIT License.
 ### Paired synthetic comparison
 
 `navi compare --model MODEL:TAG` plans a direct versus sequential-review experiment. [Protocol and limitations](docs/PAIRED_BENCH.md).
+
+### Current preview acceptance
+
+See [host acceptance](docs/HOST_ACCEPTANCE.md), [operation reservation](docs/EXECUTION_GATE.md) and [preview release](docs/PREVIEW_RELEASE.md). The ledger and host challenge tools are not production agent authorization or verified authenticated host execution.

@@ -1,4 +1,4 @@
-# NAVI Core 0.2.0rc1 — functional preview
+# NAVI Core 0.2.0rc2 — functional preview
 
 This version is a release candidate, not stable production certification.
 The main CI builds and attests the wheel, then tests the exact downloaded
@@ -14,3 +14,10 @@ in a new Python virtual environment and run navi doctor and navi bench
 --mode reference. Nexus remains optional and unapproved for production.
 Do not infer stable rollout, real host acceptance or durable recovery from
 the preview. A stable version needs the separate acceptance issue gates.
+
+## Changes since rc1
+
+- Local operation-bound, single-use approvals and atomic reservation ledger.
+- Manual Codex, Claude and Copilot host acceptance lab.
+- Explicit Ollama fixture calls reserve before transport and settle reported usage. Live run 45546679286 passed: reservation 4352, settlement 142 tokens, 4210 unused. Not a hard account billing cap.
+- All acceptance criteria for production remain tracked separately in issue #15. No general stable production claim. The optional Nexus code remains private.

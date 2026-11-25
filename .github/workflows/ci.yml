@@ -191,6 +191,7 @@ jobs:
           "$py" -I -m navi_core --version
           "$py" -I -m navi_core bench --mode reference
           "$py" -I -m navi_core providers
+          "$py" -I -m navi_core host-lab --mode prepare --directory "$RUNNER_TEMP/navi-host-lab"
           "$py" -I -m navi_core copilot-plan --kind lint --risk low --visibility public --files 1 --lines 5
   publish-preview:
     if: github.repository == 'Neguchads/navi-core' && github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -213,12 +214,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          wheel=navi_engineering_core-0.2.0rc1-py3-none-any.whl
+          wheel=navi_engineering_core-0.2.0rc2-py3-none-any.whl
           if [ ! -f "$wheel" ]; then echo "Not the requested preview version"; exit 0; fi
           sha256sum --check MANIFEST.sha256
           gh attestation verify "$wheel" --repo Neguchads/navi-core
-          if gh release view v0.2.0rc1 --repo Neguchads/navi-core >/dev/null 2>&1; then
+          if gh release view v0.2.0rc2 --repo Neguchads/navi-core >/dev/null 2>&1; then
             echo "Preview already exists; refusing overwrite"
             exit 0
           fi
-          gh release create v0.2.0rc1 "$wheel" MANIFEST.sha256 core-status.json --repo Neguchads/navi-core --target "$GITHUB_SHA" --prerelease --title "NAVI Core 0.2.0rc1 — functional preview" --notes "Signed Core preview; Linux and Windows wheel installation, security gates and synthetic reference smoke passed. Not a stable production release. Nexus, durable backups, agent/skill acceptance and rollout remain separate gates."
+          gh release create v0.2.0rc2 "$wheel" MANIFEST.sha256 core-status.json --repo Neguchads/navi-core --target "$GITHUB_SHA" --prerelease --title "NAVI Core 0.2.0rc2 — functional preview" --notes "Signed Core preview; Linux and Windows wheel installation, security gates, synthetic reference and host lab preparation passed. Includes local operation reservation and governed Ollama fixture request. Not a stable production release. Nexus, durable backups, agent/skill acceptance and rollout remain separate gates."
