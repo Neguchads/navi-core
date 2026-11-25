@@ -20,3 +20,5 @@ No fixed project directory layout. Do not expose private logs, credentials or le
 - UAI: portable public context, structured handoff and optional read-only MCP reference tools. No host installation or private context exposure.
 
 - Runtime: private SQLite state machine with revision checks, brief gate and reviewed checkpoints. Candidate native hook bridge emits fixed public context; no transcript retention or external provider calls.
+
+- AKE: private immutable knowledge records and revocation tombstones; rebuild derived FTS index in memory, expand reviewed graph metadata and pack evidence under a byte budget. No external inference or automatic source ingestion.

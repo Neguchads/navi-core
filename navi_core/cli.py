@@ -16,7 +16,7 @@ from . import __version__
 
 RES = files("navi_core")
 REGISTRY = json.loads(RES.joinpath("profiles/registry.json").read_text(encoding="utf-8"))
-CONTRACTS = ("project", "task", "skill", "evidence", "event", "brief", "lesson", "handoff")
+CONTRACTS = ("project", "task", "skill", "evidence", "event", "brief", "lesson", "handoff", "knowledge")
 
 class NaviError(Exception):
     pass
@@ -277,6 +277,18 @@ def main(argv=None):
     p.add_argument("--submission",type=pathlib.Path)
     p.add_argument("--reported-version")
     p.add_argument("--output",type=pathlib.Path)
+    p=sub.add_parser("knowledge",help="Reviewed local knowledge and bounded hybrid retrieval")
+    p.add_argument("action",choices=("ingest","revoke","retrieve"))
+    p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+    p.add_argument("--store",required=True,type=pathlib.Path)
+    p.add_argument("--id")
+    p.add_argument("--kind",choices=("document","graph"))
+    p.add_argument("--file",type=pathlib.Path)
+    p.add_argument("--approve-digest")
+    p.add_argument("--apply",action="store_true")
+    p.add_argument("--query-file",type=pathlib.Path)
+    p.add_argument("--session-id")
+    p.add_argument("--budget-bytes",type=int,default=8192)
     sub.add_parser("hosts",help="Discover agent executables without running them")
     p=sub.add_parser("capabilities",help="Describe one host's declared integration capabilities")
     p.add_argument("--host",required=True,choices=("codex","claude","gemini","copilot","manus","generic","none"))
@@ -355,6 +367,16 @@ def main(argv=None):
     args=parser.parse_args(argv)
     try:
         if args.command=="doctor": out=doctor()
+        elif args.command=="knowledge":
+            from . import knowledge
+            from .skill_registry import read_json,write_private
+            if args.action=="ingest":
+                if not args.file or not args.id or not args.kind:raise NaviError("Ingest needs file, id and kind")
+                out=knowledge.ingest(args.root,args.store,args.id,read_json(args.file),args.kind,args.approve_digest)
+            elif args.action=="revoke":out=knowledge.revoke(args.root,args.store,args.id,args.kind,args.apply)
+            else:
+                if not args.query_file:raise NaviError("Retrieve needs a local query file")
+                out=knowledge.retrieve(args.root,args.store,args.query_file,args.budget_bytes,args.session_id)
         elif args.command in ("hosts","capabilities","connect","disconnect","health","hook","session"):
             from . import runtime,runtime_hooks
             from .skill_registry import read_json

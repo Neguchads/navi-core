@@ -86,3 +86,7 @@ Use `navi assist --profile game-recomp --format markdown` for portable context w
 ## Agent Runtime Integration
 
 `navi hosts`, `navi capabilities`, private SQLite `navi session` lifecycle, and explicit reversible project-local context hook candidates via `navi connect`/`disconnect`. See [runtime guide](docs/AGENT_RUNTIME.md). Actual host enforcement remains separate.
+
+## Adaptive Knowledge Engine
+
+Reviewed local excerpts and Graphify node-link metadata, project-scoped FTS5/BM25 retrieval, bounded one-hop graph expansion and checkpoint-preserving context packing. No AI dependency. [Guide](docs/ADAPTIVE_KNOWLEDGE.md).

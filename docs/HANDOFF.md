@@ -29,3 +29,5 @@ NEF #26 passed all five pre-merge gates and was integrated. UAI adds portable pu
 RC1 main artifact installation (run 45601823906) found a CLI KeyError after zero-AI verification, before NEF smoke. Publication was correctly blocked. PR #27 fixes status-free reference output handling, adds CLI-level regression tests and pre-merge installed CLI smoke. RC2 replaces the unpublished RC1 only after actual evidence; do not overwrite release tags.
 
 Runtime phase 4: inspect `docs/AGENT_RUNTIME.md`, current PR/CI and exact release artifact. Native context hook candidates must be tested in the selected host; no actual host session is claimed by synthetic protocol tests.
+
+AKE follow-up: read docs/ADAPTIVE_KNOWLEDGE.md and check exact CI. Do not call lexical graph expansion semantic vector RAG; do not expose private queries, graphs or checkpoints.
