@@ -177,18 +177,53 @@ def learn(root,store,lesson,approve=False):
     write_private(path,record)
     return {"status":"saved","id":lesson["id"],"scope":"Private local reviewed lesson; no model training, network or policy mutation."}
 
+def _record(store,scope,ident):
+    if not re.fullmatch(r"[a-z0-9][a-z0-9_-]{0,63}",ident):raise NaviError("Invalid lesson id")
+    data=read_json(safe_target(store,ident+".json"))
+    if not isinstance(data,dict) or set(data)!={"schema_version","scope","project_scope","lesson"} or data["schema_version"]!=1 or data["scope"]!="private-local" or data["project_scope"]!=scope:
+        raise NaviError("Lesson belongs to another project or is invalid")
+    lesson=validate("lesson",data["lesson"])
+    if lesson["id"]!=ident:raise NaviError("Lesson identity mismatch")
+    return data,lesson
+
+def _revoked(store,scope,ident):
+    path=safe_target(store,ident+".revoked.json")
+    if not path.exists():return False
+    tombstone=read_json(path)
+    if tombstone!={"schema_version":1,"scope":"private-local","project_scope":scope,"id":ident,"status":"revoked"}:
+        raise NaviError("Invalid lesson revocation")
+    return True
+
+def revoke(root,store,ident,apply=False):
+    store,scope=_outside(root,store)
+    if not store.is_dir():raise NaviError("Invalid lesson store")
+    _record(store,scope,ident)
+    if _revoked(store,scope,ident):return {"status":"revoked","id":ident}
+    if not apply:return {"status":"planned","id":ident,"scope":"Revocation excludes lesson from NAVI retrieval; does not erase the original."}
+    write_private(safe_target(store,ident+".revoked.json"),{"schema_version":1,"scope":"private-local","project_scope":scope,"id":ident,"status":"revoked"})
+    return {"status":"revoked","id":ident,"scope":"Local retrieval exclusion, not deletion or provider memory change."}
+
+def lessons(root,store):
+    store,scope=_outside(root,store)
+    if not store.is_dir():raise NaviError("Invalid lesson store")
+    result=[]
+    for i,path in enumerate(store.iterdir()):
+        if i>=500:raise NaviError("Store exceeds listing limit")
+        if not re.fullmatch(r"[a-z0-9][a-z0-9_-]{0,63}\.json",path.name):continue
+        data=read_json(safe_target(store,path.name))
+        if not isinstance(data,dict) or data.get("project_scope")!=scope:continue
+        _,lesson=_record(store,scope,path.stem)
+        result.append({"id":lesson["id"],"kind":lesson["kind"],"state":"revoked" if _revoked(store,scope,path.stem) else "approved"})
+    return {"status":"listed","scope":"private-local; metadata only","lessons":sorted(result,key=lambda x:x["id"])}
+
 def recall(root,store,ids,budget=8192):
     store,scope=_outside(root,store)
     if not store.is_dir() or type(budget) is not int or not 1<=budget<=32768 or not 1<=len(ids)<=20 or len(set(ids))!=len(ids):
         raise NaviError("Invalid lesson selection or budget")
     records=[]
     for ident in ids:
-        if not re.fullmatch(r"[a-z0-9][a-z0-9_-]{0,63}",ident):raise NaviError("Invalid lesson id")
-        data=read_json(safe_target(store,ident+".json"))
-        if set(data)!={"schema_version","scope","project_scope","lesson"} or data["schema_version"]!=1 or data["scope"]!="private-local" or data["project_scope"]!=scope:
-            raise NaviError("Lesson belongs to another project or is invalid")
-        lesson=validate("lesson",data["lesson"])
-        if lesson["id"]!=ident:raise NaviError("Lesson identity mismatch")
+        _,lesson=_record(store,scope,ident)
+        if _revoked(store,scope,ident):raise NaviError("Lesson revoked")
         records.append(lesson)
     out={"status":"selected","scope":"private-local; advisory data, never authorization","lessons":records}
     if len(json.dumps(out,ensure_ascii=False,indent=2).encode("utf-8"))+1>budget:
@@ -218,6 +253,7 @@ def search_lessons(root,store,query_file,budget=8192):
             raise NaviError("Invalid private lesson record")
         lesson=validate("lesson",data["lesson"])
         if path.stem!=lesson["id"]:raise NaviError("Lesson identity mismatch")
+        if _revoked(store,scope,path.stem):continue
         score=len(query & terms(lesson["summary"]+" "+lesson["id"]))
         if score:candidates.append((score,lesson))
     candidates.sort(key=lambda x:(-x[0],x[1]["id"]))

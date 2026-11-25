@@ -1,4 +1,6 @@
 import json
+from pathlib import Path
+import tempfile
 import unittest
 from navi_core import assist, cli
 
@@ -31,3 +33,21 @@ class AssistTests(unittest.TestCase):
             {"command":"test","status":"passed","exit_code":1,"evidence":"wrong"}]))["status"],"review-required")
     def test_reject_unknown_private_fields(self):
         with self.assertRaises(cli.NaviError):assist.check_handoff(self.handoff(raw_prompt="not allowed"))
+
+    def test_managed_workflow_refuses_unclear_task(self):
+        brief={"schema_version":1,"goal":"","deliverable":"docs","complexity":"nontrivial",
+               "acceptance":["documents exist"],"constraints_state":"known","ambiguity":"none",
+               "questions":[],"risk":"low","approved":False}
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp).resolve()/"project";root.mkdir()
+            self.assertEqual(assist.prepare(root,brief,"documentation")["status"],"clarify")
+            self.assertEqual(assist.workflow(root,brief,"scaffold","documentation",apply=True)["status"],"clarify")
+            self.assertEqual(list(root.iterdir()),[])
+            brief["goal"]="Prepare documentation"
+            self.assertEqual(assist.prepare(root,brief,"documentation")["status"],"ready")
+            self.assertEqual(assist.workflow(root,brief,"scaffold","documentation",apply=True)["status"],"applied")
+            self.assertTrue((root/"docs/HANDOFF.md").is_file())
+    def test_complete_cannot_hide_failed_verification(self):
+        data=self.handoff(state="complete",acceptance=[{"criterion":"CSV","status":"passed","evidence":"file"}],
+                          verification=[{"command":"test","status":"failed","exit_code":1,"evidence":"failure"}])
+        self.assertEqual(assist.check_handoff(data)["status"],"review-required")

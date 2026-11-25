@@ -23,8 +23,8 @@ def packet(profile):
                         "plan roadmap and architecture","implement authorized scope","verify actual results",
                         "record handoff","propose reviewed lessons"],
             "contracts":{"brief":contract("brief"),"handoff":contract("handoff"),"lesson":contract("lesson")},
-            "commands":["navi standard","navi audit","navi intake","navi scaffold","navi migrate",
-                        "navi verify","navi handoff-check","navi learn","navi recall"],
+            "commands":["navi prepare","navi workflow","navi standard","navi audit","navi intake","navi scaffold","navi migrate",
+                        "navi verify","navi handoff-check","navi learn","navi recall","navi lessons","navi lesson-revoke"],
             "capabilities":{"portable_context":True,"host_autoload":False,"host_enforcement":False,
                             "private_context_included":False,"inference":False}}
 
@@ -58,6 +58,7 @@ def check_handoff(data):
         errors.append("blockers")
     if data["state"]=="complete":
         if data["blockers"]:errors.append("unresolved_blockers")
+        if any(x["status"]!="passed" for x in data["verification"]):errors.append("unresolved_verification")
         if not data["acceptance"]:errors.append("acceptance")
         if any(x["status"]!="passed" or not x["evidence"].strip() for x in data["acceptance"]):
             errors.append("unverified_acceptance")
@@ -67,3 +68,29 @@ def check_handoff(data):
         errors.append("missing_acceptance_evidence")
     return {"status":"review-required" if errors else "valid","issues":errors,
             "scope":"Structural self-reported handoff validation; evidence must be independently checked. No permission or production certification."}
+
+def prepare(root,brief,profile=None,mapping=None):
+    gate=nef.intake(brief)
+    if gate["status"]!="ready":
+        return {"status":"clarify","gate":gate,"scope":"No project inspection or mutation performed."}
+    audit=nef.inspect(root,profile,mapping)
+    return {"status":"review-required" if audit["status"]=="review-required" else "ready",
+            "gate":gate,"reference":packet(audit["profile"]),"audit":audit,
+            "scope":"Read-only task preparation; no authorization, no model inference."}
+
+def workflow(root,brief,action,profile=None,mapping=None,apply=False):
+    """The managed CLI never applies a task with an unresolved brief."""
+    if action not in ("scaffold","migrate","verify"):
+        raise NaviError("Unknown managed action")
+    gate=nef.intake(brief)
+    if gate["status"]!="ready":
+        return {"status":"clarify","gate":gate,"scope":"Managed operation not performed."}
+    if action=="scaffold":out=nef.scaffold(root,profile,apply=apply,mapping=mapping)
+    elif action=="migrate":out=nef.migration(root,profile,apply=apply,mapping=mapping)
+    else:
+        from pathlib import Path
+        from .cli import verify
+        if profile is not None or mapping is not None:
+            raise NaviError("Verification uses the existing manifest, not a reference override")
+        out=verify(Path(root).resolve(strict=True),apply)
+    return {**out,"intake":"ready","scope":"Managed CLI gate only; cannot intercept arbitrary host actions. "+out.get("scope","")}

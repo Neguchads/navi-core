@@ -51,3 +51,5 @@ protocol version.
 
 SDK documentation: https://py.sdk.modelcontextprotocol.io/v1/
 Transport documentation: https://py.sdk.modelcontextprotocol.io/v1/client/transports/
+
+Use `navi prepare` and `navi workflow` when the selected agent can call the local CLI. The managed workflow refuses scaffold/migration/verification when intake is not ready; it cannot force a remote or arbitrary external agent to use it.

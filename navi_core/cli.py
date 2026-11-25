@@ -279,6 +279,22 @@ def main(argv=None):
     p=sub.add_parser("assist",help="Portable public reference context for any compatible agent")
     p.add_argument("--profile",required=True)
     p.add_argument("--format",choices=("json","markdown"),default="json")
+    for name in ("prepare","workflow"):
+        p=sub.add_parser(name,help="Managed NEF task preparation or gated operation")
+        p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+        p.add_argument("--brief",required=True,type=pathlib.Path)
+        p.add_argument("--profile")
+        p.add_argument("--mapping",type=pathlib.Path)
+        if name=="workflow":
+            p.add_argument("--action",required=True,choices=("scaffold","migrate","verify"))
+            p.add_argument("--apply",action="store_true",help="Explicitly apply or run trusted code")
+    for name in ("lessons","lesson-revoke"):
+        p=sub.add_parser(name,help="Manage approved private lesson metadata")
+        p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+        p.add_argument("--store",required=True,type=pathlib.Path)
+        if name=="lesson-revoke":
+            p.add_argument("--id",required=True)
+            p.add_argument("--apply",action="store_true")
     p=sub.add_parser("handoff-check",help="Validate structured handoff without writing")
     p.add_argument("--file",required=True,type=pathlib.Path)
     sub.add_parser("mcp",help="Optional public reference MCP stdio server")
@@ -311,6 +327,18 @@ def main(argv=None):
     args=parser.parse_args(argv)
     try:
         if args.command=="doctor": out=doctor()
+        elif args.command in ("prepare","workflow","lessons","lesson-revoke"):
+            from . import assist,nef
+            from .skill_registry import read_json
+            if args.command=="lessons":out=nef.lessons(args.root,args.store)
+            elif args.command=="lesson-revoke":out=nef.revoke(args.root,args.store,args.id,args.apply)
+            else:
+                brief=read_json(args.brief)
+                mapping=read_json(args.mapping) if args.mapping is not None else None
+                if args.command=="prepare":out=assist.prepare(args.root,brief,args.profile,mapping)
+                else:out=assist.workflow(args.root,brief,args.action,args.profile,mapping,args.apply)
+            if out["status"] in ("clarify","blocked","review-required","failed"):
+                print(json.dumps(out,ensure_ascii=False,indent=2));return 1
         elif args.command in ("assist","handoff-check","mcp"):
             from . import assist
             if args.command=="mcp":

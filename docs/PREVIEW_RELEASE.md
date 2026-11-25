@@ -1,4 +1,4 @@
-# NAVI Core 0.3.0rc1 — functional preview
+# NAVI Core 0.3.0rc2 — functional preview
 
 This version is a release candidate, not stable production certification.
 The main CI builds and attests the wheel, then tests the exact downloaded
@@ -34,3 +34,7 @@ the preview. A stable version needs the separate acceptance issue gates.
 - Manual single-host acceptance lab for Codex, Claude, Gemini or Copilot (optional comparison).
 - Explicit Ollama fixture calls reserve before transport and settle reported usage. Live run 45546679286 passed: reservation 4352, settlement 142 tokens, 4210 unused. Not a hard account billing cap.
 - All acceptance criteria for production remain tracked separately in issue #15. No general stable production claim. The optional Nexus code remains private.
+
+## UAI and managed workflow in 0.3.0rc2
+
+Portable Markdown/JSON, structured handoff, optional SDK-backed MCP, gated managed operations and private lesson revocation. Verify exact CI and artifact before adoption. The optional SDK has separate dependency risks; no authenticated external agent is certified by the protocol smoke.
