@@ -80,7 +80,7 @@ def _db(root,store,create=False):
         if version==0 and create:
             if con.execute("SELECT count(*) FROM sqlite_master").fetchone()[0]:
                 raise NaviError("Unrecognized runtime database")
-            con.execute("CREATE TABLE sessions(scope TEXT NOT NULL,id TEXT NOT NULL,host TEXT NOT NULL,state TEXT NOT NULL,revision INTEGER NOT NULL,updated TEXT NOT NULL,goal_hash TEXT,criteria TEXT,handoff TEXT,PRIMARY KEY(scope,id))")
+            con.execute("CREATE TABLE sessions(scope TEXT NOT NULL,id TEXT NOT NULL,host TEXT NOT NULL,state TEXT NOT NULL,revision INTEGER NOT NULL,updated TEXT NOT NULL,goal_hash TEXT,criteria TEXT,brief_hash TEXT,handoff TEXT,PRIMARY KEY(scope,id))")
             con.execute("CREATE TABLE events(scope TEXT NOT NULL,id TEXT NOT NULL,revision INTEGER NOT NULL,event TEXT NOT NULL,state TEXT NOT NULL,at TEXT NOT NULL,PRIMARY KEY(scope,id,revision))")
             con.execute("PRAGMA user_version=1")
         elif version!=1:raise NaviError("Unsupported runtime database version")
@@ -110,7 +110,7 @@ def start(root,store,ident,host=None):
     with _db(root,store,create=True) as (con,scope):
         if con.execute("SELECT 1 FROM sessions WHERE scope=? AND id=?",(scope,ident)).fetchone():
             raise NaviError("Session exists; resume instead")
-        con.execute("INSERT INTO sessions VALUES(?,?,?,?,?,?,?,?,?)",(scope,ident,host,"awaiting-brief",0,_now(),None,None,None))
+        con.execute("INSERT INTO sessions VALUES(?,?,?,?,?,?,?,?,?,?)",(scope,ident,host,"awaiting-brief",0,_now(),None,None,None,None))
         _event(con,scope,ident,0,"SessionStart","awaiting-brief")
         return _report(_row(con,scope,ident))
 
@@ -123,19 +123,21 @@ def sessions(root,store):
         rows=con.execute("SELECT * FROM sessions WHERE scope=? ORDER BY updated DESC,id LIMIT 100",(scope,)).fetchall()
         return {"status":"listed","sessions":[_report(r) for r in rows],"scope":SCOPE}
 
-def advance(root,store,ident,expected,event,brief=None,handoff=None,reviewed=False):
+def advance(root,store,ident,expected,event,brief=None,handoff=None,reviewed=False,guard_digest=None):
     if type(expected) is not int or expected<0:raise NaviError("Supply the current session revision")
     with _db(_project(root),store) as (con,scope):
         row=_row(con,scope,ident);old=row["state"]
         if row["revision"]!=expected:raise NaviError("Stale revision; resume session before updating")
         if old=="closed":raise NaviError("Session closed; start a new session")
-        goal=row["goal_hash"];criteria=row["criteria"];saved=row["handoff"];gate=None
+        goal=row["goal_hash"];criteria=row["criteria"];saved=row["handoff"];brief_hash=row["brief_hash"];gate=None
+        if guard_digest is not None and brief_hash!=guard_digest:raise NaviError("Brief differs from current session revision")
         if event=="UserPrompt":
             if old not in ("awaiting-brief","clarify","ready","review","paused"):
                 raise NaviError("Finish or pause the active execution stage first")
             if brief is None or handoff is not None:raise NaviError("UserPrompt requires brief only")
             gate=nef.intake(brief)
             state="ready" if gate["status"]=="ready" else "clarify"
+            brief_hash=_digest(brief) if state=="ready" else None
             goal=_digest(brief["goal"].strip()) if state=="ready" else None
             criteria=json.dumps(sorted(_digest(x.strip()) for x in brief["acceptance"] if x.strip())) if state=="ready" else None
             # Old checkpoint remains useful for resume, not as completion evidence for the new brief.
@@ -170,8 +172,8 @@ def advance(root,store,ident,expected,event,brief=None,handoff=None,reviewed=Fal
         if event not in ("Checkpoint","BeforeCompletion","SessionEnd") and handoff is not None:
             raise NaviError("Unexpected handoff")
         revision=expected+1
-        con.execute("UPDATE sessions SET state=?,revision=?,updated=?,goal_hash=?,criteria=?,handoff=? WHERE scope=? AND id=?",
-                    (state,revision,_now(),goal,criteria,saved,scope,ident))
+        con.execute("UPDATE sessions SET state=?,revision=?,updated=?,goal_hash=?,criteria=?,brief_hash=?,handoff=? WHERE scope=? AND id=?",
+                    (state,revision,_now(),goal,criteria,brief_hash,saved,scope,ident))
         _event(con,scope,ident,revision,event,state)
         result=_report(_row(con,scope,ident))
         if gate is not None:
@@ -192,3 +194,24 @@ def context(root,store,ident,budget=8192):
     if len(json.dumps(result,ensure_ascii=False,indent=2).encode())+1>budget:
         raise NaviError("Checkpoint exceeds budget; review a smaller handoff instead of silently truncating")
     return result
+
+def run(root,store,ident,expected,brief,action,apply=False):
+    """Execute only explicit supported operations tied to a ready session revision."""
+    root=_project(root)
+    if action not in ("scaffold","migrate","verify"):raise NaviError("Unknown managed action")
+    gate=nef.intake(brief)
+    if gate["status"]!="ready":return {"status":"clarify","gate":gate}
+    digest=_digest(brief)
+    with _db(root,store) as (con,scope):
+        row=_row(con,scope,ident)
+        if row["revision"]!=expected or row["state"]!="ready" or row["brief_hash"]!=digest:
+            raise NaviError("Session must be ready at the exact accepted brief and revision")
+    if not apply:
+        result=assist.workflow(root,brief,action,apply=False)
+        return {**result,"session_revision":expected,"scope":"Read-only preview; no stage change."}
+    # Reserve the lifecycle transition atomically; a stale competing caller fails.
+    started=advance(root,store,ident,expected,"BeforeExecution",guard_digest=digest)
+    # Exceptions leave the session executing; never retry automatically or claim success.
+    result=assist.workflow(root,brief,action,apply=True)
+    finished=advance(root,store,ident,started["revision"],"AfterExecution",guard_digest=digest)
+    return {**result,"session":finished,"scope":"Explicit managed operation; evidence still requires review. Not a sandbox."}

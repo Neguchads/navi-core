@@ -18,7 +18,7 @@ def fragment(host):
         config["hooks"][event]=[{"hooks":[handler]}]
     return path,config
 
-def connection(root,store,host,mode="plan"):
+def connection(root,store,host,mode="plan",disconnect_plan=False):
     root=runtime._project(root);host=runtime._host(root,host)
     rel,config=fragment(host)
     target=safe_target(root,rel)
@@ -34,7 +34,7 @@ def connection(root,store,host,mode="plan"):
     exists=target.exists()
     same=exists and target.is_file() and target.stat().st_size==len(raw) and target.read_bytes()==raw
     state="owned" if same and owner else ("conflict" if exists or receipt.exists() else "missing")
-    out={"status":"planned","host":host,"path":rel,"state":state,"configuration":config,
+    out={"status":"planned","host":host,"path":rel,"state":state,"operation":"disconnect" if mode=="disconnect" or disconnect_plan else "connect","configuration":config,
          "scope":"Project-only candidate; no user/system settings, host launch or trust bypass. Review PATH and host configuration before enabling."}
     if mode=="plan":return out
     if mode=="check":return {**out,"status":"current" if state=="owned" else "review-required"}
@@ -70,3 +70,17 @@ def hook(host,event,payload):
           "Verify actual results and update handoff. Propose only reviewed sanitized lessons; never save raw prompts.")
     if host=="gemini":return {"hookSpecificOutput":{"additionalContext":text}}
     return {"hookSpecificOutput":{"hookEventName":event,"additionalContext":text}}
+
+def health(root,store,host):
+    root=runtime._project(root);host=runtime._host(root,host)
+    info=runtime.capabilities(host)
+    detected=next(row for row in runtime.discover()["hosts"] if row["host"]==host)
+    directory,_=runtime.nef._outside(root,store)
+    result={"status":"inspected","host":host,"discovery":detected,"capabilities":info,
+            "private_store_exists":directory.is_dir(),"database_present":False,
+            "scope":"Read-only diagnostic, not host authentication or actual hook execution."}
+    if directory.is_dir():
+        result["database_present"]=safe_target(directory,"runtime.sqlite3").is_file()
+        if host in runtime.HOOKS:
+            result["connection_state"]=connection(root,store,host)["state"]
+    return result

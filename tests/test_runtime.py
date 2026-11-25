@@ -87,3 +87,23 @@ class RuntimeTests(unittest.TestCase):
             self.assertEqual(cli.main(["hosts"]),0)
             self.assertEqual(cli.main(["capabilities","--host","generic"]),0)
             self.assertEqual(cli.main(["session","start","--root",str(self.root),"--store",str(self.store),"--id","test","--host","generic"]),0)
+
+    def test_managed_operation_bound_to_exact_brief(self):
+        runtime.start(self.root,self.store,"task","generic")
+        brief=self.brief()
+        runtime.advance(self.root,self.store,"task",0,"UserPrompt",brief=brief)
+        with self.assertRaises(cli.NaviError):runtime.run(self.root,self.store,"task",1,self.brief(deliverable="other"),"scaffold",True)
+        self.assertEqual(list(self.root.iterdir()),[])
+        cli.init(self.root,"documentation","private")
+        result=runtime.run(self.root,self.store,"task",1,brief,"scaffold")
+        self.assertEqual(result["status"],"planned")
+        self.assertFalse((self.root/"docs/HANDOFF.md").exists())
+        result=runtime.run(self.root,self.store,"task",1,brief,"scaffold",True)
+        self.assertEqual(result["session"]["state"],"review")
+        self.assertTrue((self.root/"docs/HANDOFF.md").exists())
+        with self.assertRaises(cli.NaviError):runtime.run(self.root,self.store,"task",1,brief,"scaffold",True)
+    def test_health_does_not_create_files(self):
+        result=runtime_hooks.health(self.root,self.store,"codex")
+        self.assertEqual(result["connection_state"],"missing")
+        self.assertEqual(list(self.store.iterdir()),[])
+        self.assertEqual(list(self.root.iterdir()),[])

@@ -1,5 +1,6 @@
 """Local-only, explicit-execution CLI. No credentials, network API or publishing."""
 import argparse
+import sqlite3
 import json
 import os
 import pathlib
@@ -279,18 +280,18 @@ def main(argv=None):
     sub.add_parser("hosts",help="Discover agent executables without running them")
     p=sub.add_parser("capabilities",help="Describe one host's declared integration capabilities")
     p.add_argument("--host",required=True,choices=("codex","claude","gemini","copilot","manus","generic","none"))
-    for name in ("connect","disconnect"):
+    for name in ("connect","disconnect","health"):
         p=sub.add_parser(name,help="Plan or explicitly manage one project-local context hook")
         p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
         p.add_argument("--store",type=pathlib.Path,required=True)
-        p.add_argument("--host",choices=("codex","claude","gemini"))
-        p.add_argument("--apply",action="store_true")
+        p.add_argument("--host",choices=("codex","claude","gemini","copilot","manus","generic","none") if name=="health" else ("codex","claude","gemini"))
+        if name!="health":p.add_argument("--apply",action="store_true")
         if name=="connect":p.add_argument("--check",action="store_true")
     p=sub.add_parser("hook",help="Read bounded native hook JSON from stdin; no persistence")
     p.add_argument("--host",required=True,choices=("codex","claude","gemini"))
     p.add_argument("--event",required=True)
     p=sub.add_parser("session",help="Manage provider-neutral private session lifecycle")
-    p.add_argument("action",choices=("start","status","list","event","history","resume"))
+    p.add_argument("action",choices=("start","status","list","event","history","resume","run"))
     p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
     p.add_argument("--store",required=True,type=pathlib.Path)
     p.add_argument("--id")
@@ -301,6 +302,8 @@ def main(argv=None):
     p.add_argument("--handoff",type=pathlib.Path)
     p.add_argument("--reviewed",action="store_true")
     p.add_argument("--budget-bytes",type=int,default=8192)
+    p.add_argument("--operation",choices=("scaffold","migrate","verify"))
+    p.add_argument("--apply",action="store_true",help="Run explicit managed operation")
     p=sub.add_parser("assist",help="Portable public reference context for any compatible agent")
     p.add_argument("--profile",required=True)
     p.add_argument("--format",choices=("json","markdown"),default="json")
@@ -352,15 +355,16 @@ def main(argv=None):
     args=parser.parse_args(argv)
     try:
         if args.command=="doctor": out=doctor()
-        elif args.command in ("hosts","capabilities","connect","disconnect","hook","session"):
+        elif args.command in ("hosts","capabilities","connect","disconnect","health","hook","session"):
             from . import runtime,runtime_hooks
             from .skill_registry import read_json
             if args.command=="hosts":out=runtime.discover()
             elif args.command=="capabilities":out=runtime.capabilities(args.host)
+            elif args.command=="health":out=runtime_hooks.health(args.root,args.store,args.host)
             elif args.command in ("connect","disconnect"):
                 mode=("disconnect" if args.command=="disconnect" else "apply") if args.apply else ("check" if getattr(args,"check",False) else "plan")
                 if args.apply and getattr(args,"check",False):raise NaviError("Choose apply or check")
-                out=runtime_hooks.connection(args.root,args.store,args.host,mode)
+                out=runtime_hooks.connection(args.root,args.store,args.host,mode,args.command=="disconnect")
             elif args.command=="hook":
                 raw=sys.stdin.buffer.read(65537)
                 if len(raw)>65536:raise NaviError("Hook input exceeds size limit")
@@ -371,9 +375,12 @@ def main(argv=None):
                 elif args.action=="status":out=runtime.status(args.root,args.store,args.id)
                 elif args.action=="history":out=runtime.history(args.root,args.store,args.id)
                 elif args.action=="resume":out=runtime.context(args.root,args.store,args.id,args.budget_bytes)
+                elif args.action=="run":
+                    if not args.brief:raise NaviError("Managed run requires a brief file")
+                    out=runtime.run(args.root,args.store,args.id,args.revision,read_json(args.brief),args.operation,args.apply)
                 else:out=runtime.advance(args.root,args.store,args.id,args.revision,args.event,
                     read_json(args.brief) if args.brief else None,read_json(args.handoff) if args.handoff else None,args.reviewed)
-            if out.get("status") in ("clarify","review-required"):
+            if out.get("status") in ("clarify","review-required","blocked","failed"):
                 print(json.dumps(out,ensure_ascii=False,indent=2));return 1
         elif args.command in ("prepare","workflow","lessons","lesson-revoke"):
             from . import assist,nef
@@ -505,5 +512,5 @@ def main(argv=None):
             elif args.command=="init":out=init(root,args.profile,args.visibility,args.host,args.architecture_profile)
             else:out=verify(root,args.execute)
         print(json.dumps(out,ensure_ascii=False,indent=2));return 0
-    except (NaviError,OSError,ValueError,TypeError,KeyError,subprocess.SubprocessError,__import__("sqlite3").Error) as exc:
+    except (NaviError,OSError,ValueError,TypeError,KeyError,subprocess.SubprocessError,sqlite3.Error) as exc:
         print(f"NAVI: {exc if isinstance(exc,NaviError) else type(exc).__name__}",file=sys.stderr);return 1

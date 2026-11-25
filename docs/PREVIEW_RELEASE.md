@@ -44,3 +44,5 @@ The RC1 wheel smoke failed at `navi standard` on all three platforms because the
 ## Runtime 0.4.0rc1
 
 Private revisioned SQLite sessions, explicit brief lifecycle, checkpoint/resume and candidate native context hooks. Review the selected host separately. No automatic install or tool permission enforcement is claimed.
+
+Managed session run binds execution to the exact accepted brief hash and current revision. Exact installed-wheel smoke covers private session creation and resume.

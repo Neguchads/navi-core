@@ -222,6 +222,9 @@ jobs:
           "$py" -I -m navi_core verify --root "$canonical_temp/navi-zero-ai" --execute
           "$py" -I -m navi_core hosts
           "$py" -I -m navi_core capabilities --host generic
+          mkdir -p "$canonical_temp/navi-runtime-private"
+          "$py" -I -m navi_core session start --root "$canonical_temp/navi-zero-ai" --store "$canonical_temp/navi-runtime-private" --id wheel-smoke --host none
+          "$py" -I -m navi_core session resume --root "$canonical_temp/navi-zero-ai" --store "$canonical_temp/navi-runtime-private" --id wheel-smoke
           "$py" -I -m navi_core standard --profile game-recomp
           "$py" -I -m navi_core assist --profile game-recomp --format markdown
           "$py" -I -m navi_core scaffold --root "$canonical_temp/navi-zero-ai" --apply

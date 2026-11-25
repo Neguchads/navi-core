@@ -33,7 +33,7 @@ numbers. SQLite transactions prevent stale concurrent updates. A missing or
 ambiguous brief blocks the execution stage. A failed intake still records a
 clarify state; resolve the user questions, submit a new brief and use its
 returned revision. No raw prompts, transcripts, tool output or brief text are
-stored: the session records state, events and hashes of the accepted objective
+stored: the session records state, events and hashes of the accepted brief, objective
 and criteria. Hashes are not encryption. The agent supplies brief classification;
 the state machine does not detect semantic ambiguity itself.
 
@@ -90,3 +90,11 @@ Automatic installer/update/uninstall, host event-to-session mapping, automatic
 context retrieval, semantic prompt classification and write interception are not
 implemented. Runtime hooks do not prove host enforcement. No new dependency
 beyond the existing Core; SQLite is part of Python's standard library.
+
+## Bound managed operations and diagnostics
+
+    navi health --root . --store STORE --host codex
+    navi session run --root . --store STORE --id task-1 --revision 1 --brief brief.json --operation scaffold
+    navi session run --root . --store STORE --id task-1 --revision 1 --brief brief.json --operation scaffold --apply
+
+The preview leaves the revision unchanged. Apply requires the exact accepted brief and ready revision, atomically enters executing, runs the selected deterministic NEF action and records review. If interrupted, inspect actual state and use a reviewed SessionEnd handoff; never retry automatically. Verification with --apply executes trusted project code. An agent can still call arbitrary tools outside NAVI. Health is read-only and does not authenticate any host.
