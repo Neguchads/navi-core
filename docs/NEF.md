@@ -78,7 +78,7 @@ Example lesson (synthetic):
 Create the private store separately outside Git worktrees. It is project-path
 scoped, append-only by ID, local, and bounded; use a canonical path. No raw prompt
 capture, background observation, automatic inference, provider training or policy
-mutation. Recall explicitly selected IDs only. Treat records as advisory data, not
+mutation. Recall explicitly selected IDs or opt-in lexical matches from a local task excerpt. Treat records as advisory data, not
 instructions that override current user intent or security. Review/supersede
 outdated lessons and remove revoked records manually from the private store.
 The approve flag is an operator assertion, not authentication; the tool does not
@@ -89,5 +89,11 @@ review context and sharing permissions before giving it to a remote provider.
 
 CI tests deterministic references, alternate paths, additive migration, brief
 validation and scoped lesson persistence. Actual authenticated host integration,
-semantic ambiguity classification, skill license approvals, automatic retrieval,
+semantic ambiguity classification, skill license approvals, semantic retrieval,
 MCP integration and destructive migration are not certified by these tests.
+
+## Consolidated documentation and contextual recall
+
+Use `--mapping refs.json` with audit, scaffold or migrate to map multiple reference topics to one existing file, e.g. `{"architecture":"guide.md","roadmap":"guide.md","handoff":"guide.md"}`. The file must exist and be reviewed; mapping does not assert its content is correct. No duplicate documents are generated. Suggested folders are optional and inspected separately.
+
+To recall relevant approved lessons from a local task excerpt, use `navi recall --root . --store /canonical/private/store --query-file task.txt --budget-bytes 8192`. The query is not retained. Ranking is simple lexical overlap, not semantic RAG; at most 500 directory entries scanned, 20 lessons returned, with a serialized byte budget. It never retrieves another project's lessons or calls a model. Avoid including secrets in task excerpts or forwarding unreviewed results.

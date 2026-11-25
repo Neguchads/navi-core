@@ -1,0 +1,24 @@
+# NAVI Core handoff
+
+## Current scope
+NEF reference tooling, provider-independent engineering assistance. The RC3 release predates NEF; consult the current reviewed revision and CI before adoption.
+
+## Completed evidence before NEF
+- PR #24: independent agent adapters and neutral quota handling.
+- PR #25: optional host preference and cross-platform tests. RC3 published after main CI.
+- PR #26: NEF implementation submitted; check its current CI and merge state before claiming validation.
+
+## Open work
+- Verify NEF from the installed artifact; real agent hook/contract ingestion remains separate.
+- Review project documentation mappings before adoption; no forced path migration.
+- Private reviewed learning: evaluate actual host retrieval and user-approved records.
+- Optional Nexus and real host acceptance are not prerequisites for deterministic NEF.
+
+## Next steps
+1. Check current commit, dirty tree and CI.
+2. Run unit tests, standard, audit and scaffold plan.
+3. Review recommendations before apply; preserve existing layout and original CI.
+4. Update roadmap and handoff with actual evidence and unresolved questions.
+
+## Rollback
+Revert only the reviewed NEF commit if needed. Do not erase user documentation, private records, or existing repository changes.

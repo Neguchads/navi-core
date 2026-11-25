@@ -279,6 +279,7 @@ def main(argv=None):
         p=sub.add_parser(name,help="NEF additive project structure workflow")
         p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
         p.add_argument("--profile")
+        p.add_argument("--mapping",type=pathlib.Path,help="Optional topic-to-existing-path JSON mapping")
         if name!="audit":p.add_argument("--apply",action="store_true")
         if name=="scaffold":
             p.add_argument("--sections",nargs="+")
@@ -293,7 +294,9 @@ def main(argv=None):
             p.add_argument("--lesson",required=True,type=pathlib.Path)
             p.add_argument("--approve",action="store_true")
         else:
-            p.add_argument("--ids",required=True,nargs="+")
+            selection=p.add_mutually_exclusive_group(required=True)
+            selection.add_argument("--ids",nargs="+")
+            selection.add_argument("--query-file",type=pathlib.Path,help="Local prompt excerpt for lexical recall; not persisted")
             p.add_argument("--budget-bytes",type=int,default=8192)
     p=sub.add_parser("validate");p.add_argument("kind",choices=CONTRACTS);p.add_argument("file",type=pathlib.Path)
     args=parser.parse_args(argv)
@@ -303,12 +306,14 @@ def main(argv=None):
             from . import nef
             from .skill_registry import read_json
             if args.command=="standard":out=nef.standard(args.profile)
-            elif args.command=="audit":out=nef.inspect(args.root,args.profile)
-            elif args.command=="scaffold":out=nef.scaffold(args.root,args.profile,args.sections,args.apply,args.include_folders)
-            elif args.command=="migrate":out=nef.migration(args.root,args.profile,args.apply)
+            elif args.command in ("audit","scaffold","migrate"):
+                mapping=read_json(args.mapping) if args.mapping is not None else None
+                if args.command=="audit":out=nef.inspect(args.root,args.profile,mapping)
+                elif args.command=="scaffold":out=nef.scaffold(args.root,args.profile,args.sections,args.apply,args.include_folders,mapping)
+                else:out=nef.migration(args.root,args.profile,args.apply,mapping)
             elif args.command=="intake":out=nef.intake(read_json(args.brief))
             elif args.command=="learn":out=nef.learn(args.root,args.store,read_json(args.lesson),args.approve)
-            else:out=nef.recall(args.root,args.store,args.ids,args.budget_bytes)
+            else:out=nef.search_lessons(args.root,args.store,args.query_file,args.budget_bytes) if args.query_file else nef.recall(args.root,args.store,args.ids,args.budget_bytes)
             if out["status"] in ("clarify","blocked","review-required"):
                 print(json.dumps(out,ensure_ascii=False,indent=2));return 1
         elif args.command=="copilot-plan":

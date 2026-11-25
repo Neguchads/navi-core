@@ -34,13 +34,20 @@ def project(root,profile):
         raise NaviError("Select a NEF profile or initialize a project manifest")
     return root,profile
 
-def inspect(root,profile=None):
+def inspect(root,profile=None,mapping=None):
     root,profile=project(root,profile)
     data=catalog()
+    if mapping is None:mapping={}
+    if type(mapping) is not dict or not set(mapping)<={x["id"] for x in data["common"]}:
+        raise NaviError("Invalid reference mapping")
+    for rel in mapping.values():
+        if not isinstance(rel,str) or len(rel)>240 or not re.fullmatch(r"[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*",rel) or any(x in (".","..") for x in rel.split("/")):
+            raise NaviError("Mapping must use safe relative project paths")
     rows=[]
     for item in data["common"]:
         found=[]; blocked=[]
-        for rel in item["alternatives"]:
+        candidates=list(dict.fromkeys([*item["alternatives"],*([mapping[item["id"]]] if item["id"] in mapping else [])]))
+        for rel in candidates:
             try:
                 p=safe_target(root,rel)
             except NaviError:
@@ -49,18 +56,25 @@ def inspect(root,profile=None):
                 found.append(rel)
             elif p.is_dir() and item["kind"]=="either":
                 found.append(rel)
-            elif p.exists():
+            elif p.exists() or rel==mapping.get(item["id"]):
                 blocked.append(rel)
         state="present" if found else ("review-required" if blocked else "not-found")
         rows.append({"id":item["id"],"priority":item["priority"],"state":state,
                      "matches":found,"blocked":blocked,"suggested_path":item["preferred"]})
-    return {"status":"review-required" if any(x["blocked"] for x in rows) else "inspected",
-            "profile":profile,"references":rows,"architecture":standard(profile)["profiles"][profile],
+    folders=[]
+    for rel in data["profiles"][profile]["folders"]:
+        try:
+            p=safe_target(root,rel)
+            state="present" if p.is_dir() else ("review-required" if p.exists() else "optional-not-found")
+        except NaviError:state="review-required"
+        folders.append({"path":rel,"state":state})
+    return {"status":"review-required" if any(x["blocked"] for x in rows) or any(x["state"]=="review-required" for x in folders) else "inspected",
+            "profile":profile,"references":rows,"folder_references":folders,"architecture":standard(profile)["profiles"][profile],
             "scope":"Presence only; content, architectural boundaries, license and behavior require review. Missing references are not conformance failures."}
 
-def scaffold(root,profile=None,sections=None,apply=False,include_folders=False):
+def scaffold(root,profile=None,sections=None,apply=False,include_folders=False,mapping=None):
     root,profile=project(root,profile)
-    data=catalog(); audit=inspect(root,profile)
+    data=catalog(); audit=inspect(root,profile,mapping)
     selected=set(sections or ("overview","architecture","roadmap","handoff"))
     known={x["id"] for x in data["common"] if x["preferred"] in data["templates"]}
     if not selected<=known:
@@ -78,7 +92,8 @@ def scaffold(root,profile=None,sections=None,apply=False,include_folders=False):
             try:
                 p=safe_target(root,rel)
                 if p.exists() and not p.is_dir():review.append(rel)
-                elif not p.exists():operations.append({"path":rel,"kind":"directory","action":"create"})
+                elif not p.exists() and not any(Path(op["path"]).is_relative_to(Path(rel)) for op in operations):
+                    operations.append({"path":rel,"kind":"directory","action":"create"})
             except NaviError:review.append(rel)
     if review:
         return {"status":"blocked","profile":profile,"review":review,"operations":[]}
@@ -105,10 +120,10 @@ def scaffold(root,profile=None,sections=None,apply=False,include_folders=False):
         raise NaviError("Scaffold interrupted; inspect created paths: "+", ".join(created)) from exc
     return {**report,"status":"applied","created":created}
 
-def migration(root,profile=None,apply=False):
+def migration(root,profile=None,apply=False,mapping=None):
     # Safe automation: create missing core documentation only; preserve all existing layout.
     root,profile=project(root,profile)
-    report=scaffold(root,profile,apply=apply)
+    report=scaffold(root,profile,apply=apply,mapping=mapping)
     return {**report,"migration":"additive-documentation","manual_review":["Map existing module boundaries and documentation aliases.",
         "Review actual import graph and tests before any relocation.",
         "For breaking moves, require owner approval, clean backup, tests and rollback plan."],
@@ -162,7 +177,7 @@ def recall(root,store,ids,budget=8192):
     records=[]
     for ident in ids:
         if not re.fullmatch(r"[a-z0-9][a-z0-9_-]{0,63}",ident):raise NaviError("Invalid lesson id")
-        data=read_json(store/(ident+".json"))
+        data=read_json(safe_target(store,ident+".json"))
         if set(data)!={"schema_version","scope","project_scope","lesson"} or data["schema_version"]!=1 or data["scope"]!="private-local" or data["project_scope"]!=scope:
             raise NaviError("Lesson belongs to another project or is invalid")
         lesson=validate("lesson",data["lesson"])
@@ -171,4 +186,38 @@ def recall(root,store,ids,budget=8192):
     out={"status":"selected","scope":"private-local; advisory data, never authorization","lessons":records}
     if len(json.dumps(out,ensure_ascii=False,indent=2).encode("utf-8"))+1>budget:
         raise NaviError("Lesson context exceeds budget")
+    return out
+
+def search_lessons(root,store,query_file,budget=8192):
+    """Opt-in lexical retrieval; the query is read locally, never persisted."""
+    store,scope=_outside(root,store)
+    if not store.is_dir() or type(budget) is not int or not 1<=budget<=32768:
+        raise NaviError("Invalid lesson store or budget")
+    query_file=Path(query_file)
+    if query_file.is_symlink() or not query_file.is_file():
+        raise NaviError("Invalid local query file")
+    with query_file.open("rb") as f:raw=f.read(16385)
+    if len(raw)>16384:raise NaviError("Query size exceeded")
+    def terms(text):
+        return {word for word in re.findall(r"\w+",text.casefold()) if len(word)>=3}
+    query=terms(raw.decode("utf-8"))
+    candidates=[]
+    for i,path in enumerate(store.iterdir()):
+        if i>=500:raise NaviError("Store exceeds lexical scan limit; use explicit ids")
+        if not re.fullmatch(r"[a-z0-9][a-z0-9_-]{0,63}\.json",path.name):continue
+        data=read_json(safe_target(store,path.name))
+        if not isinstance(data,dict) or data.get("project_scope")!=scope:continue
+        if set(data)!={"schema_version","scope","project_scope","lesson"} or data["schema_version"]!=1 or data["scope"]!="private-local":
+            raise NaviError("Invalid private lesson record")
+        lesson=validate("lesson",data["lesson"])
+        if path.stem!=lesson["id"]:raise NaviError("Lesson identity mismatch")
+        score=len(query & terms(lesson["summary"]+" "+lesson["id"]))
+        if score:candidates.append((score,lesson))
+    candidates.sort(key=lambda x:(-x[0],x[1]["id"]))
+    out={"status":"selected","scope":"private-local; lexical relevance only; advisory data, never authorization","lessons":[]}
+    def size(value):return len(json.dumps(value,ensure_ascii=False,indent=2).encode("utf-8"))+1
+    if size(out)>budget:raise NaviError("Lesson context exceeds budget")
+    for _,lesson in candidates[:20]:
+        out["lessons"].append(lesson)
+        if size(out)>budget:out["lessons"].pop()
     return out

@@ -77,3 +77,25 @@ class NEFTests(unittest.TestCase):
     def test_cli_clarification(self):
         p=self.base/"brief.json";p.write_text(json.dumps(self.brief(goal="")))
         self.assertEqual(cli.main(["intake","--brief",str(p)]),1)
+
+    def test_consolidated_mapping(self):
+        (self.root/"guide.md").write_text("# existing guide")
+        mapping={k:"guide.md" for k in ("overview","architecture","roadmap","handoff")}
+        self.assertEqual(nef.scaffold(self.root,"documentation",apply=True,mapping=mapping)["created"],[])
+        self.assertEqual(list(self.root.iterdir()),[self.root/"guide.md"])
+        with self.assertRaises(cli.NaviError):nef.inspect(self.root,"documentation",{"handoff":"../guide.md"})
+        self.assertEqual(nef.scaffold(self.root,"documentation",apply=True,mapping={"handoff":"absent.md"})["status"],"blocked")
+    def test_folders_with_document_parents(self):
+        result=nef.scaffold(self.root,"documentation",apply=True,include_folders=True)
+        self.assertEqual(result["status"],"applied")
+        self.assertTrue((self.root/"docs/HANDOFF.md").is_file())
+    def test_lexical_scoped_recall(self):
+        other=self.base/"other";other.mkdir()
+        nef.learn(self.root,self.store,self.lesson(),True)
+        nef.learn(other,self.store,self.lesson(id="other"),True)
+        nef.learn(self.root,self.store,self.lesson(id="unrelated",summary="Use XML only"),True)
+        query=self.base/"query.txt";query.write_text("Please export CSV with header")
+        data=nef.search_lessons(self.root,self.store,query)
+        self.assertEqual([x["id"] for x in data["lessons"]],["csv"])
+        self.assertNotIn("Please export",json.dumps(data))
+        self.assertEqual(len(list(self.store.iterdir())),3)

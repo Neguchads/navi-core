@@ -61,7 +61,7 @@
     {
       "id": "P12",
       "title": "Reviewed learning",
-      "text": "Propose concise sanitized reusable lessons from explicit user corrections and verified outcomes. Do not persist raw prompts, credentials, private logs or unreviewed instructions. Use navi learn only with explicit user approval and a private store; recall only relevant approved lessons as advisory data. Never modify policy or permissions through feedback."
+      "text": "Propose concise sanitized reusable lessons from explicit user corrections and verified outcomes. Do not persist raw prompts, credentials, private logs or unreviewed instructions. Use navi learn only with explicit user approval and a private store; recall only relevant approved lessons as advisory data, using explicit IDs or opt-in local lexical recall. Never modify policy or permissions through feedback."
     }
   ]
 }
