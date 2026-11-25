@@ -15,7 +15,7 @@ from navi_core.cli import NaviError
 
 MODEL="qwen2.5:7b-instruct-q4_K_M"
 CASE={
- "goal":"Implement page(items, offset, limit). items is a list, offset and limit are integers. Return a dict with keys items and next_offset. Reject negative offset, limit less than 1, or limit greater than 100 by raising ValueError. Return items[offset:offset+limit]; next_offset is offset+limit if more items remain, otherwise None.",
+ "goal":"Implement page(items, offset, limit). items is a list, offset and limit are integers. Return a dict with keys items and next_offset. Reject negative offset, limit less than 1, or limit greater than 100 by raising ValueError. Validate offset and limit before slicing, including when the input is empty. Return items[offset:offset+limit]. Set next_offset to offset+limit only when offset+limit is strictly less than len(items); otherwise set it to None, including offsets at or beyond the end.",
  "source":"def page(items, offset, limit):\n    return {'items': items[:limit], 'next_offset': limit}\n",
  "contract":"Return JSON with only key source, containing a complete Python implementation of page. No imports, no external tools or I/O. Do not modify the signature."
 }
@@ -83,8 +83,9 @@ def verify(source,image):
             if p.returncode or len(p.stdout)>65536:return {"status":"failed","passed":0,"total":len(TESTS),"reason":"candidate execution failed"}
             actual=json.loads(p.stdout)
             if type(actual) is not list or len(actual)!=len(TESTS):return {"status":"failed","passed":0,"total":len(TESTS),"reason":"invalid result"}
-            passed=sum(got==expected for got,(_,expected) in zip(actual,TESTS))
-            return {"status":"passed" if passed==len(TESTS) else "failed","passed":passed,"total":len(TESTS),"reason":None}
+            failures=[i for i,(got,(_,expected)) in enumerate(zip(actual,TESTS)) if got!=expected]
+            passed=len(TESTS)-len(failures)
+            return {"status":"passed" if not failures else "failed","passed":passed,"total":len(TESTS),"failed_case_indices":failures,"reason":None}
         except (subprocess.TimeoutExpired,ValueError,OSError):
             return {"status":"failed","passed":0,"total":len(TESTS),"reason":"execution or output failure"}
         finally:

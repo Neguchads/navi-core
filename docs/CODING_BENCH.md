@@ -14,3 +14,7 @@ bounded coding experiments, not general autonomous repository agents. Model
 quality, security isolation, and Nexus adoption are separate criteria.
 The container is defense in depth, not a proof of kernel-level isolation.
 No private source, credentials or generated candidate source are uploaded.
+
+## Initial run
+
+Run 45539334308 completed all six coding trials with 11/12 checks each, no full pass. Both strategies failed. The follow-up explicitly clarifies the already existing boundary rule; acceptance cases are unchanged. Failed case indices are recorded without supplying hidden expectations to the model. This is a new prompt revision, not a controlled improvement claim.
