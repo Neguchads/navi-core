@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_id": "navi-agent-policy",
-  "revision": "0.1.0",
+  "revision": "0.2.0",
   "rules": [
     {
       "id": "P01",
@@ -42,6 +42,11 @@
       "id": "P08",
       "title": "Dependencies",
       "text": "Prefer minimal reviewed open-source dependencies and pinned versions. Document tradeoffs and conditions for reversal."
+    },
+    {
+      "id": "P09",
+      "title": "Provider independence",
+      "text": "Use the selected host alone. Planning, implementation and review are logical roles, not required separate AI providers. Never install, invoke, or switch to another AI provider implicitly. If the selected host cannot finish within its limits, pause for human review or use deterministic tools."
     }
   ]
 }
