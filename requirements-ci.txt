@@ -1,6 +1,6 @@
 # Explicit versions from the locally tested Python 3.13 environment.
 # Hash verification and platform wheel review are pending.
-setuptools==84.1.0
+setuptools==84.2.1
 jsonschema==4.26.0
 attrs==26.1.0
 jsonschema-specifications==2025.9.1
