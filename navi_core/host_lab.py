@@ -19,13 +19,16 @@ Do not edit files, execute commands, use the network, or read any other path.
 def sha(raw):
     return hashlib.sha256(raw).hexdigest()
 
-def create(directory):
+def create(directory,host=None):
+    if host is not None and host not in HOSTS:
+        raise NaviError("Unknown lab host")
+    selected=(host,) if host is not None else HOSTS
     root=Path(directory).absolute()
     if root.exists() or root.is_symlink() or any(p.is_symlink() or (hasattr(p,"is_junction") and p.is_junction()) for p in root.parents):
         raise NaviError("Lab directory must be new and unlinked")
     root.mkdir(mode=0o700)
     rows={}
-    for host in HOSTS:
+    for host in selected:
         workspace=root/host
         workspace.mkdir(mode=0o700)
         target=workspace/agent_bridge.TARGETS[host]
@@ -38,7 +41,7 @@ def create(directory):
         rows[host]={"challenge":nonce,"instruction_sha256":sha(raw),"task_sha256":sha(task)}
     write_private(root/"expected.json",{"schema_version":1,"scope":"private-local-host-lab","hosts":rows})
     (root/"PROMPT.txt").write_text(PROMPT,encoding="utf-8")
-    return {"status":"prepared","hosts":list(HOSTS),"scope":"Manual challenge only; no authenticated host invoked. Open only each individual workspace; keep expected.json outside host context."}
+    return {"status":"prepared","hosts":list(selected),"scope":"Manual challenge only; no authenticated host invoked. Open only each individual workspace; keep expected.json outside host context."}
 
 def check(directory,host,answer,reported_version):
     if host not in HOSTS or not isinstance(reported_version,str) or not 1<=len(reported_version)<=120 or any(ord(c)<32 for c in reported_version):
@@ -47,6 +50,8 @@ def check(directory,host,answer,reported_version):
     expected=read_json(root/"expected.json")
     if expected.get("schema_version")!=1 or expected.get("scope")!="private-local-host-lab":
         raise NaviError("Invalid lab")
+    if host not in expected["hosts"]:
+        raise NaviError("Host was not prepared in this lab")
     e=expected["hosts"][host]
     workspace=agent_bridge.safe_target(root,host)
     paths=(agent_bridge.TARGETS[host],"TASK.json")

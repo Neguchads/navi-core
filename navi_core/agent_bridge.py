@@ -5,7 +5,7 @@ from pathlib import Path
 from .cli import NaviError, RES, load_manifest, validate
 
 TARGETS = {"codex": "AGENTS.md", "claude": "CLAUDE.md",
-           "copilot": ".github/copilot-instructions.md"}
+           "copilot": ".github/copilot-instructions.md", "gemini": "GEMINI.md"}
 CATEGORIES = ("architecture", "engineering", "verification", "knowledge")
 
 def policy():
@@ -16,9 +16,8 @@ def policy():
     return data, hashlib.sha256(raw).hexdigest()
 
 def render(host, profile):
-    if host == "copilot":
-        from .copilot_free import INSTRUCTIONS
-        return INSTRUCTIONS.encode("utf-8")
+    if host not in TARGETS:
+        raise NaviError("Unknown instruction host")
     p, digest = policy()
     lines = ["# NAVI repository instructions", "",
              f"<!-- NAVI policy {p['revision']} sha256:{digest}; host:{host} -->",
@@ -28,6 +27,9 @@ def render(host, profile):
     for rule in p["rules"]:
         lines.append(f"- **{rule['id']} — {rule['title']}:** {rule['text']}")
     lines += ["", "Use the project-specific verification gate. Do not assume that a generic gate proves production readiness.", ""]
+    if host == "copilot":
+        from .copilot_free import INSTRUCTIONS
+        lines += [INSTRUCTIONS]
     return "\n".join(lines).encode("utf-8")
 
 def safe_target(root, rel):
@@ -41,13 +43,23 @@ def safe_target(root, rel):
         raise NaviError("Adapter path outside project")
     return path
 
-def adapters(root, host="all", mode="plan"):
+def adapters(root, host=None, mode="plan"):
     root = Path(root).resolve(strict=True)
     if not root.is_dir():
         raise NaviError("Project root must be a directory")
-    if host not in (*TARGETS, "all") or mode not in ("plan", "check", "apply"):
+    if host not in (*TARGETS, "all", None) or mode not in ("plan", "check", "apply"):
         raise NaviError("Invalid adapter selection")
-    profile = load_manifest(root)["project"]["profile"]
+    manifest = load_manifest(root)
+    profile = manifest["project"]["profile"]
+    if host is None:
+        preferred = manifest["agents"].get("host")
+        if preferred in TARGETS:
+            host = preferred
+    if host is None:
+        if mode != "plan":
+            raise NaviError("Select one host explicitly (or all for an explicit compatibility operation)")
+        return {"status": "planned", "mode": mode, "profile": profile,
+                "supported_hosts": list(TARGETS), "files": [], "scope": "Choose one host; none required by Core"}
     selected = list(TARGETS) if host == "all" else [host]
     planned = []
     for name in selected:

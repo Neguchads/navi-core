@@ -86,7 +86,7 @@ def verify(source,image,cases=None):
             if p.returncode or len(p.stdout)>65536:return {"status":"failed","passed":0,"total":len(cases),"reason":"candidate execution failed"}
             actual=json.loads(p.stdout)
             if type(actual) is not list or len(actual)!=len(cases):return {"status":"failed","passed":0,"total":len(cases),"reason":"invalid result"}
-            failures=[i for i,(got,(_,expected)) in enumerate(zip(actual,cases)) if got!=expected]
+            failures=[i for i,(got,(_,expected)) in enumerate(zip(actual,cases)) if json.dumps(got,sort_keys=True,allow_nan=False)!=json.dumps(expected,sort_keys=True,allow_nan=False)]
             passed=len(cases)-len(failures)
             return {"status":"passed" if not failures else "failed","passed":passed,"total":len(cases),"failed_case_indices":failures,"reason":None}
         except (subprocess.TimeoutExpired,ValueError,OSError):
@@ -121,7 +121,10 @@ def run(image,trials):
     rows=[]
     # Preflight both a known-good and known-bad fixture using actual container execution.
     good="def page(items, offset, limit):\n    if offset < 0 or limit < 1 or limit > 100:\n        raise ValueError()\n    end = offset + limit\n    return {'items': items[offset:end], 'next_offset': end if end < len(items) else None}\n"
-    if verify(good,image)["status"]!="passed" or verify(CASE["source"],image)["status"]!="failed":
+    positive=verify(good,image)
+    negative=verify(CASE["source"],image)
+    if positive["status"]!="passed" or negative["status"]!="failed" or not negative.get("failed_case_indices"):
+        # A broken Docker runtime is not evidence of detecting incorrect code.
         raise NaviError("Independent verifier preflight failed")
     dev=[(row["input"],row["output"]) for row in CASE["examples"]]
     if verify(good,image,dev)["status"]!="passed":

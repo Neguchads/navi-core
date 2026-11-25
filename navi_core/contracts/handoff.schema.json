@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "objective": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "revision": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{40,64}$"
+    },
+    "state": {
+      "enum": [
+        "in-progress",
+        "blocked",
+        "complete"
+      ]
+    },
+    "completed": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 1000
+      },
+      "maxItems": 30
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 1000
+      },
+      "maxItems": 30
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 1000
+      },
+      "maxItems": 30
+    },
+    "next_steps": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 1000
+      },
+      "maxItems": 30
+    },
+    "rollback": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "acceptance": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "criterion": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "status": {
+            "enum": [
+              "passed",
+              "failed",
+              "not-run",
+              "blocked"
+            ]
+          },
+          "evidence": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "criterion",
+          "status",
+          "evidence"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 30
+    },
+    "verification": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "command": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "status": {
+            "enum": [
+              "passed",
+              "failed",
+              "not-run",
+              "blocked"
+            ]
+          },
+          "exit_code": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "evidence": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "command",
+          "status",
+          "exit_code",
+          "evidence"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 30
+    }
+  },
+  "required": [
+    "schema_version",
+    "objective",
+    "revision",
+    "state",
+    "completed",
+    "blockers",
+    "decisions",
+    "next_steps",
+    "rollback",
+    "acceptance",
+    "verification"
+  ],
+  "additionalProperties": false
+}

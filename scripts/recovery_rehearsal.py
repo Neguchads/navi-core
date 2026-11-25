@@ -13,8 +13,8 @@ PROJECTS = {
     "spec-to-proof":"main",
     "chad-recomp":"main",
     "navi-graphify":"v8",
-    "github-homepage":"main",
-    "navyv-abyss":"main",
+    "navi-githomepage":"main",
+    "navi-abyss":"main",
     "Neguchads":"main",
 }
 def git(*args):

@@ -11,7 +11,7 @@ The included monthly allowance resets at 00:00 UTC on the first of the month.
 - Only low-risk public tasks, at most two files and 80 changed lines.
 - Format/lint use deterministic tools; private/unknown inputs remain local.
 - Unknown, stale, over-budget or paid-usage-enabled requests are not routed to Copilot.
-- Larger tasks route to manual Codex/Claude review; no automatic provider calls.
+- Larger tasks pause for human review; no automatic provider calls or switches.
 
 Example (illustrative usage only, replace with current observed values):
 
@@ -30,10 +30,9 @@ completion allowance is separate. If available, use the official CLI
 session limit, which is a preview soft cap with minimum 30 AI credits;
 do not use that limit as proof of zero overage.
 
-The compact repository instruction is emitted by
+The common repository policy and conditional Free micro-task profile are emitted by
 `navi agents --host copilot --mode apply` for repositories with a manifest.
-Existing differing instructions are never overwritten. The Core carries the
-same canonical micro-task instruction; Codex and Claude adapters are unchanged.
+Existing differing instructions are never overwritten. The Core repository explicitly opts into the Free micro-task policy. Other providers are not required.
 
 Official references:
 - https://docs.github.com/en/copilot/get-started/plans

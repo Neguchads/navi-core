@@ -1,5 +1,6 @@
 """Local-only, explicit-execution CLI. No credentials, network API or publishing."""
 import argparse
+import sqlite3
 import json
 import os
 import pathlib
@@ -15,7 +16,7 @@ from . import __version__
 
 RES = files("navi_core")
 REGISTRY = json.loads(RES.joinpath("profiles/registry.json").read_text(encoding="utf-8"))
-CONTRACTS = ("project", "task", "skill", "evidence", "event")
+CONTRACTS = ("project", "task", "skill", "evidence", "event", "brief", "lesson", "handoff", "knowledge", "embeddings", "embedding-query", "architecture-policy")
 
 class NaviError(Exception):
     pass
@@ -52,14 +53,18 @@ def detect(root):
     if not matches and (root/"README.md").is_file(): matches.append("documentation")
     return matches
 
-def init(root, profile, visibility):
+def init(root, profile, visibility, host=None, architecture_profile=None):
     if not root.is_dir(): raise NaviError("Project root must exist")
     if profile is None:
         candidates = detect(root)
         if len(candidates) != 1: raise NaviError("No unique profile; supply --profile")
         profile = candidates[0]
     name = root.name
-    data = {"schema_version":1,"project":{"name":name,"visibility":visibility,"maturity":"experimental","profile":profile},"verification":{"require_real_tests":True,"timeout_seconds":900},"knowledge":{"public_export":False},"agents":{"approval_for_production":True,"parallel_workers":2}}
+    data = {"schema_version":1,"project":{"name":name,"visibility":visibility,"maturity":"experimental","profile":profile},"verification":{"require_real_tests":True,"timeout_seconds":900},"knowledge":{"public_export":False},"agents":{"approval_for_production":True,"parallel_workers":1}}
+    if host is not None:
+        data["agents"]["host"] = host
+    if architecture_profile is not None:
+        data["project"]["architecture_profile"] = architecture_profile
     validate("project", data)
     directory = root/".navi"
     if directory.is_symlink(): raise NaviError("Refusing symlink .navi")
@@ -190,13 +195,15 @@ def main(argv=None):
         p=sub.add_parser(name);p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
         if name=="init":
             p.add_argument("--profile",choices=REGISTRY);p.add_argument("--visibility",choices=("public","private","internal","unknown"),default="unknown")
+            p.add_argument("--host",choices=("codex","claude","gemini","copilot","none"),help="Optional single preferred agent; no host required")
+            p.add_argument("--architecture-profile",choices=tuple(json.loads(RES.joinpath("profiles/nef.json").read_text(encoding="utf-8"))["profiles"]),help="Optional NEF reference profile, independent of verification")
         if name=="verify":p.add_argument("--execute",action="store_true",help="Run trusted project code; not sandboxed")
     p=sub.add_parser("agents",help="Plan, check or create repository agent adapters")
     p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
-    p.add_argument("--host",choices=("all","codex","claude","copilot"),default="all")
+    p.add_argument("--host",choices=("all","codex","claude","copilot","gemini"))
     p.add_argument("--mode",choices=("plan","check","apply"),default="plan")
     p=sub.add_parser("skills",help="List reviewed metadata candidates; never execute skills")
-    p.add_argument("--host",choices=("codex","claude","copilot","nexus"))
+    p.add_argument("--host",choices=("codex","claude","copilot","gemini","nexus"))
     p.add_argument("--category",choices=("architecture","engineering","verification","knowledge"))
     p=sub.add_parser("skill-scan",help="Inventory local ZIP metadata without extracting or executing")
     p.add_argument("archives",nargs="+",type=pathlib.Path)
@@ -204,7 +211,7 @@ def main(argv=None):
     p=sub.add_parser("context",help="Select reviewed local skill variants; no execution")
     p.add_argument("--inventory",required=True,type=pathlib.Path)
     p.add_argument("--approvals",required=True,type=pathlib.Path)
-    p.add_argument("--host",required=True,choices=("codex","claude","copilot","nexus"))
+    p.add_argument("--host",required=True,choices=("codex","claude","copilot","gemini","nexus"))
     p.add_argument("--query",required=True)
     p.add_argument("--budget-bytes",type=int,default=24000)
     p.add_argument("--max-risk",choices=("low","medium","high","critical"),default="low")
@@ -266,14 +273,221 @@ def main(argv=None):
     p=sub.add_parser("host-lab",help="Prepare or verify manual synthetic host acceptance")
     p.add_argument("--mode",required=True,choices=("prepare","check"))
     p.add_argument("--directory",required=True,type=pathlib.Path)
-    p.add_argument("--host",choices=("codex","claude","copilot"))
+    p.add_argument("--host",choices=("codex","claude","copilot","gemini"))
     p.add_argument("--submission",type=pathlib.Path)
     p.add_argument("--reported-version")
     p.add_argument("--output",type=pathlib.Path)
+    for name in ("install","update","uninstall"):
+        p=sub.add_parser(name,help="Explicit offline versioned environment management")
+        p.add_argument("--destination",required=True,type=pathlib.Path)
+        p.add_argument("--apply",action="store_true")
+        if name!="uninstall":
+            p.add_argument("--manifest",required=True,type=pathlib.Path)
+            p.add_argument("--manifest-sha256",required=True)
+    p=sub.add_parser("architecture",help="Read-only Python dependency and explicit boundary analysis")
+    p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+    p.add_argument("--source-root",default=".")
+    p.add_argument("--policy",type=pathlib.Path)
+    p=sub.add_parser("control-center",help="Read-only private local project portfolio")
+    p.add_argument("--config",required=True,type=pathlib.Path)
+    p.add_argument("--html",type=pathlib.Path)
+    p=sub.add_parser("knowledge",help="Reviewed local knowledge and bounded hybrid retrieval")
+    p.add_argument("action",choices=("ingest","revoke","retrieve"))
+    p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+    p.add_argument("--store",required=True,type=pathlib.Path)
+    p.add_argument("--id")
+    p.add_argument("--kind",choices=("document","graph","embeddings"))
+    p.add_argument("--file",type=pathlib.Path)
+    p.add_argument("--approve-digest")
+    p.add_argument("--apply",action="store_true")
+    p.add_argument("--query-file",type=pathlib.Path)
+    p.add_argument("--session-id")
+    p.add_argument("--embedding-query",type=pathlib.Path)
+    p.add_argument("--skill-inventory",type=pathlib.Path)
+    p.add_argument("--skill-approvals",type=pathlib.Path)
+    p.add_argument("--skill-archives",nargs="+",type=pathlib.Path)
+    p.add_argument("--skill-host",choices=("codex","claude","gemini","copilot","nexus"))
+    p.add_argument("--skill-budget",type=int,default=2048)
+    p.add_argument("--skill-max-risk",choices=("low","medium","high","critical"),default="low")
+    p.add_argument("--budget-bytes",type=int,default=8192)
+    sub.add_parser("hosts",help="Discover agent executables without running them")
+    p=sub.add_parser("capabilities",help="Describe one host's declared integration capabilities")
+    p.add_argument("--host",required=True,choices=("codex","claude","gemini","copilot","manus","generic","none"))
+    for name in ("connect","disconnect","health"):
+        p=sub.add_parser(name,help="Plan or explicitly manage one project-local context hook")
+        p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+        p.add_argument("--store",type=pathlib.Path,required=True)
+        p.add_argument("--host",choices=("codex","claude","gemini","copilot","manus","generic","none") if name=="health" else ("codex","claude","gemini"))
+        if name!="health":p.add_argument("--apply",action="store_true")
+        if name=="connect":p.add_argument("--check",action="store_true")
+    p=sub.add_parser("hook",help="Read bounded native hook JSON from stdin; no persistence")
+    p.add_argument("--host",required=True,choices=("codex","claude","gemini"))
+    p.add_argument("--event",required=True)
+    p=sub.add_parser("session",help="Manage provider-neutral private session lifecycle")
+    p.add_argument("action",choices=("start","status","list","event","history","resume","run"))
+    p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+    p.add_argument("--store",required=True,type=pathlib.Path)
+    p.add_argument("--id")
+    p.add_argument("--host",choices=("codex","claude","gemini","copilot","manus","generic","none"))
+    p.add_argument("--revision",type=int)
+    p.add_argument("--event",choices=("UserPrompt","BeforeExecution","AfterExecution","Checkpoint","BeforeCompletion","SessionEnd"))
+    p.add_argument("--brief",type=pathlib.Path)
+    p.add_argument("--handoff",type=pathlib.Path)
+    p.add_argument("--reviewed",action="store_true")
+    p.add_argument("--budget-bytes",type=int,default=8192)
+    p.add_argument("--operation",choices=("scaffold","migrate","verify"))
+    p.add_argument("--apply",action="store_true",help="Run explicit managed operation")
+    p=sub.add_parser("assist",help="Portable public reference context for any compatible agent")
+    p.add_argument("--profile",required=True)
+    p.add_argument("--format",choices=("json","markdown"),default="json")
+    for name in ("prepare","workflow"):
+        p=sub.add_parser(name,help="Managed NEF task preparation or gated operation")
+        p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+        p.add_argument("--brief",required=True,type=pathlib.Path)
+        p.add_argument("--profile")
+        p.add_argument("--mapping",type=pathlib.Path)
+        if name=="workflow":
+            p.add_argument("--action",required=True,choices=("scaffold","migrate","verify"))
+            p.add_argument("--apply",action="store_true",help="Explicitly apply or run trusted code")
+    for name in ("lessons","lesson-revoke"):
+        p=sub.add_parser(name,help="Manage approved private lesson metadata")
+        p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+        p.add_argument("--store",required=True,type=pathlib.Path)
+        if name=="lesson-revoke":
+            p.add_argument("--id",required=True)
+            p.add_argument("--apply",action="store_true")
+    p=sub.add_parser("handoff-check",help="Validate structured handoff without writing")
+    p.add_argument("--file",required=True,type=pathlib.Path)
+    sub.add_parser("mcp",help="Optional public reference MCP stdio server")
+    p=sub.add_parser("standard",help="NEF architecture and documentation references")
+    p.add_argument("--profile")
+    for name in ("audit","scaffold","migrate"):
+        p=sub.add_parser(name,help="NEF additive project structure workflow")
+        p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+        p.add_argument("--profile")
+        p.add_argument("--mapping",type=pathlib.Path,help="Optional topic-to-existing-path JSON mapping")
+        if name!="audit":p.add_argument("--apply",action="store_true")
+        if name=="scaffold":
+            p.add_argument("--sections",nargs="+")
+            p.add_argument("--include-folders",action="store_true")
+    p=sub.add_parser("intake",help="Validate an agent-supplied task brief")
+    p.add_argument("--brief",required=True,type=pathlib.Path)
+    for name in ("learn","recall"):
+        p=sub.add_parser(name,help="Explicit private reviewed learning, no model training")
+        p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+        p.add_argument("--store",required=True,type=pathlib.Path)
+        if name=="learn":
+            p.add_argument("--lesson",required=True,type=pathlib.Path)
+            p.add_argument("--approve",action="store_true")
+        else:
+            selection=p.add_mutually_exclusive_group(required=True)
+            selection.add_argument("--ids",nargs="+")
+            selection.add_argument("--query-file",type=pathlib.Path,help="Local prompt excerpt for lexical recall; not persisted")
+            p.add_argument("--budget-bytes",type=int,default=8192)
     p=sub.add_parser("validate");p.add_argument("kind",choices=CONTRACTS);p.add_argument("file",type=pathlib.Path)
     args=parser.parse_args(argv)
     try:
         if args.command=="doctor": out=doctor()
+        elif args.command in ("install","update","uninstall"):
+            from . import installer
+            if args.command=="uninstall":out=installer.uninstall(args.destination,args.apply)
+            else:out=installer.provision(args.manifest,args.manifest_sha256,args.destination,args.apply)
+            if out["status"]=="review-required":
+                print(json.dumps(out,ensure_ascii=False,indent=2));return 1
+        elif args.command in ("architecture","control-center"):
+            from . import intelligence,control_center
+            from .skill_registry import read_json
+            if args.command=="architecture":
+                out=intelligence.analyze(args.root,read_json(args.policy) if args.policy else None,args.source_root)
+                if out["status"] in ("violations","review-required"):
+                    print(json.dumps(out,ensure_ascii=False,indent=2));return 1
+            else:
+                out=control_center.portfolio(read_json(args.config))
+                if args.html is not None:
+                    control_center.save_html(args.html,out)
+                    out={"status":"created","projects":len(out["projects"]),"scope":"Local private HTML; no publication."}
+        elif args.command=="knowledge":
+            from . import knowledge
+            from .skill_registry import read_json,write_private
+            if args.action=="ingest":
+                if not args.file or not args.id or not args.kind:raise NaviError("Ingest needs file, id and kind")
+                out=knowledge.ingest(args.root,args.store,args.id,read_json(args.file),args.kind,args.approve_digest)
+            elif args.action=="revoke":out=knowledge.revoke(args.root,args.store,args.id,args.kind,args.apply)
+            else:
+                if not args.query_file:raise NaviError("Retrieve needs a local query file")
+                skill_args=(args.skill_inventory,args.skill_approvals,args.skill_archives,args.skill_host)
+                if any(skill_args) and not all(skill_args):raise NaviError("Skill retrieval requires inventory, approvals, archives and one host")
+                skill_inputs={"inventory":read_json(args.skill_inventory),"approvals":read_json(args.skill_approvals),"archives":args.skill_archives,"host":args.skill_host,"budget":args.skill_budget,"risk":args.skill_max_risk} if all(skill_args) else None
+                out=knowledge.retrieve(args.root,args.store,args.query_file,args.budget_bytes,args.session_id,read_json(args.embedding_query) if args.embedding_query else None,skill_inputs)
+        elif args.command in ("hosts","capabilities","connect","disconnect","health","hook","session"):
+            from . import runtime,runtime_hooks
+            from .skill_registry import read_json
+            if args.command=="hosts":out=runtime.discover()
+            elif args.command=="capabilities":out=runtime.capabilities(args.host)
+            elif args.command=="health":out=runtime_hooks.health(args.root,args.store,args.host)
+            elif args.command in ("connect","disconnect"):
+                mode=("disconnect" if args.command=="disconnect" else "apply") if args.apply else ("check" if getattr(args,"check",False) else "plan")
+                if args.apply and getattr(args,"check",False):raise NaviError("Choose apply or check")
+                out=runtime_hooks.connection(args.root,args.store,args.host,mode,args.command=="disconnect")
+            elif args.command=="hook":
+                raw=sys.stdin.buffer.read(65537)
+                if len(raw)>65536:raise NaviError("Hook input exceeds size limit")
+                out=runtime_hooks.hook(args.host,args.event,json.loads(raw))
+            else:
+                if args.action=="list":out=runtime.sessions(args.root,args.store)
+                elif args.action=="start":out=runtime.start(args.root,args.store,args.id,args.host)
+                elif args.action=="status":out=runtime.status(args.root,args.store,args.id)
+                elif args.action=="history":out=runtime.history(args.root,args.store,args.id)
+                elif args.action=="resume":out=runtime.context(args.root,args.store,args.id,args.budget_bytes)
+                elif args.action=="run":
+                    if not args.brief:raise NaviError("Managed run requires a brief file")
+                    out=runtime.run(args.root,args.store,args.id,args.revision,read_json(args.brief),args.operation,args.apply)
+                else:out=runtime.advance(args.root,args.store,args.id,args.revision,args.event,
+                    read_json(args.brief) if args.brief else None,read_json(args.handoff) if args.handoff else None,args.reviewed)
+            if out.get("status") in ("clarify","review-required","blocked","failed"):
+                print(json.dumps(out,ensure_ascii=False,indent=2));return 1
+        elif args.command in ("prepare","workflow","lessons","lesson-revoke"):
+            from . import assist,nef
+            from .skill_registry import read_json
+            if args.command=="lessons":out=nef.lessons(args.root,args.store)
+            elif args.command=="lesson-revoke":out=nef.revoke(args.root,args.store,args.id,args.apply)
+            else:
+                brief=read_json(args.brief)
+                mapping=read_json(args.mapping) if args.mapping is not None else None
+                if args.command=="prepare":out=assist.prepare(args.root,brief,args.profile,mapping)
+                else:out=assist.workflow(args.root,brief,args.action,args.profile,mapping,args.apply)
+            if out["status"] in ("clarify","blocked","review-required","failed"):
+                print(json.dumps(out,ensure_ascii=False,indent=2));return 1
+        elif args.command in ("assist","handoff-check","mcp"):
+            from . import assist
+            if args.command=="mcp":
+                from .mcp_bridge import serve
+                serve()
+                return 0
+            if args.command=="assist":
+                if args.format=="markdown":
+                    print(assist.render(args.profile),end="")
+                    return 0
+                out=assist.packet(args.profile)
+            else:
+                from .skill_registry import read_json
+                out=assist.check_handoff(read_json(args.file))
+                if out["status"]!="valid":
+                    print(json.dumps(out,ensure_ascii=False,indent=2));return 1
+        elif args.command in ("standard","audit","scaffold","migrate","intake","learn","recall"):
+            from . import nef
+            from .skill_registry import read_json
+            if args.command=="standard":out=nef.standard(args.profile)
+            elif args.command in ("audit","scaffold","migrate"):
+                mapping=read_json(args.mapping) if args.mapping is not None else None
+                if args.command=="audit":out=nef.inspect(args.root,args.profile,mapping)
+                elif args.command=="scaffold":out=nef.scaffold(args.root,args.profile,args.sections,args.apply,args.include_folders,mapping)
+                else:out=nef.migration(args.root,args.profile,args.apply,mapping)
+            elif args.command=="intake":out=nef.intake(read_json(args.brief))
+            elif args.command=="learn":out=nef.learn(args.root,args.store,read_json(args.lesson),args.approve)
+            else:out=nef.search_lessons(args.root,args.store,args.query_file,args.budget_bytes) if args.query_file else nef.recall(args.root,args.store,args.ids,args.budget_bytes)
+            if out.get("status") in ("clarify","blocked","review-required"):
+                print(json.dumps(out,ensure_ascii=False,indent=2));return 1
         elif args.command=="copilot-plan":
             from .copilot_free import plan as copilot_plan
             out=copilot_plan(args.kind,args.risk,args.visibility,args.files,args.lines,args.used_percent,args.estimate_percent,args.checked_on,args.paid_usage_blocked)
@@ -281,8 +495,8 @@ def main(argv=None):
             from . import host_lab
             from .skill_registry import read_json,write_private
             if args.mode=="prepare":
-                if args.host or args.submission or args.reported_version or args.output: raise NaviError("Prepare only accepts directory")
-                out=host_lab.create(args.directory)
+                if args.submission or args.reported_version or args.output: raise NaviError("Prepare accepts directory and optional host")
+                out=host_lab.create(args.directory,args.host)
             else:
                 if not args.host or not args.submission or not args.reported_version: raise NaviError("Check requires host, submission and reported version")
                 out=host_lab.check(args.directory,args.host,read_json(args.submission),args.reported_version)
@@ -359,8 +573,8 @@ def main(argv=None):
             root=args.root.resolve(strict=True)
             if not root.is_dir(): raise NaviError("Project root must be a directory")
             if args.command=="detect":out={"candidates":detect(root)}
-            elif args.command=="init":out=init(root,args.profile,args.visibility)
+            elif args.command=="init":out=init(root,args.profile,args.visibility,args.host,args.architecture_profile)
             else:out=verify(root,args.execute)
         print(json.dumps(out,ensure_ascii=False,indent=2));return 0
-    except (NaviError,OSError,ValueError,TypeError,KeyError,subprocess.SubprocessError) as exc:
+    except (NaviError,OSError,ValueError,TypeError,KeyError,subprocess.SubprocessError,sqlite3.Error) as exc:
         print(f"NAVI: {exc if isinstance(exc,NaviError) else type(exc).__name__}",file=sys.stderr);return 1

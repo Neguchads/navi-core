@@ -22,3 +22,25 @@ Nenhuma configuração privada é distribuída. Licença MIT.
 ## Agent Bridge (prévia)
 
 `navi agents` planeja ou cria instruções de repositório sem sobrescrever arquivos existentes. `navi skills` lista metadados de candidatos, sem executar skills. Consulte [o guia](docs/AGENT_BRIDGE.md).
+
+## Independência de provedores
+
+O Core não depende de nenhum assistente de IA. Escolha um único host: Codex, Claude Code, Gemini CLI ou GitHub Copilot. Papéis lógicos podem ser executados sequencialmente no mesmo host. Sem troca automática de provedor. Consulte [a arquitetura](docs/PROVIDER_INDEPENDENCE.md).
+
+Para novos projetos, `navi init --root . --profile documentation --host gemini` registra o host preferido. Use `--host none` para projetos sem IA. A preferência é opcional e não instala nenhum agente.
+
+## NAVI Engineering Framework (NEF)
+
+Referências de arquitetura e estrutura adaptáveis, documentação, roadmap, handoff, scaffold e migração aditiva, auditoria, esclarecimento de tarefas e aprendizado local revisado. Consulte [NEF](docs/NEF.md). Perfis de referência não equivalem a gates de execução homologados.
+
+Interface universal: `navi assist --profile game-recomp --format markdown`, `navi handoff-check` e MCP opcional sem credenciais de IA. [Guia](docs/UNIVERSAL_AGENT_INTERFACE.md).
+
+Runtime de agentes: descoberta de CLI, sessões SQLite privadas, revisões e handoff, hooks consultivos candidatos e configuração local reversível. [Guia](docs/AGENT_RUNTIME.md).
+
+Motor de conhecimento: FTS5/BM25 local, lições revisadas, importação opcional Graphify e contexto limitado com handoff preservado. [Guia](docs/ADAPTIVE_KNOWLEDGE.md).
+
+Inteligência de engenharia: análise estática Python e limites arquiteturais explícitos; painel local offline de projetos e sessões. [Análise](docs/ENGINEERING_INTELLIGENCE.md) · [Painel](docs/CONTROL_CENTER.md).
+
+[Instalação e atualização offline](docs/INSTALLATION.md): ambientes isolados, hashes verificados e rollback preservando a versão anterior.
+
+[NAVI canonical repositories](docs/REPOSITORY_NAMES.md).

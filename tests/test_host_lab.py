@@ -7,7 +7,7 @@ from navi_core import host_lab,cli
 class HostLabTests(unittest.TestCase):
     def setUp(self):
         tmp=tempfile.TemporaryDirectory();self.addCleanup(tmp.cleanup)
-        self.root=Path(tmp.name)/"lab"
+        self.root=Path(tmp.name).resolve()/"lab"
         self.assertEqual(host_lab.create(self.root)["status"],"prepared")
         self.expected=json.loads((self.root/"expected.json").read_text())["hosts"]
     def answer(self,host):
@@ -28,3 +28,27 @@ class HostLabTests(unittest.TestCase):
     def test_challenge_not_in_prompt(self):
         prompt=(self.root/"PROMPT.txt").read_text()
         self.assertTrue(all(x["challenge"] not in prompt for x in self.expected.values()))
+
+    def test_single_host_lab(self):
+        for host in host_lab.HOSTS:
+            with self.subTest(host=host):
+                root=self.root.parent/("only-"+host)
+                self.assertEqual(host_lab.create(root,host)["hosts"],[host])
+                expected=json.loads((root/"expected.json").read_text())["hosts"]
+                self.assertEqual(list(expected),[host])
+                answer={"challenge":expected[host]["challenge"],"order":["lint","compile","test"]}
+                self.assertEqual(host_lab.check(root,host,answer,"manual-fixture")["status"],"passed")
+                for other in host_lab.HOSTS:
+                    self.assertEqual((root/other).exists(),other==host)
+
+    def test_refuses_linked_parent(self):
+        real=self.root.parent/"real"
+        real.mkdir()
+        linked=self.root.parent/"alias"
+        try:
+            linked.symlink_to(real,target_is_directory=True)
+        except OSError:
+            self.skipTest("symlink privilege unavailable")
+        with self.assertRaises(cli.NaviError):
+            host_lab.create(linked/"new","gemini")
+        self.assertFalse((real/"new").exists())

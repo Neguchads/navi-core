@@ -30,6 +30,6 @@ The scanner is a metadata/integrity tool, not a secrets or malware scanner.
 Review contents for prompt injection, credentials and licenses before use.
 No private archives or inventory are included in this public repository.
 
-Future: actual Codex/Claude/Copilot acceptance tests, host-specific tool
+Future: independent Codex/Claude/Gemini/Copilot acceptance tests, host-specific tool
 availability checks, tokenization benchmarks, graph retrieval, and governed
 execution. Do not enable automatic ingestion or publish private context.

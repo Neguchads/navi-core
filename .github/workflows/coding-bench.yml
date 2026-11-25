@@ -42,9 +42,9 @@ jobs:
       - name: Prepare isolated verifier image
         shell: bash
         run: |
-          docker pull python:3.13-slim
-          docker image inspect python:3.13-slim --format '{{.Id}}' > "$RUNNER_TEMP/live-bench/image-id.txt"
-          docker image inspect python:3.13-slim --format '{{json .RepoDigests}}' > "$RUNNER_TEMP/live-bench/image-digests.json"
+          docker pull python@sha256:7249d5587b78209a006dc4a3b5340678f84ea729239193aa559962cd8c1fce50
+          docker image inspect python@sha256:7249d5587b78209a006dc4a3b5340678f84ea729239193aa559962cd8c1fce50 --format '{{.Id}}' > "$RUNNER_TEMP/live-bench/image-id.txt"
+          docker image inspect python@sha256:7249d5587b78209a006dc4a3b5340678f84ea729239193aa559962cd8c1fce50 --format '{{json .RepoDigests}}' > "$RUNNER_TEMP/live-bench/image-digests.json"
       - name: Run actual local CPU inference
         shell: bash
         run: |

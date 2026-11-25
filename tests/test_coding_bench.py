@@ -24,7 +24,7 @@ class CodingBenchTests(unittest.TestCase):
         from unittest.mock import patch
         good="def page(items, offset, limit): return {'items': [], 'next_offset': None}"
         good_result={"status":"passed","passed":12,"total":12}
-        bad_result={"status":"failed","passed":0,"total":12}
+        bad_result={"status":"failed","passed":0,"total":12,"failed_case_indices":[0]}
         dev_result={"status":"failed","failed_case_indices":[0],"reason":None}
         with patch.object(bench,"verify",side_effect=[good_result,bad_result,good_result,good_result,dev_result,good_result]) as verify, patch.object(bench,"request",return_value=(good,{"input_tokens":1,"output_tokens":1})) as request:
             report=bench.run("sha256:"+"a"*64,1)
@@ -36,7 +36,20 @@ class CodingBenchTests(unittest.TestCase):
         from unittest.mock import patch
         source=bench.CASE["source"]
         ok={"status":"passed","passed":12,"total":12}
-        with patch.object(bench,"verify",side_effect=[ok,{"status":"failed"},ok,ok,ok,ok]), patch.object(bench,"request",return_value=(source,{"input_tokens":1,"output_tokens":1})) as request:
+        with patch.object(bench,"verify",side_effect=[ok,{"status":"failed","failed_case_indices":[0]},ok,ok,ok,ok]), patch.object(bench,"request",return_value=(source,{"input_tokens":1,"output_tokens":1})) as request:
             report=bench.run("sha256:"+"a"*64,1)
             self.assertEqual(report["status"],"passed")
             self.assertEqual(request.call_count,2)
+
+    def test_broken_negative_preflight_is_not_a_valid_rejection(self):
+        from unittest.mock import patch
+        with patch.object(bench,"verify",side_effect=[{"status":"passed"},{"status":"failed","reason":"candidate execution failed"}]):
+            with self.assertRaises(NaviError):
+                bench.run("sha256:"+"a"*64,1)
+
+    def test_model_failure_remains_failure(self):
+        from unittest.mock import patch
+        good={"status":"passed","passed":12,"total":12}
+        bad={"status":"failed","passed":11,"total":12,"failed_case_indices":[3]}
+        with patch.object(bench,"verify",side_effect=[good,bad,good,bad,good,good]), patch.object(bench,"request",return_value=(bench.CASE["source"],{"input_tokens":1,"output_tokens":1})):
+            self.assertEqual(bench.run("sha256:"+"a"*64,1)["status"],"failed")

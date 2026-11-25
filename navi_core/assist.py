@@ -1,0 +1,96 @@
+"""Portable public reference packet and structured handoff validation."""
+import json
+import re
+from . import __version__, nef
+from .agent_bridge import policy
+from .cli import NaviError, RES, validate
+
+def contract(name):
+    if name not in ("brief","handoff","lesson"):
+        raise NaviError("Unknown assistant contract")
+    return json.loads(RES.joinpath("contracts/"+name+".schema.json").read_text(encoding="utf-8"))
+
+def packet(profile):
+    p,digest=policy()
+    standard=nef.standard(profile)
+    if profile is None:raise NaviError("Select one architecture profile")
+    return {"schema_version":1,"framework":"NAVI Engineering Framework","core_version":__version__,
+            "scope":"Public reference data only; selected host remains responsible for execution.",
+            "profile":profile,"reference":standard["profiles"][profile],
+            "documentation":[{k:x[k] for k in ("id","preferred","alternatives","priority")} for x in standard["common"]],
+            "policy_sha256":digest,"rules":p["rules"],
+            "workflow":["recover relevant context","clarify material ambiguity","define acceptance",
+                        "plan roadmap and architecture","implement authorized scope","verify actual results",
+                        "record handoff","propose reviewed lessons"],
+            "contracts":{"brief":contract("brief"),"handoff":contract("handoff"),"lesson":contract("lesson")},
+            "commands":["navi install","navi update","navi uninstall","navi architecture","navi control-center","navi knowledge","navi hosts","navi capabilities","navi health","navi session","navi prepare","navi workflow","navi standard","navi audit","navi intake","navi scaffold","navi migrate",
+                        "navi verify","navi handoff-check","navi learn","navi recall","navi lessons","navi lesson-revoke"],
+            "capabilities":{"portable_context":True,"host_autoload":False,"host_enforcement":False,
+                            "private_context_included":False,"inference":False}}
+
+def render(profile):
+    data=packet(profile)
+    lines=["# NAVI Engineering Framework — portable agent context","",
+           "Use only your selected agent; no other AI provider is required.",
+           "Public reference only. These instructions do not grant permissions or prove execution.",
+           "",f"Architecture profile: {profile}",data["reference"]["architecture"],"",
+           "## Engineering policies"]
+    lines.extend("- **"+r["id"]+" "+r["title"]+":** "+r["text"] for r in data["rules"])
+    lines+=["","## Lifecycle"]
+    lines.extend(str(i)+". "+s for i,s in enumerate(data["workflow"],1))
+    lines+=["","## Reference folders (optional)",", ".join(data["reference"]["folders"]),
+            "","## Reference documents (alternate paths or consolidated documents are valid)"]
+    lines.extend("- "+x["id"]+": "+", ".join(x["alternatives"]) for x in data["documentation"])
+    lines+=["","## Local tools when available",", ".join(data["commands"]),
+            "If local tools are unavailable, use the included contract and report unverified checks; never claim execution.",
+            "","## Structured contracts"]
+    for name,schema in data["contracts"].items():
+        lines+=["","### "+name,"",chr(96)*3+"json",json.dumps(schema,ensure_ascii=False,indent=2),chr(96)*3]
+    return "\n".join(lines)+"\n"
+
+def check_handoff(data):
+    validate("handoff",data)
+    errors=[]
+    if not data["objective"].strip():errors.append("objective")
+    if data["state"]!="complete" and not any(x.strip() for x in data["next_steps"]):
+        errors.append("next_steps")
+    if data["state"]=="blocked" and not any(x.strip() for x in data["blockers"]):
+        errors.append("blockers")
+    if data["state"]=="complete":
+        if data["blockers"]:errors.append("unresolved_blockers")
+        if any(x["status"]!="passed" for x in data["verification"]):errors.append("unresolved_verification")
+        if not data["acceptance"]:errors.append("acceptance")
+        if any(x["status"]!="passed" or not x["evidence"].strip() for x in data["acceptance"]):
+            errors.append("unverified_acceptance")
+    if any(x["status"]=="passed" and (not x["evidence"].strip() or x["exit_code"]!=0) for x in data["verification"]):
+        errors.append("unverified_test")
+    if any(x["status"]=="passed" and not x["evidence"].strip() for x in data["acceptance"]):
+        errors.append("missing_acceptance_evidence")
+    return {"status":"review-required" if errors else "valid","issues":errors,
+            "scope":"Structural self-reported handoff validation; evidence must be independently checked. No permission or production certification."}
+
+def prepare(root,brief,profile=None,mapping=None):
+    gate=nef.intake(brief)
+    if gate["status"]!="ready":
+        return {"status":"clarify","gate":gate,"scope":"No project inspection or mutation performed."}
+    audit=nef.inspect(root,profile,mapping)
+    return {"status":"review-required" if audit["status"]=="review-required" else "ready",
+            "gate":gate,"reference":packet(audit["profile"]),"audit":audit,
+            "scope":"Read-only task preparation; no authorization, no model inference."}
+
+def workflow(root,brief,action,profile=None,mapping=None,apply=False):
+    """The managed CLI never applies a task with an unresolved brief."""
+    if action not in ("scaffold","migrate","verify"):
+        raise NaviError("Unknown managed action")
+    gate=nef.intake(brief)
+    if gate["status"]!="ready":
+        return {"status":"clarify","gate":gate,"scope":"Managed operation not performed."}
+    if action=="scaffold":out=nef.scaffold(root,profile,apply=apply,mapping=mapping)
+    elif action=="migrate":out=nef.migration(root,profile,apply=apply,mapping=mapping)
+    else:
+        from pathlib import Path
+        from .cli import verify
+        if profile is not None or mapping is not None:
+            raise NaviError("Verification uses the existing manifest, not a reference override")
+        out=verify(Path(root).resolve(strict=True),apply)
+    return {**out,"intake":"ready","scope":"Managed CLI gate only; cannot intercept arbitrary host actions. "+out.get("scope","")}
