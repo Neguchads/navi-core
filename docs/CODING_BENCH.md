@@ -22,3 +22,7 @@ Run 45539334308 completed all six coding trials with 11/12 checks each, no full 
 ## Protocol v3: public development feedback
 
 The second run 45539924660 produced one complete pass and five failures on the valid empty list case. The next protocol compares single inference with adaptive development-test feedback, rather than unconditional review. Both receive three public examples, distinct from the unchanged twelve final cases. Adaptive spends at most 256 + 256 output tokens, but skips the repair call if all development examples pass. Final acceptance outcomes are never supplied during that trial. This is a new protocol and must not be pooled with prior trials. Since fixtures are public and reused in experiment development, this is not a blind held-out benchmark. A complete pass is required for every trial; failures remain visible.
+
+## Successful protocol v3 run
+
+Run 45545522360: six of six complete passes; 72/72 final acceptance checks, identical generated source hash for all six trials. Both strategies used 867 input and 366 output tokens across three trials. Adaptive skipped all three repair calls because development tests passed. This proves the restricted fixture and skip-review branch; the actual repair branch is covered by mocked transport tests, not this live run. Cold-start bias prevents conclusions from observed latency. The public reused fixture is not a blind or generalized engineering benchmark.

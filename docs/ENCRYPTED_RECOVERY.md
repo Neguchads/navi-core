@@ -1,0 +1,3 @@
+# Encrypted recovery export
+
+The optional public-only export creates a verified Git bundle, encrypts with AES-256-GCM CMS and the pinned RSA recipient certificate, and uploads only ciphertext plus public ref/hash receipt. The private key is never in GitHub. Download and decrypt on a separate machine, compare SHA-256, restore mirror, fsck, compare exact refs and default HEAD. Keep a separate encrypted backup and protected key. Actions retention is 30 days, not durable independent storage. Private repositories are excluded from this workflow. LFS objects, external submodules, settings, issues and release assets are not covered.

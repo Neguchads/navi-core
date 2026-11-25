@@ -80,7 +80,7 @@ class CoreTests(unittest.TestCase):
         d=dict(schema_version=1,requirement="R1",commit="a"*40,command=["test"],status="passed",exit_code=1,artifact_sha256=None)
         with self.assertRaises(cli.NaviError):cli.validate("evidence",d)
     def test_cli(self):
-        result=subprocess.run([sys.executable,"-m","navi_core","doctor"],capture_output=True,text=True,check=True);self.assertEqual(json.loads(result.stdout)["version"],"0.1.0")
+        result=subprocess.run([sys.executable,"-m","navi_core","doctor"],capture_output=True,text=True,check=True);self.assertEqual(json.loads(result.stdout)["version"],"0.2.0rc1")
     def test_backend_real_gate(self):
         if not shutil.which("node") or not shutil.which("npm"):
             self.skipTest("Node and npm required")
