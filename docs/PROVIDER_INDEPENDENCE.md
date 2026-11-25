@@ -34,3 +34,5 @@ Planning, implementation, testing, review, security and documentation are logica
 Core verification and GitHub Actions must not require AI credentials. Each host must be tested alone, with no other host installed or authenticated. Synthetic adapter tests cover instruction creation, check, skill metadata and host-lab fixtures. Actual authenticated instruction ingestion, project task execution, tool permissions, quota behavior and OS compatibility require separate evidence for each host. Candidate metadata does not install or approve skills. Passing a synthetic lab is not production certification. A host can be adopted independently after its own acceptance; comparison is optional.
 
 RC3 targets Linux, Windows and macOS through CI, exact wheel checks, separate host-lab preparation and a no-AI project fixture. Check the actual run before claiming a platform passed.
+
+On macOS, temporary paths may include the system `/var` symlink. For new proof/lab output, use an explicitly canonical parent (for example `cd "$TMPDIR" && pwd -P`). The output symlink rejection is intentional and is not relaxed for macOS.

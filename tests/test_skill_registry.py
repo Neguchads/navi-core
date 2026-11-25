@@ -11,7 +11,7 @@ class SkillRegistryTests(unittest.TestCase):
     def setUp(self):
         tmp=tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
-        self.root=pathlib.Path(tmp.name)
+        self.root=pathlib.Path(tmp.name).resolve()
 
     def archive(self,name,entries):
         path=self.root/name

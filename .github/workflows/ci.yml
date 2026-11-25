@@ -191,13 +191,14 @@ jobs:
           "$py" -I -m navi_core --version
           "$py" -I -m navi_core bench --mode reference
           "$py" -I -m navi_core providers
+          canonical_temp=$(cd "$RUNNER_TEMP" && pwd -P)
           for host in codex claude gemini copilot; do
-            "$py" -I -m navi_core host-lab --mode prepare --host "$host" --directory "$RUNNER_TEMP/navi-host-lab-$host"
+            "$py" -I -m navi_core host-lab --mode prepare --host "$host" --directory "$canonical_temp/navi-host-lab-$host"
           done
-          mkdir -p "$RUNNER_TEMP/navi-zero-ai"
-          printf "# Zero AI fixture\n" > "$RUNNER_TEMP/navi-zero-ai/README.md"
-          "$py" -I -m navi_core init --root "$RUNNER_TEMP/navi-zero-ai" --profile documentation --visibility public --host none
-          "$py" -I -m navi_core verify --root "$RUNNER_TEMP/navi-zero-ai" --execute
+          mkdir -p "$canonical_temp/navi-zero-ai"
+          printf "# Zero AI fixture\n" > "$canonical_temp/navi-zero-ai/README.md"
+          "$py" -I -m navi_core init --root "$canonical_temp/navi-zero-ai" --profile documentation --visibility public --host none
+          "$py" -I -m navi_core verify --root "$canonical_temp/navi-zero-ai" --execute
           "$py" -I -m navi_core copilot-plan --kind lint --risk low --visibility public --files 1 --lines 5
   publish-preview:
     if: github.repository == 'Neguchads/navi-core' && github.ref == 'refs/heads/main' && github.event_name == 'push'

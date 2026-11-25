@@ -9,8 +9,8 @@ from navi_core import cli, engineering_proof as p
 class EngineeringProofTests(unittest.TestCase):
     def setUp(self):
         tmp=tempfile.TemporaryDirectory();self.addCleanup(tmp.cleanup)
-        self.root=pathlib.Path(tmp.name)/"fixture";self.root.mkdir()
-        self.out=pathlib.Path(tmp.name)/"receipt"
+        self.root=pathlib.Path(tmp.name).resolve()/"fixture";self.root.mkdir()
+        self.out=pathlib.Path(tmp.name).resolve()/"receipt"
         (self.root/"README.md").write_text("# fixture",encoding="utf-8")
         cli.init(self.root,"documentation","private")
         for args in (("init","-q"),("add","."),("-c","user.name=Fixture","-c","user.email=fixture@example.invalid","-c","commit.gpgsign=false","commit","-qm","fixture")):
