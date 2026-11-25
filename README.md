@@ -82,3 +82,7 @@ Provider-independent engineering references, 19 architecture profiles, adaptable
 ## Universal Agent Interface
 
 Use `navi assist --profile game-recomp --format markdown` for portable context with any compatible agent. `navi handoff-check` validates structured session transfer. Optional `navi mcp` exposes public reference tools through stdio. No additional AI provider is required. [Guide](docs/UNIVERSAL_AGENT_INTERFACE.md).
+
+## Agent Runtime Integration
+
+`navi hosts`, `navi capabilities`, private SQLite `navi session` lifecycle, and explicit reversible project-local context hook candidates via `navi connect`/`disconnect`. See [runtime guide](docs/AGENT_RUNTIME.md). Actual host enforcement remains separate.

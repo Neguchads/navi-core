@@ -21,3 +21,5 @@ Recovery, security and licensing gates must be reviewed before adopting in produ
 - NEF: reference catalog, adaptive scaffold/audit/migration, roadmap/handoff, structured intake and reviewed local lessons. Actual host integration, semantic architecture analysis and non-additive migrations remain separate acceptance work.
 
 - UAI: portable context, structured handoff and optional public-reference MCP; actual host acceptance and private context integration remain separate.
+
+- Agent Runtime Integration (NEF phase 4): host discovery, declared capabilities, private revisioned SQLite lifecycle, checkpoint/resume and reversible candidate context hooks. Actual host events, installation lifecycle, semantic classification and enforcement remain separate acceptance work.

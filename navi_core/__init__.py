@@ -1,2 +1,2 @@
 """NAVI Core: local-first engineering contracts."""
-__version__ = "0.3.0rc2"
+__version__ = "0.4.0rc1"

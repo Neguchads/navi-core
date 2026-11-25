@@ -23,7 +23,7 @@ def packet(profile):
                         "plan roadmap and architecture","implement authorized scope","verify actual results",
                         "record handoff","propose reviewed lessons"],
             "contracts":{"brief":contract("brief"),"handoff":contract("handoff"),"lesson":contract("lesson")},
-            "commands":["navi prepare","navi workflow","navi standard","navi audit","navi intake","navi scaffold","navi migrate",
+            "commands":["navi hosts","navi capabilities","navi session","navi prepare","navi workflow","navi standard","navi audit","navi intake","navi scaffold","navi migrate",
                         "navi verify","navi handoff-check","navi learn","navi recall","navi lessons","navi lesson-revoke"],
             "capabilities":{"portable_context":True,"host_autoload":False,"host_enforcement":False,
                             "private_context_included":False,"inference":False}}
