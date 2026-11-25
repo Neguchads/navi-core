@@ -1,0 +1,74 @@
+name: Isolated live coding benchmark
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/coding-bench.yml'
+      - 'scripts/coding_bench.py'
+      - 'tests/test_coding_bench.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: coding-bench-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  live:
+    if: github.repository == 'Neguchads/navi-core' && (github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      OLLAMA_HOST: '127.0.0.1:11434'
+      OLLAMA_NO_CLOUD: '1'
+      OLLAMA_NUM_PARALLEL: '1'
+      OLLAMA_MAX_LOADED_MODELS: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: '3.13'
+      - run: python -m pip install -r requirements-ci.txt
+      - run: python -m pip install --no-build-isolation --no-deps .
+      - name: Download verified Ollama runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/ollama-runtime" "$RUNNER_TEMP/live-bench"
+          curl --fail --silent --show-error --location --retry 2 --max-time 420 https://github.com/ollama/ollama/releases/download/v0.40.18/ollama-linux-amd64.tar.zst -o "$RUNNER_TEMP/ollama.tar.zst"
+          printf '%s  %s\n' 'b82649006cb5b54ed1237fa2d1a26a7f939a4fd03150033759acbff7ff315adf' "$RUNNER_TEMP/ollama.tar.zst" | sha256sum --check
+          tar --zstd -xf "$RUNNER_TEMP/ollama.tar.zst" -C "$RUNNER_TEMP/ollama-runtime"
+      - name: Prepare isolated verifier image
+        shell: bash
+        run: |
+          docker pull python@sha256:7249d5587b78209a006dc4a3b5340678f84ea729239193aa559962cd8c1fce50
+          docker image inspect python@sha256:7249d5587b78209a006dc4a3b5340678f84ea729239193aa559962cd8c1fce50 --format '{{.Id}}' > "$RUNNER_TEMP/live-bench/image-id.txt"
+          docker image inspect python@sha256:7249d5587b78209a006dc4a3b5340678f84ea729239193aa559962cd8c1fce50 --format '{{json .RepoDigests}}' > "$RUNNER_TEMP/live-bench/image-digests.json"
+      - name: Run actual local CPU inference
+        shell: bash
+        run: |
+          set -euo pipefail
+          export OLLAMA_MODELS="$RUNNER_TEMP/ollama-models"
+          export PATH="$RUNNER_TEMP/ollama-runtime/bin:$PATH"
+          export CUDA_VISIBLE_DEVICES=-1
+          ollama serve > "$RUNNER_TEMP/ollama-server.log" 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:11434/api/version; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:11434/api/version > "$RUNNER_TEMP/live-bench/runtime.json"
+          timeout 540 ollama pull qwen2.5-coder:7b-instruct
+          curl -fsS http://127.0.0.1:11434/api/tags > "$RUNNER_TEMP/live-bench/model.json"
+          python -c 'import json,sys; d=json.load(open(sys.argv[1])); assert any(m["name"]=="qwen2.5-coder:7b-instruct" and m["digest"].startswith("dae161e27b0e") for m in d["models"]), "model tag changed"' "$RUNNER_TEMP/live-bench/model.json"
+          timeout 900 python scripts/coding_bench.py --image "$(cat "$RUNNER_TEMP/live-bench/image-id.txt")" --trials 3 --output "$RUNNER_TEMP/live-bench/coding.json"
+      - name: Upload actual synthetic evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: isolated-coding-evidence
+          path: ${{ runner.temp }}/live-bench
+          if-no-files-found: error
+          retention-days: 7
