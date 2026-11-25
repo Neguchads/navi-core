@@ -16,3 +16,5 @@ User and selected host define the task. NEF validates the submitted brief; the h
 
 ## Constraints
 No fixed project directory layout. Do not expose private logs, credentials or lessons. CI remains deterministic without AI credentials. Host instruction adherence and semantic architecture checks require separate validation.
+
+- UAI: portable public context, structured handoff and optional read-only MCP reference tools. No host installation or private context exposure.

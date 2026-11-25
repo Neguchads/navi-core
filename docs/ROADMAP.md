@@ -19,3 +19,5 @@ Recovery, security and licensing gates must be reviewed before adopting in produ
 - Provider-independence gate: explicit single-host adapter selection, Gemini CLI candidate adapter, neutral Free routing and isolated fixture tests. Real authenticated host acceptance remains pending; do not require other hosts for adoption of a passing host.
 
 - NEF: reference catalog, adaptive scaffold/audit/migration, roadmap/handoff, structured intake and reviewed local lessons. Actual host integration, semantic architecture analysis and non-additive migrations remain separate acceptance work.
+
+- UAI: portable context, structured handoff and optional public-reference MCP; actual host acceptance and private context integration remain separate.

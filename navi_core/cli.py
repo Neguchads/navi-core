@@ -15,7 +15,7 @@ from . import __version__
 
 RES = files("navi_core")
 REGISTRY = json.loads(RES.joinpath("profiles/registry.json").read_text(encoding="utf-8"))
-CONTRACTS = ("project", "task", "skill", "evidence", "event", "brief", "lesson")
+CONTRACTS = ("project", "task", "skill", "evidence", "event", "brief", "lesson", "handoff")
 
 class NaviError(Exception):
     pass
@@ -276,6 +276,28 @@ def main(argv=None):
     p.add_argument("--submission",type=pathlib.Path)
     p.add_argument("--reported-version")
     p.add_argument("--output",type=pathlib.Path)
+    p=sub.add_parser("assist",help="Portable public reference context for any compatible agent")
+    p.add_argument("--profile",required=True)
+    p.add_argument("--format",choices=("json","markdown"),default="json")
+    for name in ("prepare","workflow"):
+        p=sub.add_parser(name,help="Managed NEF task preparation or gated operation")
+        p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+        p.add_argument("--brief",required=True,type=pathlib.Path)
+        p.add_argument("--profile")
+        p.add_argument("--mapping",type=pathlib.Path)
+        if name=="workflow":
+            p.add_argument("--action",required=True,choices=("scaffold","migrate","verify"))
+            p.add_argument("--apply",action="store_true",help="Explicitly apply or run trusted code")
+    for name in ("lessons","lesson-revoke"):
+        p=sub.add_parser(name,help="Manage approved private lesson metadata")
+        p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+        p.add_argument("--store",required=True,type=pathlib.Path)
+        if name=="lesson-revoke":
+            p.add_argument("--id",required=True)
+            p.add_argument("--apply",action="store_true")
+    p=sub.add_parser("handoff-check",help="Validate structured handoff without writing")
+    p.add_argument("--file",required=True,type=pathlib.Path)
+    sub.add_parser("mcp",help="Optional public reference MCP stdio server")
     p=sub.add_parser("standard",help="NEF architecture and documentation references")
     p.add_argument("--profile")
     for name in ("audit","scaffold","migrate"):
@@ -305,6 +327,34 @@ def main(argv=None):
     args=parser.parse_args(argv)
     try:
         if args.command=="doctor": out=doctor()
+        elif args.command in ("prepare","workflow","lessons","lesson-revoke"):
+            from . import assist,nef
+            from .skill_registry import read_json
+            if args.command=="lessons":out=nef.lessons(args.root,args.store)
+            elif args.command=="lesson-revoke":out=nef.revoke(args.root,args.store,args.id,args.apply)
+            else:
+                brief=read_json(args.brief)
+                mapping=read_json(args.mapping) if args.mapping is not None else None
+                if args.command=="prepare":out=assist.prepare(args.root,brief,args.profile,mapping)
+                else:out=assist.workflow(args.root,brief,args.action,args.profile,mapping,args.apply)
+            if out["status"] in ("clarify","blocked","review-required","failed"):
+                print(json.dumps(out,ensure_ascii=False,indent=2));return 1
+        elif args.command in ("assist","handoff-check","mcp"):
+            from . import assist
+            if args.command=="mcp":
+                from .mcp_bridge import serve
+                serve()
+                return 0
+            if args.command=="assist":
+                if args.format=="markdown":
+                    print(assist.render(args.profile),end="")
+                    return 0
+                out=assist.packet(args.profile)
+            else:
+                from .skill_registry import read_json
+                out=assist.check_handoff(read_json(args.file))
+                if out["status"]!="valid":
+                    print(json.dumps(out,ensure_ascii=False,indent=2));return 1
         elif args.command in ("standard","audit","scaffold","migrate","intake","learn","recall"):
             from . import nef
             from .skill_registry import read_json
@@ -317,7 +367,7 @@ def main(argv=None):
             elif args.command=="intake":out=nef.intake(read_json(args.brief))
             elif args.command=="learn":out=nef.learn(args.root,args.store,read_json(args.lesson),args.approve)
             else:out=nef.search_lessons(args.root,args.store,args.query_file,args.budget_bytes) if args.query_file else nef.recall(args.root,args.store,args.ids,args.budget_bytes)
-            if out["status"] in ("clarify","blocked","review-required"):
+            if out.get("status") in ("clarify","blocked","review-required"):
                 print(json.dumps(out,ensure_ascii=False,indent=2));return 1
         elif args.command=="copilot-plan":
             from .copilot_free import plan as copilot_plan

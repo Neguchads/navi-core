@@ -78,3 +78,7 @@ For new projects, `navi init --root . --profile documentation --host gemini` sav
 ## NAVI Engineering Framework (NEF)
 
 Provider-independent engineering references, 19 architecture profiles, adaptable documentation, roadmap and handoff templates, additive scaffolding/migration, structural inspection, structured clarification and explicitly reviewed local lessons. See [NEF guide](docs/NEF.md). Reference profiles do not imply executable project test gates.
+
+## Universal Agent Interface
+
+Use `navi assist --profile game-recomp --format markdown` for portable context with any compatible agent. `navi handoff-check` validates structured session transfer. Optional `navi mcp` exposes public reference tools through stdio. No additional AI provider is required. [Guide](docs/UNIVERSAL_AGENT_INTERFACE.md).

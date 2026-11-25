@@ -101,3 +101,11 @@ Use `--mapping refs.json` with audit, scaffold or migrate to map multiple refere
 To recall relevant approved lessons from a local task excerpt, use `navi recall --root . --store /canonical/private/store --query-file task.txt --budget-bytes 8192`. The query is not retained. Ranking is simple lexical overlap, not semantic RAG; at most 500 directory entries scanned, 20 lessons returned, with a serialized byte budget. It never retrieves another project's lessons or calls a model. Avoid including secrets in task excerpts or forwarding unreviewed results.
 
 Example hybrid project: `navi init --root . --profile python-tooling --architecture-profile knowledge-system --visibility private` selects a Python verification gate and a knowledge-system architecture reference. Existing projects can optionally add `architecture_profile = "knowledge-system"` in `[project]` without changing their test profile.
+
+The [Universal Agent Interface](UNIVERSAL_AGENT_INTERFACE.md) exports public reference context and validates a structured handoff. Optional MCP exposes public reference and input validation without filesystem paths or persistence.
+
+## Managed task workflow and lesson revocation
+
+Use `navi prepare --root . --brief brief.json` for a read-only intake and reference report. For the supported operations, `navi workflow --root . --brief brief.json --action scaffold --apply` refuses to create files if intake is unresolved. Omit `--apply` for planning; actions are scaffold, migrate or verify. Verify with apply runs trusted project code and is not a sandbox. Direct legacy CLI commands and arbitrary external host writes are not intercepted. The agent is required by advisory policy to use the managed workflow; actual host enforcement needs its own hook/permission integration.
+
+Use `navi lessons --root . --store /canonical/private/store` to list local lesson metadata; `navi lesson-revoke --root . --store /canonical/private/store --id csv-format` plans revocation, and `--apply` creates an exclusive tombstone. Both recall modes exclude revoked records. The original record remains on disk; for complete local removal review and remove both files yourself. This never removes external provider memories or training data. Corrections use a new reviewed ID. Do not manually clear tombstones without reviewing the underlying record.

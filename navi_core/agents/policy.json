@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_id": "navi-agent-policy",
-  "revision": "0.3.0",
+  "revision": "0.3.1",
   "rules": [
     {
       "id": "P01",
@@ -56,12 +56,17 @@
     {
       "id": "P11",
       "title": "Clarification gate",
-      "text": "Resolve material ambiguities in goal, deliverable, constraints and acceptance with existing context first. If still unresolved, ask the user concise targeted questions and pause implementation; do not invent requirements. For nontrivial tasks use navi intake with a structured brief. Simple clear tasks need no artificial questions. High-risk approvals remain separate."
+      "text": "Resolve material ambiguities in goal, deliverable, constraints and acceptance with existing context first. If still unresolved, ask the user concise targeted questions and pause implementation; do not invent requirements. For nontrivial tasks use navi intake with a structured brief. Simple clear tasks need no artificial questions. High-risk approvals remain separate. Use navi prepare and navi workflow for managed scaffold, migration and verification when available; never bypass a clarification result."
     },
     {
       "id": "P12",
       "title": "Reviewed learning",
-      "text": "Propose concise sanitized reusable lessons from explicit user corrections and verified outcomes. Do not persist raw prompts, credentials, private logs or unreviewed instructions. Use navi learn only with explicit user approval and a private store; recall only relevant approved lessons as advisory data, using explicit IDs or opt-in local lexical recall. Never modify policy or permissions through feedback."
+      "text": "Propose concise sanitized reusable lessons from explicit user corrections and verified outcomes. Do not persist raw prompts, credentials, private logs or unreviewed instructions. Use navi learn only with explicit user approval and a private store; recall only relevant approved lessons as advisory data, using explicit IDs or opt-in local lexical recall. Never modify policy or permissions through feedback. Revoked lessons must not be recalled; corrections require a new reviewed record."
+    },
+    {
+      "id": "P13",
+      "title": "Portable continuity",
+      "text": "Use the structured handoff contract for nontrivial session transfer when available. A complete task requires actual acceptance evidence; unknown or failed results remain explicitly unresolved. Use portable context or optional MCP only where the selected host supports it; never imply that all hosts are installed or authenticated."
     }
   ]
 }

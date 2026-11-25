@@ -36,3 +36,5 @@ Core verification and GitHub Actions must not require AI credentials. Each host 
 RC3 targets Linux, Windows and macOS through CI, exact wheel checks, separate host-lab preparation and a no-AI project fixture. Check the actual run before claiming a platform passed.
 
 On macOS, temporary paths may include the system `/var` symlink. For new proof/lab output, use an explicitly canonical parent (for example `cd "$TMPDIR" && pwd -P`). The output symlink rejection is intentional and is not relaxed for macOS.
+
+The [Universal Agent Interface](UNIVERSAL_AGENT_INTERFACE.md) provides portable Markdown/JSON for Manus and other compatible hosts and an optional public-reference MCP server. This does not establish native support or authenticated host acceptance.
