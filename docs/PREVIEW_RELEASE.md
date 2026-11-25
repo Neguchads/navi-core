@@ -1,4 +1,4 @@
-# NAVI Core 0.2.0rc3 — functional preview
+# NAVI Core 0.3.0rc1 — functional preview
 
 This version is a release candidate, not stable production certification.
 The main CI builds and attests the wheel, then tests the exact downloaded
@@ -15,7 +15,14 @@ in a new Python virtual environment and run navi doctor and navi bench
 Do not infer stable rollout, real host acceptance or durable recovery from
 the preview. A stable version needs the separate acceptance issue gates.
 
-## Changes since rc2
+## Changes since 0.2.0rc3
+
+- NEF with 19 advisory reference profiles, adaptable documentation, roadmap/handoff, additive migration and structure inspection.
+- Optional architecture_profile independent of the executable verification profile.
+- Structured prompt clarification and reviewed local learning, including opt-in lexical retrieval.
+- Exact-wheel NEF smoke added; actual host adherence and semantic checks remain separate.
+
+## Earlier changes since rc2
 
 - Provider-independent instructions for Codex, Claude Code, Gemini CLI and Copilot.
 - Optional single preferred host in new or existing project manifests; one logical worker by default. No AI required by the Core.

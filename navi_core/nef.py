@@ -26,10 +26,10 @@ def project(root,profile):
     if not root.is_dir():
         raise NaviError("Project root must be a directory")
     if (root/".navi/project.toml").exists() or (root/".navi/project.toml").is_symlink():
-        declared=load_manifest(root)["project"]["profile"]
-        if profile is not None and profile!=declared:
-            raise NaviError("Explicit profile conflicts with project manifest")
-        profile=declared
+        declared=load_manifest(root)["project"]
+        # An explicit reference choice is advisory and never changes verification.
+        if profile is None:
+            profile=declared.get("architecture_profile",declared["profile"])
     if profile not in catalog()["profiles"]:
         raise NaviError("Select a NEF profile or initialize a project manifest")
     return root,profile
@@ -143,8 +143,15 @@ def intake(brief):
         missing.append("clarifying-question")
     if brief["risk"] in ("high","critical") and not brief["approved"]:
         missing.append("approval")
+    prompts={"goal":"What outcome should this task achieve?",
+             "deliverable":"What final deliverable do you expect?",
+             "acceptance":"What observable result counts as complete?",
+             "constraints":"Which constraints or non-goals apply?",
+             "clarifying-question":"Which material ambiguity must be resolved before implementation?",
+             "approval":"Do you explicitly authorize the high-risk action?"}
+    questions=list(dict.fromkeys([*unresolved,*(prompts[k] for k in missing)]))
     return {"status":"clarify" if missing or unresolved or brief["ambiguity"]=="material" else "ready",
-            "missing_fields":missing,"questions":unresolved,
+            "missing_fields":missing,"questions":questions,
             "scope":"Checks agent-supplied structured brief, not semantic understanding or host enforcement. Ready is not execution authorization."}
 
 def _outside(root,path):

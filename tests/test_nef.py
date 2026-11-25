@@ -45,9 +45,11 @@ class NEFTests(unittest.TestCase):
         self.assertFalse((self.root/"README.md").exists())
     def test_no_license_guess(self):
         with self.assertRaises(cli.NaviError):nef.scaffold(self.root,"documentation",["license"],True)
-    def test_manifest_profile_conflict(self):
-        cli.init(self.root,"documentation","private")
-        with self.assertRaises(cli.NaviError):nef.inspect(self.root,"godot-game")
+    def test_architecture_independent_of_verification(self):
+        cli.init(self.root,"documentation","private",architecture_profile="full-stack")
+        self.assertEqual(nef.inspect(self.root)["profile"],"full-stack")
+        self.assertEqual(nef.inspect(self.root,"godot-game")["profile"],"godot-game")
+        self.assertEqual(cli.load_manifest(self.root)["project"]["profile"],"documentation")
     def test_link_rejected(self):
         target=self.base/"outside";target.mkdir()
         try:(self.root/"docs").symlink_to(target,target_is_directory=True)
@@ -56,6 +58,7 @@ class NEFTests(unittest.TestCase):
         self.assertEqual(list(target.iterdir()),[])
     def test_intake(self):
         self.assertEqual(nef.intake(self.brief())["status"],"ready")
+        self.assertIn("What outcome should this task achieve?",nef.intake(self.brief(goal=""))["questions"])
         for case in ({"goal":" "},{"deliverable":""},{"acceptance":[]},{"constraints_state":"unknown"},
                      {"ambiguity":"material"},{"questions":["Which output?"]},{"risk":"high"}):
             self.assertEqual(nef.intake(self.brief(**case))["status"],"clarify")

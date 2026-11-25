@@ -30,9 +30,11 @@ projects may combine them. A missing reference is a recommendation, not a failur
     navi migrate --root . --profile game-recomp
     navi migrate --root . --profile game-recomp --apply
 
-If an existing manifest is present, use its profile. New reference-only profiles
-can be selected explicitly for projects without a manifest; they do not create
-executable verification gates. The catalog covers all Core profiles and additional
+If an existing manifest is present, NEF defaults to project.architecture_profile
+if defined, otherwise its verification profile. An explicit --profile overrides
+only the advisory reference selection. It never changes verification or the
+manifest. New projects can set --architecture-profile independently at init.
+Reference-only profiles do not create executable verification gates. The catalog covers all Core profiles and additional
 architecture categories. Scaffold writes only missing selected Markdown templates.
 Optional --include-folders creates suggested empty directories only when explicitly
 requested. Templates contain TODOs, not claims of completed implementation.
@@ -97,3 +99,5 @@ MCP integration and destructive migration are not certified by these tests.
 Use `--mapping refs.json` with audit, scaffold or migrate to map multiple reference topics to one existing file, e.g. `{"architecture":"guide.md","roadmap":"guide.md","handoff":"guide.md"}`. The file must exist and be reviewed; mapping does not assert its content is correct. No duplicate documents are generated. Suggested folders are optional and inspected separately.
 
 To recall relevant approved lessons from a local task excerpt, use `navi recall --root . --store /canonical/private/store --query-file task.txt --budget-bytes 8192`. The query is not retained. Ranking is simple lexical overlap, not semantic RAG; at most 500 directory entries scanned, 20 lessons returned, with a serialized byte budget. It never retrieves another project's lessons or calls a model. Avoid including secrets in task excerpts or forwarding unreviewed results.
+
+Example hybrid project: `navi init --root . --profile python-tooling --architecture-profile knowledge-system --visibility private` selects a Python verification gate and a knowledge-system architecture reference. Existing projects can optionally add `architecture_profile = "knowledge-system"` in `[project]` without changing their test profile.
