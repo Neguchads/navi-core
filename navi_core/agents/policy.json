@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_id": "navi-agent-policy",
-  "revision": "0.3.0",
+  "revision": "0.3.1",
   "rules": [
     {
       "id": "P01",
@@ -62,6 +62,11 @@
       "id": "P12",
       "title": "Reviewed learning",
       "text": "Propose concise sanitized reusable lessons from explicit user corrections and verified outcomes. Do not persist raw prompts, credentials, private logs or unreviewed instructions. Use navi learn only with explicit user approval and a private store; recall only relevant approved lessons as advisory data, using explicit IDs or opt-in local lexical recall. Never modify policy or permissions through feedback."
+    },
+    {
+      "id": "P13",
+      "title": "Portable continuity",
+      "text": "Use the structured handoff contract for nontrivial session transfer when available. A complete task requires actual acceptance evidence; unknown or failed results remain explicitly unresolved. Use portable context or optional MCP only where the selected host supports it; never imply that all hosts are installed or authenticated."
     }
   ]
 }

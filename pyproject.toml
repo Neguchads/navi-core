@@ -7,6 +7,8 @@ version = "0.3.0rc1"
 description = "Local-first engineering contracts and verification profiles"
 requires-python = ">=3.11"
 dependencies = ["jsonschema==4.26.0"]
+[project.optional-dependencies]
+mcp = ["mcp==1.29.1"]
 [project.scripts]
 navi = "navi_core.cli:main"
 [tool.setuptools.packages.find]

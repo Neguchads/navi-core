@@ -15,7 +15,7 @@ from . import __version__
 
 RES = files("navi_core")
 REGISTRY = json.loads(RES.joinpath("profiles/registry.json").read_text(encoding="utf-8"))
-CONTRACTS = ("project", "task", "skill", "evidence", "event", "brief", "lesson")
+CONTRACTS = ("project", "task", "skill", "evidence", "event", "brief", "lesson", "handoff")
 
 class NaviError(Exception):
     pass
@@ -276,6 +276,12 @@ def main(argv=None):
     p.add_argument("--submission",type=pathlib.Path)
     p.add_argument("--reported-version")
     p.add_argument("--output",type=pathlib.Path)
+    p=sub.add_parser("assist",help="Portable public reference context for any compatible agent")
+    p.add_argument("--profile",required=True)
+    p.add_argument("--format",choices=("json","markdown"),default="json")
+    p=sub.add_parser("handoff-check",help="Validate structured handoff without writing")
+    p.add_argument("--file",required=True,type=pathlib.Path)
+    sub.add_parser("mcp",help="Optional public reference MCP stdio server")
     p=sub.add_parser("standard",help="NEF architecture and documentation references")
     p.add_argument("--profile")
     for name in ("audit","scaffold","migrate"):
@@ -305,6 +311,22 @@ def main(argv=None):
     args=parser.parse_args(argv)
     try:
         if args.command=="doctor": out=doctor()
+        elif args.command in ("assist","handoff-check","mcp"):
+            from . import assist
+            if args.command=="mcp":
+                from .mcp_bridge import serve
+                serve()
+                return 0
+            if args.command=="assist":
+                if args.format=="markdown":
+                    print(assist.render(args.profile),end="")
+                    return 0
+                out=assist.packet(args.profile)
+            else:
+                from .skill_registry import read_json
+                out=assist.check_handoff(read_json(args.file))
+                if out["status"]!="valid":
+                    print(json.dumps(out,ensure_ascii=False,indent=2));return 1
         elif args.command in ("standard","audit","scaffold","migrate","intake","learn","recall"):
             from . import nef
             from .skill_registry import read_json

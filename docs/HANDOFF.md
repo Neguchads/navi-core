@@ -22,3 +22,6 @@ NEF reference tooling, provider-independent engineering assistance. The RC3 rele
 
 ## Rollback
 Revert only the reviewed NEF commit if needed. Do not erase user documentation, private records, or existing repository changes.
+
+## UAI follow-up
+NEF #26 passed all five pre-merge gates and was integrated. UAI adds portable public context and optional SDK-backed MCP. Review current CI, actual published artifact and host capability before adoption.

@@ -48,6 +48,22 @@ jobs:
       - name: Installed CLI outside source tree
         working-directory: ${{ runner.temp }}
         run: navi doctor
+  mcp-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: '3.13'
+      - run: python -m pip install -r requirements-ci.txt
+      - run: python -m pip install --no-build-isolation ".[mcp]"
+      - run: python -m pip check
+      - run: python scripts/mcp_smoke.py
   reusable-smoke:
     uses: $/.github/workflows/reusable-ci.yml
     with:
@@ -85,7 +101,7 @@ jobs:
           "$tmp/gitleaks" git --redact --no-banner --log-opts="--all" .
   public-artifacts:
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    needs: [verify, reusable-smoke, sentinel]
+    needs: [verify, reusable-smoke, sentinel, mcp-smoke]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
@@ -200,6 +216,7 @@ jobs:
           "$py" -I -m navi_core init --root "$canonical_temp/navi-zero-ai" --profile documentation --visibility public --host none
           "$py" -I -m navi_core verify --root "$canonical_temp/navi-zero-ai" --execute
           "$py" -I -m navi_core standard --profile game-recomp
+          "$py" -I -m navi_core assist --profile game-recomp --format markdown
           "$py" -I -m navi_core scaffold --root "$canonical_temp/navi-zero-ai" --apply
           "$py" -I -m navi_core audit --root "$canonical_temp/navi-zero-ai"
           "$py" -I -m navi_core copilot-plan --kind lint --risk low --visibility public --files 1 --lines 5

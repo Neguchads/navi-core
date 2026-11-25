@@ -101,3 +101,5 @@ Use `--mapping refs.json` with audit, scaffold or migrate to map multiple refere
 To recall relevant approved lessons from a local task excerpt, use `navi recall --root . --store /canonical/private/store --query-file task.txt --budget-bytes 8192`. The query is not retained. Ranking is simple lexical overlap, not semantic RAG; at most 500 directory entries scanned, 20 lessons returned, with a serialized byte budget. It never retrieves another project's lessons or calls a model. Avoid including secrets in task excerpts or forwarding unreviewed results.
 
 Example hybrid project: `navi init --root . --profile python-tooling --architecture-profile knowledge-system --visibility private` selects a Python verification gate and a knowledge-system architecture reference. Existing projects can optionally add `architecture_profile = "knowledge-system"` in `[project]` without changing their test profile.
+
+The [Universal Agent Interface](UNIVERSAL_AGENT_INTERFACE.md) exports public reference context and validates a structured handoff. Optional MCP exposes public reference and input validation without filesystem paths or persistence.
