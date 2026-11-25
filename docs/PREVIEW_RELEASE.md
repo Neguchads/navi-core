@@ -54,3 +54,5 @@ Reviewed local evidence, exact-digest approval, FTS5/BM25, Graphify node-link in
 ## Intelligence and Control Center 0.6.0rc1
 
 Bounded Python static analysis and private offline portfolio report. No full semantic architecture certification or administrative actions.
+
+Offline versioned wheel bundle provision/update and exact-inventory uninstall are tested with actual synthetic CI wheel bundles. The initial bootstrap and third-party provenance review remain explicit owner steps.

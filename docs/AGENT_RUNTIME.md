@@ -98,3 +98,5 @@ beyond the existing Core; SQLite is part of Python's standard library.
     navi session run --root . --store STORE --id task-1 --revision 1 --brief brief.json --operation scaffold --apply
 
 The preview leaves the revision unchanged. Apply requires the exact accepted brief and ready revision, atomically enters executing, runs the selected deterministic NEF action and records review. If interrupted, inspect actual state and use a reviewed SessionEnd handoff; never retry automatically. Verification with --apply executes trusted project code. An agent can still call arbitrary tools outside NAVI. Health is read-only and does not authenticate any host.
+
+See [Offline installation](INSTALLATION.md) for explicit versioned install/update/uninstall. This is offline bundle provisioning, not automatic host installation or global PATH management.

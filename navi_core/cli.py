@@ -277,6 +277,13 @@ def main(argv=None):
     p.add_argument("--submission",type=pathlib.Path)
     p.add_argument("--reported-version")
     p.add_argument("--output",type=pathlib.Path)
+    for name in ("install","update","uninstall"):
+        p=sub.add_parser(name,help="Explicit offline versioned environment management")
+        p.add_argument("--destination",required=True,type=pathlib.Path)
+        p.add_argument("--apply",action="store_true")
+        if name!="uninstall":
+            p.add_argument("--manifest",required=True,type=pathlib.Path)
+            p.add_argument("--manifest-sha256",required=True)
     p=sub.add_parser("architecture",help="Read-only Python dependency and explicit boundary analysis")
     p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
     p.add_argument("--source-root",default=".")
@@ -375,6 +382,12 @@ def main(argv=None):
     args=parser.parse_args(argv)
     try:
         if args.command=="doctor": out=doctor()
+        elif args.command in ("install","update","uninstall"):
+            from . import installer
+            if args.command=="uninstall":out=installer.uninstall(args.destination,args.apply)
+            else:out=installer.provision(args.manifest,args.manifest_sha256,args.destination,args.apply)
+            if out["status"]=="review-required":
+                print(json.dumps(out,ensure_ascii=False,indent=2));return 1
         elif args.command in ("architecture","control-center"):
             from . import intelligence,control_center
             from .skill_registry import read_json

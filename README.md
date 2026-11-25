@@ -94,3 +94,5 @@ Reviewed local excerpts and Graphify node-link metadata, project-scoped FTS5/BM2
 ## Engineering Intelligence and Control Center
 
 Read-only static Python import/cycle and reviewed boundary analysis via `navi architecture`; private offline multi-project metadata dashboard via `navi control-center`. [Intelligence](docs/ENGINEERING_INTELLIGENCE.md) · [Control Center](docs/CONTROL_CENTER.md).
+
+[Offline versioned installation and update](docs/INSTALLATION.md): reviewed wheel bundles, isolated environments and non-destructive rollback.

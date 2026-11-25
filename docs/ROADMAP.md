@@ -30,3 +30,5 @@ Recovery, security and licensing gates must be reviewed before adopting in produ
 
 - Engineering Intelligence: bounded static Python dependency/cycle analysis and explicit architecture policy; no code execution or automatic refactoring. Other language analyzers remain separate.
 - Control Center: private read-only JSON/HTML portfolio overview; no public export or administrative control plane.
+
+- Offline provisioning: explicit reviewed wheel bundle, install/update into new venv, exact-inventory uninstall and real multi-platform installation smoke. External host installation and authentication remain separate.

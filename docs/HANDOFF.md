@@ -33,3 +33,5 @@ Runtime phase 4: inspect `docs/AGENT_RUNTIME.md`, current PR/CI and exact releas
 AKE follow-up: read docs/ADAPTIVE_KNOWLEDGE.md and check exact CI. Do not call lexical graph expansion semantic vector RAG; do not expose private queries, graphs or checkpoints.
 
 Intelligence and Control Center follow-up: review docs/ENGINEERING_INTELLIGENCE.md and docs/CONTROL_CENTER.md, confirm exact CI, do not imply semantic multi-language or administrative enforcement.
+
+Installer follow-up: use docs/INSTALLATION.md; do not overwrite existing environments, install agents or claim third-party wheel provenance based only on local hashes.
