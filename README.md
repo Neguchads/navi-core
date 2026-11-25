@@ -98,3 +98,7 @@ Read-only static Python import/cycle and reviewed boundary analysis via `navi ar
 [Offline versioned installation and update](docs/INSTALLATION.md): reviewed wheel bundles, isolated environments and non-destructive rollback.
 
 [NAVI canonical repositories](docs/REPOSITORY_NAMES.md).
+
+## Ecosystem integration and acceptance
+
+Use `navi integrations` to audit local committed NAVI repository pins and `navi sbom` for a CycloneDX installed-environment inventory. See [integration and acceptance](docs/ECOSYSTEM_ACCEPTANCE.md). No automatic provider or Nexus dependency.

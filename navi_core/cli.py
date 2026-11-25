@@ -291,6 +291,12 @@ def main(argv=None):
     p=sub.add_parser("control-center",help="Read-only private local project portfolio")
     p.add_argument("--config",required=True,type=pathlib.Path)
     p.add_argument("--html",type=pathlib.Path)
+    p.add_argument("--workspace",type=pathlib.Path)
+    p.add_argument("--core-sha")
+    p=sub.add_parser("integrations",help="Audit committed local NAVI ecosystem pins")
+    p.add_argument("--workspace",required=True,type=pathlib.Path)
+    p.add_argument("--core-sha",required=True)
+    sub.add_parser("sbom",help="CycloneDX installed Python environment inventory")
     p=sub.add_parser("knowledge",help="Reviewed local knowledge and bounded hybrid retrieval")
     p.add_argument("action",choices=("ingest","revoke","retrieve"))
     p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
@@ -394,6 +400,14 @@ def main(argv=None):
             else:out=installer.provision(args.manifest,args.manifest_sha256,args.destination,args.apply)
             if out["status"]=="review-required":
                 print(json.dumps(out,ensure_ascii=False,indent=2));return 1
+        elif args.command=="integrations":
+            from . import integrations
+            out=integrations.audit(args.workspace,args.core_sha)
+            if out["status"]!="aligned":
+                print(json.dumps(out,ensure_ascii=False,indent=2));return 1
+        elif args.command=="sbom":
+            from . import sbom
+            out=sbom.inventory()
         elif args.command in ("architecture","control-center"):
             from . import intelligence,control_center
             from .skill_registry import read_json
@@ -403,6 +417,11 @@ def main(argv=None):
                     print(json.dumps(out,ensure_ascii=False,indent=2));return 1
             else:
                 out=control_center.portfolio(read_json(args.config))
+                if (args.workspace is None)!=(args.core_sha is None):
+                    raise NaviError("Use --workspace and --core-sha together")
+                if args.workspace is not None:
+                    from . import integrations
+                    out["integrations"]=integrations.audit(args.workspace,args.core_sha)
                 if args.html is not None:
                     control_center.save_html(args.html,out)
                     out={"status":"created","projects":len(out["projects"]),"scope":"Local private HTML; no publication."}

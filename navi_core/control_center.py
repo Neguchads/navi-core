@@ -40,10 +40,14 @@ def render(data):
         refs=row["references"];sessions=row["sessions"]
         session_text="Not configured" if sessions is None else ", ".join(e(k)+": "+e(v) for k,v in sessions.items())
         cards.append("<article><h2>"+e(row["project"])+"</h2><p>"+e(row["profile"])+" · "+e(row["audit"])+"</p><dl><dt>References present</dt><dd>"+e(refs["present"])+"</dd><dt>Not found (advisory)</dt><dd>"+e(refs["not-found"])+"</dd><dt>Review required</dt><dd>"+e(refs["review-required"])+"</dd></dl><p>Sessions: "+session_text+"</p></article>")
+    integration_html=""
+    if "integrations" in data:
+        report=data["integrations"]
+        integration_html="<section><h2>Integration audit: "+e(report["status"])+"</h2><ul>"+ "".join("<li>"+e(r["repository"])+": "+e(r["state"])+"</li>" for r in report["repositories"])+"</ul><p>Universe: "+e(report["universe"]["state"])+"</p><small>"+e(report["scope"])+"</small></section>"
     return """<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
 <title>NAVI Control Center</title><style>body{background:#07131d;color:#dce9ef;font:16px system-ui;max-width:1100px;margin:40px auto;padding:0 20px}h1{color:#65cbd5}main{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}article{background:#102331;border:1px solid #285062;border-radius:12px;padding:20px}h2{overflow-wrap:anywhere}dt{color:#a5becd}dd{margin:3px 0 12px;font-size:1.3rem}small{color:#a5becd}</style>
-<h1>NAVI Control Center</h1><p>Local engineering overview · """+e(data["core_version"])+"""</p><main>"""+ "".join(cards)+"""</main><p><small>"""+e(data["scope"])+"""</small></p></html>"""
+<h1>NAVI Control Center</h1><p>Local engineering overview · """+e(data["core_version"])+"""</p><main>"""+ "".join(cards)+"""</main>"""+integration_html+"""<p><small>"""+e(data["scope"])+"""</small></p></html>"""
 
 def save_html(path,data):
     path=Path(path).absolute()
