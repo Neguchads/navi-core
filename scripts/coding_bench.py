@@ -13,7 +13,7 @@ import uuid
 from navi_core import providers
 from navi_core.cli import NaviError
 
-MODEL="qwen2.5:7b-instruct-q4_K_M"
+MODEL="qwen2.5-coder:7b-instruct"
 CASE={
  "goal":"Implement page(items, offset, limit). items is a list, offset and limit are integers. Return a dict with keys items and next_offset. Reject negative offset, limit less than 1, or limit greater than 100 by raising ValueError. Validate offset and limit before slicing, including when the input is empty. Return items[offset:offset+limit]. Set next_offset to offset+limit only when offset+limit is strictly less than len(items); otherwise set it to None, including offsets at or beyond the end.",
  "source":"def page(items, offset, limit):\n    return {'items': items[:limit], 'next_offset': limit}\n",

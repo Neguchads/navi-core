@@ -60,9 +60,9 @@ jobs:
             sleep 1
           done
           curl -fsS http://127.0.0.1:11434/api/version > "$RUNNER_TEMP/live-bench/runtime.json"
-          timeout 540 ollama pull qwen2.5:7b-instruct-q4_K_M
+          timeout 540 ollama pull qwen2.5-coder:7b-instruct
           curl -fsS http://127.0.0.1:11434/api/tags > "$RUNNER_TEMP/live-bench/model.json"
-          python -c 'import json,sys; d=json.load(open(sys.argv[1])); assert any(m["name"]=="qwen2.5:7b-instruct-q4_K_M" and m["digest"].startswith("845dbda0ea48") for m in d["models"]), "model tag changed"' "$RUNNER_TEMP/live-bench/model.json"
+          python -c 'import json,sys; d=json.load(open(sys.argv[1])); assert any(m["name"]=="qwen2.5-coder:7b-instruct" and m["digest"].startswith("dae161e27b0e") for m in d["models"]), "model tag changed"' "$RUNNER_TEMP/live-bench/model.json"
           timeout 900 python scripts/coding_bench.py --image "$(cat "$RUNNER_TEMP/live-bench/image-id.txt")" --trials 3 --output "$RUNNER_TEMP/live-bench/coding.json"
       - name: Upload actual synthetic evidence
         if: always()

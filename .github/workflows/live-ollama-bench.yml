@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/live-ollama-bench.yml'
+      - 'navi_core/governed_provider.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -55,6 +56,7 @@ jobs:
           timeout 540 ollama pull qwen2.5:7b-instruct-q4_K_M
           curl -fsS http://127.0.0.1:11434/api/tags > "$RUNNER_TEMP/live-bench/model.json"
           python -c 'import json,sys; d=json.load(open(sys.argv[1])); assert any(m["name"]=="qwen2.5:7b-instruct-q4_K_M" and m["digest"].startswith("845dbda0ea48") for m in d["models"]), "model tag changed"' "$RUNNER_TEMP/live-bench/model.json"
+          timeout 180 navi providers --model qwen2.5:7b-instruct-q4_K_M --case BENCH-DAG-001 --max-output-tokens 256 --timeout 120 --execute --output "$RUNNER_TEMP/live-bench/governed-provider.json"
           timeout 720 navi compare --model qwen2.5:7b-instruct-q4_K_M --case BENCH-DAG-001 --trials 3 --max-output-tokens 256 --timeout 120 --execute --output "$RUNNER_TEMP/live-bench/comparison.json"
       - name: Upload actual synthetic evidence
         if: always()

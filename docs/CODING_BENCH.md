@@ -26,3 +26,7 @@ The second run 45539924660 produced one complete pass and five failures on the v
 ## Successful protocol v3 run
 
 Run 45545522360: six of six complete passes; 72/72 final acceptance checks, identical generated source hash for all six trials. Both strategies used 867 input and 366 output tokens across three trials. Adaptive skipped all three repair calls because development tests passed. This proves the restricted fixture and skip-review branch; the actual repair branch is covered by mocked transport tests, not this live run. Cold-start bias prevents conclusions from observed latency. The public reused fixture is not a blind or generalized engineering benchmark.
+
+## Reproduction and specialist model follow-up
+
+Repeat run 45546451027 failed one of six complete trials: the direct baseline missed final case index 3, exact page boundary; adaptive passed 3/3. Across the two v3 runs direct passed 5/6 and adaptive 6/6. This disproves a guarantee of perfect reproduction. Preserve the failed run. Next compare Qwen2.5-Coder 7B Instruct Q4_K_M (Apache-2.0, manifest prefix dae161e27b0e; official https://ollama.com/library/qwen2.5-coder:7b-instruct), leaving the fixture, development tests and all final acceptance cases unchanged. Do not pool different model runs or treat this repeated public fixture as a blind benchmark.

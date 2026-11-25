@@ -47,7 +47,8 @@ def run(model,case,max_output=512,timeout=60):
     body={"model":model,"prompt":prompt,"stream":False,"format":"json",
           "options":{"temperature":0,"seed":42,"num_predict":max_output,"num_ctx":4096}}
     started=time.perf_counter_ns()
-    result=_request(body,timeout)
+    from .governed_provider import guarded_request
+    result,reservation=guarded_request(body,timeout,_request)
     elapsed=time.perf_counter_ns()-started
     if not isinstance(result,dict) or result.get("done") is not True or not isinstance(result.get("response"),str):
         raise NaviError("Incomplete provider response")
@@ -64,6 +65,7 @@ def run(model,case,max_output=512,timeout=60):
     answer=json.loads(result["response"],object_pairs_hook=unique)
     report=agent_bench.evaluate(case,answer,4096)
     report["mode"]="experimental-ollama"
+    report["reservation"]=reservation
     report["provider"]={"requested_model":model,"reported_model":result.get("model"),"usage_source":"server-reported-not-attested","hard_deadline":False,"tool_access":False}
     report["metrics"].update({"generation_ns":elapsed,"input_tokens":inp,"output_tokens":count})
     report["scope"]="Synthetic answer evaluation; not agentic coding or verified offline inference."
