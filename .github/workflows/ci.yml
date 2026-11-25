@@ -149,3 +149,76 @@ jobs:
             gh attestation verify "$wheel" --repo Neguchads/navi-core
           done
           gh attestation verify core-status.json --repo Neguchads/navi-core
+  verify-wheel:
+    if: github.repository == 'Neguchads/navi-core' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: [attest-public-artifacts]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+      attestations: read
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          name: navi-core-public
+          path: ${{ runner.temp }}/navi-public
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: '3.13'
+      - name: Verify artifact signature
+        shell: bash
+        working-directory: ${{ runner.temp }}/navi-public
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          sha256sum --check MANIFEST.sha256
+          for wheel in ./*.whl; do gh attestation verify "$wheel" --repo Neguchads/navi-core; done
+      - name: Fresh installation of downloaded wheel
+        working-directory: ${{ runner.temp }}/navi-public
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/navi-wheel-venv"
+          if [ -f "$RUNNER_TEMP/navi-wheel-venv/bin/python" ]; then py="$RUNNER_TEMP/navi-wheel-venv/bin/python"; else py="$RUNNER_TEMP/navi-wheel-venv/Scripts/python.exe"; fi
+          "$py" -m pip install ./*.whl
+          "$py" -m pip check
+          "$py" -I -m navi_core --version
+          "$py" -I -m navi_core bench --mode reference
+          "$py" -I -m navi_core providers
+          "$py" -I -m navi_core copilot-plan --kind lint --risk low --visibility public --files 1 --lines 5
+  publish-preview:
+    if: github.repository == 'Neguchads/navi-core' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [verify-wheel]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: read
+      attestations: read
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          name: navi-core-public
+          path: ${{ runner.temp }}/navi-public
+      - name: Publish immutable-by-policy preview version
+        shell: bash
+        working-directory: ${{ runner.temp }}/navi-public
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          wheel=navi_engineering_core-0.2.0rc1-py3-none-any.whl
+          if [ ! -f "$wheel" ]; then echo "Not the requested preview version"; exit 0; fi
+          sha256sum --check MANIFEST.sha256
+          gh attestation verify "$wheel" --repo Neguchads/navi-core
+          if gh release view v0.2.0rc1 --repo Neguchads/navi-core >/dev/null 2>&1; then
+            echo "Preview already exists; refusing overwrite"
+            exit 0
+          fi
+          gh release create v0.2.0rc1 "$wheel" MANIFEST.sha256 core-status.json --repo Neguchads/navi-core --target "$GITHUB_SHA" --prerelease --title "NAVI Core 0.2.0rc1 — functional preview" --notes "Signed Core preview; Linux and Windows wheel installation, security gates and synthetic reference smoke passed. Not a stable production release. Nexus, durable backups, agent/skill acceptance and rollout remain separate gates."
