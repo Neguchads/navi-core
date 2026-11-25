@@ -16,7 +16,7 @@ from . import __version__
 
 RES = files("navi_core")
 REGISTRY = json.loads(RES.joinpath("profiles/registry.json").read_text(encoding="utf-8"))
-CONTRACTS = ("project", "task", "skill", "evidence", "event", "brief", "lesson", "handoff", "knowledge", "embeddings", "embedding-query")
+CONTRACTS = ("project", "task", "skill", "evidence", "event", "brief", "lesson", "handoff", "knowledge", "embeddings", "embedding-query", "architecture-policy")
 
 class NaviError(Exception):
     pass
@@ -277,6 +277,13 @@ def main(argv=None):
     p.add_argument("--submission",type=pathlib.Path)
     p.add_argument("--reported-version")
     p.add_argument("--output",type=pathlib.Path)
+    p=sub.add_parser("architecture",help="Read-only Python dependency and explicit boundary analysis")
+    p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+    p.add_argument("--source-root",default=".")
+    p.add_argument("--policy",type=pathlib.Path)
+    p=sub.add_parser("control-center",help="Read-only private local project portfolio")
+    p.add_argument("--config",required=True,type=pathlib.Path)
+    p.add_argument("--html",type=pathlib.Path)
     p=sub.add_parser("knowledge",help="Reviewed local knowledge and bounded hybrid retrieval")
     p.add_argument("action",choices=("ingest","revoke","retrieve"))
     p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
@@ -368,6 +375,18 @@ def main(argv=None):
     args=parser.parse_args(argv)
     try:
         if args.command=="doctor": out=doctor()
+        elif args.command in ("architecture","control-center"):
+            from . import intelligence,control_center
+            from .skill_registry import read_json
+            if args.command=="architecture":
+                out=intelligence.analyze(args.root,read_json(args.policy) if args.policy else None,args.source_root)
+                if out["status"] in ("violations","review-required"):
+                    print(json.dumps(out,ensure_ascii=False,indent=2));return 1
+            else:
+                out=control_center.portfolio(read_json(args.config))
+                if args.html is not None:
+                    control_center.save_html(args.html,out)
+                    out={"status":"created","projects":len(out["projects"]),"scope":"Local private HTML; no publication."}
         elif args.command=="knowledge":
             from . import knowledge
             from .skill_registry import read_json,write_private

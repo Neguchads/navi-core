@@ -38,3 +38,5 @@ Interface universal: `navi assist --profile game-recomp --format markdown`, `nav
 Runtime de agentes: descoberta de CLI, sessões SQLite privadas, revisões e handoff, hooks consultivos candidatos e configuração local reversível. [Guia](docs/AGENT_RUNTIME.md).
 
 Motor de conhecimento: FTS5/BM25 local, lições revisadas, importação opcional Graphify e contexto limitado com handoff preservado. [Guia](docs/ADAPTIVE_KNOWLEDGE.md).
+
+Inteligência de engenharia: análise estática Python e limites arquiteturais explícitos; painel local offline de projetos e sessões. [Análise](docs/ENGINEERING_INTELLIGENCE.md) · [Painel](docs/CONTROL_CENTER.md).

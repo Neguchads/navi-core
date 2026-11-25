@@ -27,3 +27,6 @@ Recovery, security and licensing gates must be reviewed before adopting in produ
 - Adaptive Knowledge Engine: reviewed immutable local evidence, exact-digest approval, FTS5/BM25, Graphify node-link bridge, bounded graph expansion, revocation-aware retrieval and checkpoint-first packing. Semantic embeddings and measured host benefit remain separate.
 
 - Optional external embedding snapshots with exact evidence digest and model/dimension compatibility; cosine and reciprocal rank fusion. Actual embedding generation and benchmark remain separate.
+
+- Engineering Intelligence: bounded static Python dependency/cycle analysis and explicit architecture policy; no code execution or automatic refactoring. Other language analyzers remain separate.
+- Control Center: private read-only JSON/HTML portfolio overview; no public export or administrative control plane.

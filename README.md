@@ -90,3 +90,7 @@ Use `navi assist --profile game-recomp --format markdown` for portable context w
 ## Adaptive Knowledge Engine
 
 Reviewed local excerpts and Graphify node-link metadata, project-scoped FTS5/BM25 retrieval, bounded one-hop graph expansion and checkpoint-preserving context packing. No AI dependency. [Guide](docs/ADAPTIVE_KNOWLEDGE.md).
+
+## Engineering Intelligence and Control Center
+
+Read-only static Python import/cycle and reviewed boundary analysis via `navi architecture`; private offline multi-project metadata dashboard via `navi control-center`. [Intelligence](docs/ENGINEERING_INTELLIGENCE.md) · [Control Center](docs/CONTROL_CENTER.md).
