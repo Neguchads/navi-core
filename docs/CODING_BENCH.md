@@ -18,3 +18,7 @@ No private source, credentials or generated candidate source are uploaded.
 ## Initial run
 
 Run 45539334308 completed all six coding trials with 11/12 checks each, no full pass. Both strategies failed. The follow-up explicitly clarifies the already existing boundary rule; acceptance cases are unchanged. Failed case indices are recorded without supplying hidden expectations to the model. This is a new prompt revision, not a controlled improvement claim.
+
+## Protocol v3: public development feedback
+
+The second run 45539924660 produced one complete pass and five failures on the valid empty list case. The next protocol compares single inference with adaptive development-test feedback, rather than unconditional review. Both receive three public examples, distinct from the unchanged twelve final cases. Adaptive spends at most 256 + 256 output tokens, but skips the repair call if all development examples pass. Final acceptance outcomes are never supplied during that trial. This is a new protocol and must not be pooled with prior trials. Since fixtures are public and reused in experiment development, this is not a blind held-out benchmark. A complete pass is required for every trial; failures remain visible.

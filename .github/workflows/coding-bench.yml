@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/coding-bench.yml'
       - 'scripts/coding_bench.py'
+      - 'tests/test_coding_bench.py'
   workflow_dispatch:
 permissions:
   contents: read

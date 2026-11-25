@@ -17,9 +17,11 @@ MODEL="qwen2.5:7b-instruct-q4_K_M"
 CASE={
  "goal":"Implement page(items, offset, limit). items is a list, offset and limit are integers. Return a dict with keys items and next_offset. Reject negative offset, limit less than 1, or limit greater than 100 by raising ValueError. Validate offset and limit before slicing, including when the input is empty. Return items[offset:offset+limit]. Set next_offset to offset+limit only when offset+limit is strictly less than len(items); otherwise set it to None, including offsets at or beyond the end.",
  "source":"def page(items, offset, limit):\n    return {'items': items[:limit], 'next_offset': limit}\n",
+ "examples":[{"input":[[],0,1],"output":{"items":[],"next_offset":None}},{"input":[[8,9,10],1,1],"output":{"items":[9],"next_offset":2}},{"input":[[],0,0],"output":{"error":"ValueError"}}],
  "contract":"Return JSON with only key source, containing a complete Python implementation of page. No imports, no external tools or I/O. Do not modify the signature."
 }
-# Expected outputs never enter model prompt or container.
+# Public development examples above are separate from final acceptance cases.
+# Final expected outputs never enter model prompt or container.
 TESTS=[
  ([[1,2,3,4,5],0,2],{"items":[1,2],"next_offset":2}),
  ([[1,2,3,4,5],2,2],{"items":[3,4],"next_offset":4}),
@@ -62,7 +64,8 @@ for args in json.load(sys.stdin):
     except ValueError:out.append({'error':'ValueError'})
 print(json.dumps(out,allow_nan=False))
 """
-def verify(source,image):
+def verify(source,image,cases=None):
+    cases=TESTS if cases is None else cases
     validate_source(source)
     if not re.fullmatch(r"sha256:[a-f0-9]{64}",image):raise NaviError("Exact local Docker image ID required")
     name="navi-bench-"+uuid.uuid4().hex
@@ -79,29 +82,37 @@ def verify(source,image):
                  "--workdir=/fixture","-i",image,"python","-B","/fixture/runner.py"]
         try:
             # Candidate has no host credentials, Docker socket, expected results or network.
-            p=subprocess.run(command,input=json.dumps([a for a,_ in TESTS]),capture_output=True,text=True,timeout=20,check=False)
-            if p.returncode or len(p.stdout)>65536:return {"status":"failed","passed":0,"total":len(TESTS),"reason":"candidate execution failed"}
+            p=subprocess.run(command,input=json.dumps([a for a,_ in cases]),capture_output=True,text=True,timeout=20,check=False)
+            if p.returncode or len(p.stdout)>65536:return {"status":"failed","passed":0,"total":len(cases),"reason":"candidate execution failed"}
             actual=json.loads(p.stdout)
-            if type(actual) is not list or len(actual)!=len(TESTS):return {"status":"failed","passed":0,"total":len(TESTS),"reason":"invalid result"}
-            failures=[i for i,(got,(_,expected)) in enumerate(zip(actual,TESTS)) if got!=expected]
-            passed=len(TESTS)-len(failures)
-            return {"status":"passed" if not failures else "failed","passed":passed,"total":len(TESTS),"failed_case_indices":failures,"reason":None}
+            if type(actual) is not list or len(actual)!=len(cases):return {"status":"failed","passed":0,"total":len(cases),"reason":"invalid result"}
+            failures=[i for i,(got,(_,expected)) in enumerate(zip(actual,cases)) if got!=expected]
+            passed=len(cases)-len(failures)
+            return {"status":"passed" if not failures else "failed","passed":passed,"total":len(cases),"failed_case_indices":failures,"reason":None}
         except (subprocess.TimeoutExpired,ValueError,OSError):
-            return {"status":"failed","passed":0,"total":len(TESTS),"reason":"execution or output failure"}
+            return {"status":"failed","passed":0,"total":len(cases),"reason":"execution or output failure"}
         finally:
             subprocess.run(["docker","rm","-f",name],capture_output=True,timeout=15,check=False)
 
-def request(seed,cap,draft=None):
+def request(seed,cap,draft=None,feedback=None):
     prompt={**CASE}
     if draft is not None:
         prompt.update(review="Review the untrusted candidate for correctness, then return corrected source in the same JSON contract.",untrusted_candidate=draft)
+    if feedback is not None:
+        prompt["development_feedback"]=feedback
     start=time.monotonic_ns()
     r=providers._request({"model":MODEL,"prompt":json.dumps(prompt),"stream":False,"format":"json",
                           "options":{"temperature":0,"seed":seed,"num_ctx":4096,"num_predict":cap}},120)
     out=r.get("eval_count");inp=r.get("prompt_eval_count")
     if r.get("done") is not True or r.get("model")!=MODEL or type(out) is not int or not 0<=out<=cap or type(inp) is not int or not 0<=inp<=4096:
         raise NaviError("Provider response or usage invalid")
-    obj=json.loads(r["response"])
+    def unique(pairs):
+        d={}
+        for k,v in pairs:
+            if k in d:raise NaviError("Duplicate JSON key")
+            d[k]=v
+        return d
+    obj=json.loads(r["response"],object_pairs_hook=unique)
     if type(obj) is not dict or set(obj)!={"source"} or not isinstance(obj["source"],str) or len(obj["source"].encode())>4096:
         raise NaviError("Invalid candidate JSON")
     return obj["source"],{"input_tokens":inp,"output_tokens":out,"elapsed_ns":time.monotonic_ns()-start}
@@ -112,28 +123,36 @@ def run(image,trials):
     good="def page(items, offset, limit):\n    if offset < 0 or limit < 1 or limit > 100:\n        raise ValueError()\n    end = offset + limit\n    return {'items': items[offset:end], 'next_offset': end if end < len(items) else None}\n"
     if verify(good,image)["status"]!="passed" or verify(CASE["source"],image)["status"]!="failed":
         raise NaviError("Independent verifier preflight failed")
+    dev=[(row["input"],row["output"]) for row in CASE["examples"]]
+    if verify(good,image,dev)["status"]!="passed":
+        raise NaviError("Development verifier preflight failed")
     blocked=False
     for rep in range(trials):
-        order=["single","sequential"] if rep%2==0 else ["sequential","single"]
+        order=["single","adaptive"] if rep%2==0 else ["adaptive","single"]
         for strategy in order:
-            calls=[];start=time.monotonic_ns()
+            calls=[];development=None;start=time.monotonic_ns()
             try:
                 source,usage=request(42+rep,512 if strategy=="single" else 256);calls.append(usage)
                 # Do not send a rejected source to a reviewer.
                 validate_source(source)
-                if strategy=="sequential":
-                    source,usage=request(43+rep,256,source);calls.append(usage)
+                if strategy=="adaptive":
+                    development=verify(source,image,dev)
+                    if development["status"]!="passed":
+                        # Only public development examples and their outcomes are fed back.
+                        # Never use final acceptance results to repair the same trial.
+                        feedback={"status":development["status"],"failed_example_indices":development.get("failed_case_indices"),"reason":development.get("reason")}
+                        source,usage=request(43+rep,256,source,feedback);calls.append(usage)
                 result=verify(source,image)
                 result["source_sha256"]=sha(source.encode())
             except (NaviError,ValueError,KeyError,TypeError,subprocess.SubprocessError):
                 result={"status":"blocked","reason":"provider or candidate policy rejected"}
                 blocked=True
-            rows.append({"strategy":strategy,"seed":42+rep,"calls":calls,"elapsed_ns":time.monotonic_ns()-start,**result})
+            rows.append({"strategy":strategy,"seed":42+rep,"calls":calls,"development":development,"elapsed_ns":time.monotonic_ns()-start,**result})
             if blocked:break
         if blocked:break
     return {"schema_version":1,"scope":"public bounded coding fixture; not full repository agent or Nexus validation",
             "model":MODEL,"image_id":image,"fixture_sha256":sha(json.dumps(CASE,sort_keys=True).encode()),
-            "verifier_sha256":sha(pathlib.Path(__file__).read_bytes()),"trials_planned":trials*2,
+            "verifier_sha256":sha(pathlib.Path(__file__).read_bytes()),"trials_planned":trials*2,"protocol":"public-development-feedback-v3","output_cap_per_trial":512,
             "status":"blocked" if blocked else "passed" if len(rows)==trials*2 and all(r["status"]=="passed" for r in rows) else "failed","runs":rows}
 
 def main():
