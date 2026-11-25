@@ -1,8 +1,8 @@
-# NAVI Core 0.2.0rc2 — functional preview
+# NAVI Core 0.2.0rc3 — functional preview
 
 This version is a release candidate, not stable production certification.
 The main CI builds and attests the wheel, then tests the exact downloaded
-artifact in clean virtual environments on Linux and Windows. A separate
+artifact in clean virtual environments on Linux, Windows and macOS. A separate
 main-only job publishes the fixed preview version to GitHub Releases,
 without overwriting an existing release. No private data is included.
 The install resolves dependencies from PyPI, so this is not a fully
@@ -15,7 +15,13 @@ in a new Python virtual environment and run navi doctor and navi bench
 Do not infer stable rollout, real host acceptance or durable recovery from
 the preview. A stable version needs the separate acceptance issue gates.
 
-## Changes since rc1
+## Changes since rc2
+
+- Provider-independent instructions for Codex, Claude Code, Gemini CLI and Copilot.
+- Optional single preferred host in new or existing project manifests; one logical worker by default. No AI required by the Core.
+- macOS CI and separate installed-wheel host fixtures added; verify actual CI before asserting publication or compatibility.
+
+## Earlier preview changes
 
 - Local operation-bound, single-use approvals and atomic reservation ledger.
 - Manual single-host acceptance lab for Codex, Claude, Gemini or Copilot (optional comparison).
