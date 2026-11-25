@@ -7,7 +7,7 @@ implemented by these files. No personal configuration is imported.
 ```sh
 navi agents --root path/to/project
 navi agents --root path/to/project --host codex --mode apply
-navi agents --root path/to/project --mode check
+navi agents --root path/to/project --host codex --mode check
 navi skills --host claude --category verification
 ```
 
@@ -20,8 +20,9 @@ configuration, MCP setup, model choice, or credential handling is performed.
 No automatic overwrites or network calls. On concurrent I/O failure, inspect
 the listed created files; writes across several files are not transactional.
 
-Targets: AGENTS.md (Codex), CLAUDE.md (Claude Code),
-.github/copilot-instructions.md (Copilot). Actual host loading behavior and
+Targets (alternatives): AGENTS.md (Codex), CLAUDE.md (Claude Code),
+GEMINI.md (Gemini CLI), .github/copilot-instructions.md (Copilot).
+Without --host, plan lists choices and writes nothing. Apply/check require an explicit host; --host all is an optional compatibility operation, never a runtime dependency. The generated Copilot instructions contain the common policy plus a conditional Free quota profile. Existing differing instructions remain conflicts and require manual migration. Actual host loading behavior and
 integration require separate acceptance tests. The registry contains six
 original candidate metadata records; no third-party skills or handlers are
 installed. Phase 2B will add provenance/license review, private registry

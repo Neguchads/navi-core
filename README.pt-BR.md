@@ -22,3 +22,7 @@ Nenhuma configuração privada é distribuída. Licença MIT.
 ## Agent Bridge (prévia)
 
 `navi agents` planeja ou cria instruções de repositório sem sobrescrever arquivos existentes. `navi skills` lista metadados de candidatos, sem executar skills. Consulte [o guia](docs/AGENT_BRIDGE.md).
+
+## Independência de provedores
+
+O Core não depende de nenhum assistente de IA. Escolha um único host: Codex, Claude Code, Gemini CLI ou GitHub Copilot. Papéis lógicos podem ser executados sequencialmente no mesmo host. Sem troca automática de provedor. Consulte [a arquitetura](docs/PROVIDER_INDEPENDENCE.md).

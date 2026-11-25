@@ -15,3 +15,5 @@
 - Phase 8: non-mutating rollout plan; production adoption pending.
 
 Recovery, security and licensing gates must be reviewed before adopting in production. No production rollout claimed.
+
+- Provider-independence gate: explicit single-host adapter selection, Gemini CLI candidate adapter, neutral Free routing and isolated fixture tests. Real authenticated host acceptance remains pending; do not require other hosts for adoption of a passing host.

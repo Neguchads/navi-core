@@ -13,7 +13,7 @@ context or credential access. The adapter requests an output limit and rejects
 missing or excessive server-reported usage; this is not a hard billing limit.
 Socket timeout is not an overall execution deadline. Loopback does not
 guarantee the server itself is offline. Inspect local model/server configuration.
-Codex and Claude remain external JSON submission workflows; Nexus stays
+Codex, Claude, Gemini and Copilot remain independent external JSON submission workflows; Nexus stays
 disabled. No comparative agent results are claimed.
 
 ## Proof, Sentinel, Operations and Universe
