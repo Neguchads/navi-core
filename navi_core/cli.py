@@ -263,6 +263,13 @@ def main(argv=None):
     p.add_argument("--estimate-percent",type=int)
     p.add_argument("--checked-on",help="UTC date when actual account usage was checked (YYYY-MM-DD)")
     p.add_argument("--paid-usage-blocked",action="store_true",help="Confirm you already disabled additional paid usage in GitHub billing")
+    p=sub.add_parser("host-lab",help="Prepare or verify manual synthetic host acceptance")
+    p.add_argument("--mode",required=True,choices=("prepare","check"))
+    p.add_argument("--directory",required=True,type=pathlib.Path)
+    p.add_argument("--host",choices=("codex","claude","copilot"))
+    p.add_argument("--submission",type=pathlib.Path)
+    p.add_argument("--reported-version")
+    p.add_argument("--output",type=pathlib.Path)
     p=sub.add_parser("validate");p.add_argument("kind",choices=CONTRACTS);p.add_argument("file",type=pathlib.Path)
     args=parser.parse_args(argv)
     try:
@@ -270,6 +277,18 @@ def main(argv=None):
         elif args.command=="copilot-plan":
             from .copilot_free import plan as copilot_plan
             out=copilot_plan(args.kind,args.risk,args.visibility,args.files,args.lines,args.used_percent,args.estimate_percent,args.checked_on,args.paid_usage_blocked)
+        elif args.command=="host-lab":
+            from . import host_lab
+            from .skill_registry import read_json,write_private
+            if args.mode=="prepare":
+                if args.host or args.submission or args.reported_version or args.output: raise NaviError("Prepare only accepts directory")
+                out=host_lab.create(args.directory)
+            else:
+                if not args.host or not args.submission or not args.reported_version: raise NaviError("Check requires host, submission and reported version")
+                out=host_lab.check(args.directory,args.host,read_json(args.submission),args.reported_version)
+                if args.output is not None:write_private(args.output,out)
+                if out["status"]!="passed":
+                    print(json.dumps(out,ensure_ascii=False,indent=2));return 1
         elif args.command=="agents":
             from .agent_bridge import adapters
             out=adapters(args.root,args.host,args.mode)
