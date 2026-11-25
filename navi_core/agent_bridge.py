@@ -16,6 +16,9 @@ def policy():
     return data, hashlib.sha256(raw).hexdigest()
 
 def render(host, profile):
+    if host == "copilot":
+        from .copilot_free import INSTRUCTIONS
+        return INSTRUCTIONS.encode("utf-8")
     p, digest = policy()
     lines = ["# NAVI repository instructions", "",
              f"<!-- NAVI policy {p['revision']} sha256:{digest}; host:{host} -->",

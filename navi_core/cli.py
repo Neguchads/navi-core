@@ -253,10 +253,23 @@ def main(argv=None):
     p.add_argument("--timeout",type=int,default=120)
     p.add_argument("--execute",action="store_true")
     p.add_argument("--output",type=pathlib.Path)
+    p=sub.add_parser("copilot-plan",help="Plan a small Copilot Free task without inference or billing access")
+    p.add_argument("--kind",required=True,choices=("docs","unit-test","small-fix","explain","format","lint","complex","architecture","security","release"))
+    p.add_argument("--risk",required=True,choices=("low","medium","high","critical"))
+    p.add_argument("--visibility",required=True,choices=("public","private","internal","unknown"))
+    p.add_argument("--files",required=True,type=int)
+    p.add_argument("--lines",required=True,type=int)
+    p.add_argument("--used-percent",type=int)
+    p.add_argument("--estimate-percent",type=int)
+    p.add_argument("--checked-on",help="UTC date when actual account usage was checked (YYYY-MM-DD)")
+    p.add_argument("--paid-usage-blocked",action="store_true",help="Confirm you already disabled additional paid usage in GitHub billing")
     p=sub.add_parser("validate");p.add_argument("kind",choices=CONTRACTS);p.add_argument("file",type=pathlib.Path)
     args=parser.parse_args(argv)
     try:
         if args.command=="doctor": out=doctor()
+        elif args.command=="copilot-plan":
+            from .copilot_free import plan as copilot_plan
+            out=copilot_plan(args.kind,args.risk,args.visibility,args.files,args.lines,args.used_percent,args.estimate_percent,args.checked_on,args.paid_usage_blocked)
         elif args.command=="agents":
             from .agent_bridge import adapters
             out=adapters(args.root,args.host,args.mode)
