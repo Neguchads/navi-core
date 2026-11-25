@@ -53,6 +53,8 @@ jobs:
           navi doctor
           navi architecture --help
           navi control-center --help
+          navi integrations --help
+          navi sbom
           navi knowledge --help
           navi hosts
           navi capabilities --host generic

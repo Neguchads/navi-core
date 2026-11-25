@@ -67,3 +67,15 @@ class SbomTest(unittest.TestCase):
         self.assertEqual(result["components"][0]["properties"][0]["value"], "MIT")
         with self.assertRaises(NaviError):
             sbom.inventory([dist, dist])
+
+class DashboardTest(unittest.TestCase):
+    def test_integration_report_is_escaped(self):
+        from navi_core import control_center
+        data = {"core_version":"test","projects":[],"scope":"private",
+                "integrations":{"status":"review-required","repositories":[
+                    {"repository":"<script>alert(1)</script>","state":"drift"}],
+                    "universe":{"state":"review-required"},"scope":"local only"}}
+        page = control_center.render(data)
+        self.assertIn("Integration audit: review-required", page)
+        self.assertIn("&lt;script&gt;", page)
+        self.assertNotIn("<script>", page)
