@@ -31,11 +31,10 @@
   "python-tooling": {
     "status": "supported",
     "markers": [
-      "pyproject.toml"
+      "pyproject.toml",
+      "tests/test*.py"
     ],
-    "required": [
-      "pyproject.toml"
-    ],
+    "required": [],
     "tools": [
       "python"
     ],
@@ -43,11 +42,11 @@
       [
         "python",
         "-c",
-        "import sys, unittest; suite = unittest.defaultTestLoader.discover(\"tests\"); count = suite.countTestCases(); print(\"Discovered tests:\", count); sys.exit(1 if count == 0 else int(not unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful()))"
+        "import sys, unittest; suite = unittest.defaultTestLoader.discover(\"tests\"); count = suite.countTestCases(); print(\"Discovered tests:\", count); result = unittest.TextTestRunner(verbosity=2).run(suite); print(\"Executed non-skipped tests:\", result.testsRun-len(result.skipped)); sys.exit(0 if count > 0 and result.testsRun > len(result.skipped) and result.wasSuccessful() else 1)"
       ]
     ],
     "install": [],
-    "description": "Python standard-library unittest profile; install project dependencies separately"
+    "description": "Python unittest profile, including standalone stdlib repositories; explicit project dependencies remain separate"
   },
   "cpp-native": {
     "status": "supported",

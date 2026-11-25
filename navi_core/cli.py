@@ -45,7 +45,7 @@ def detect(root):
                 matches.append("typescript-frontend")
         except (ValueError, TypeError, AttributeError):
             raise NaviError("Invalid package.json")
-    if (root/"pyproject.toml").is_file(): matches.append("python-tooling")
+    if (root/"pyproject.toml").is_file() or any((root/"tests").glob("test*.py")): matches.append("python-tooling")
     if (root/"CMakeLists.txt").is_file(): matches.append("cpp-native")
     if (root/"project.godot").is_file(): matches.append("godot-game")
     if (root/"index.html").is_file(): matches.append("static-website")

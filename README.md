@@ -31,7 +31,7 @@ Init exclusively creates the manifest; it never overwrites. Verify defaults to p
 
 ## Profiles
 
-Supported: typescript-backend (Node 24 and npm verify), python-tooling (unittest), cpp-native (CMake/CTest), documentation (README local links), static-website (tracked standalone JS syntax). Six other profiles are registered as planned, not executable. Gates are scoped, not production certification.
+Supported: typescript-backend (Node 24 and npm verify), python-tooling (unittest, including standalone stdlib repositories; rejects empty/all-skipped suites), cpp-native (CMake/CTest), documentation (README local links), static-website (tracked standalone JS syntax). Six other profiles are registered as planned, not executable. Gates are scoped, not production certification.
 
 ## Contracts
 
