@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, windows-2025]
+        os: [ubuntu-24.04, windows-2025, macos-15]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     steps:
@@ -155,7 +155,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, windows-2025]
+        os: [ubuntu-24.04, windows-2025, macos-15]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     permissions:
@@ -191,7 +191,13 @@ jobs:
           "$py" -I -m navi_core --version
           "$py" -I -m navi_core bench --mode reference
           "$py" -I -m navi_core providers
-          "$py" -I -m navi_core host-lab --mode prepare --directory "$RUNNER_TEMP/navi-host-lab"
+          for host in codex claude gemini copilot; do
+            "$py" -I -m navi_core host-lab --mode prepare --host "$host" --directory "$RUNNER_TEMP/navi-host-lab-$host"
+          done
+          mkdir -p "$RUNNER_TEMP/navi-zero-ai"
+          printf "# Zero AI fixture\n" > "$RUNNER_TEMP/navi-zero-ai/README.md"
+          "$py" -I -m navi_core init --root "$RUNNER_TEMP/navi-zero-ai" --profile documentation --visibility public --host none
+          "$py" -I -m navi_core verify --root "$RUNNER_TEMP/navi-zero-ai" --execute
           "$py" -I -m navi_core copilot-plan --kind lint --risk low --visibility public --files 1 --lines 5
   publish-preview:
     if: github.repository == 'Neguchads/navi-core' && github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -214,12 +220,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          wheel=navi_engineering_core-0.2.0rc2-py3-none-any.whl
+          wheel=navi_engineering_core-0.2.0rc3-py3-none-any.whl
           if [ ! -f "$wheel" ]; then echo "Not the requested preview version"; exit 0; fi
           sha256sum --check MANIFEST.sha256
           gh attestation verify "$wheel" --repo Neguchads/navi-core
-          if gh release view v0.2.0rc2 --repo Neguchads/navi-core >/dev/null 2>&1; then
+          if gh release view v0.2.0rc3 --repo Neguchads/navi-core >/dev/null 2>&1; then
             echo "Preview already exists; refusing overwrite"
             exit 0
           fi
-          gh release create v0.2.0rc2 "$wheel" MANIFEST.sha256 core-status.json --repo Neguchads/navi-core --target "$GITHUB_SHA" --prerelease --title "NAVI Core 0.2.0rc2 — functional preview" --notes "Signed Core preview; Linux and Windows wheel installation, security gates, synthetic reference and host lab preparation passed. Includes local operation reservation and governed Ollama fixture request. Not a stable production release. Nexus, durable backups, agent/skill acceptance and rollout remain separate gates."
+          gh release create v0.2.0rc3 "$wheel" MANIFEST.sha256 core-status.json --repo Neguchads/navi-core --target "$GITHUB_SHA" --prerelease --title "NAVI Core 0.2.0rc3 — functional preview" --notes "Signed Core preview; Linux, Windows and macOS wheel installation, security gates, synthetic reference, separate host lab preparation and zero-AI fixture passed. Includes provider-independent adapters and optional single-host project selection. Not a stable production release. Nexus, durable backups, agent/skill acceptance and rollout remain separate gates."

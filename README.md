@@ -72,3 +72,5 @@ MIT License.
 ### Current preview acceptance
 
 See [host acceptance](docs/HOST_ACCEPTANCE.md), [operation reservation](docs/EXECUTION_GATE.md) and [preview release](docs/PREVIEW_RELEASE.md). The ledger and host challenge tools are not production agent authorization or verified authenticated host execution.
+
+For new projects, `navi init --root . --profile documentation --host gemini` saves an optional preferred host. Use `--host none` for a no-AI project. The Core remains independent of any subscription.

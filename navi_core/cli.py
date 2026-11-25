@@ -52,14 +52,16 @@ def detect(root):
     if not matches and (root/"README.md").is_file(): matches.append("documentation")
     return matches
 
-def init(root, profile, visibility):
+def init(root, profile, visibility, host=None):
     if not root.is_dir(): raise NaviError("Project root must exist")
     if profile is None:
         candidates = detect(root)
         if len(candidates) != 1: raise NaviError("No unique profile; supply --profile")
         profile = candidates[0]
     name = root.name
-    data = {"schema_version":1,"project":{"name":name,"visibility":visibility,"maturity":"experimental","profile":profile},"verification":{"require_real_tests":True,"timeout_seconds":900},"knowledge":{"public_export":False},"agents":{"approval_for_production":True,"parallel_workers":2}}
+    data = {"schema_version":1,"project":{"name":name,"visibility":visibility,"maturity":"experimental","profile":profile},"verification":{"require_real_tests":True,"timeout_seconds":900},"knowledge":{"public_export":False},"agents":{"approval_for_production":True,"parallel_workers":1}}
+    if host is not None:
+        data["agents"]["host"] = host
     validate("project", data)
     directory = root/".navi"
     if directory.is_symlink(): raise NaviError("Refusing symlink .navi")
@@ -190,6 +192,7 @@ def main(argv=None):
         p=sub.add_parser(name);p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
         if name=="init":
             p.add_argument("--profile",choices=REGISTRY);p.add_argument("--visibility",choices=("public","private","internal","unknown"),default="unknown")
+            p.add_argument("--host",choices=("codex","claude","gemini","copilot","none"),help="Optional single preferred agent; no host required")
         if name=="verify":p.add_argument("--execute",action="store_true",help="Run trusted project code; not sandboxed")
     p=sub.add_parser("agents",help="Plan, check or create repository agent adapters")
     p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
@@ -359,7 +362,7 @@ def main(argv=None):
             root=args.root.resolve(strict=True)
             if not root.is_dir(): raise NaviError("Project root must be a directory")
             if args.command=="detect":out={"candidates":detect(root)}
-            elif args.command=="init":out=init(root,args.profile,args.visibility)
+            elif args.command=="init":out=init(root,args.profile,args.visibility,args.host)
             else:out=verify(root,args.execute)
         print(json.dumps(out,ensure_ascii=False,indent=2));return 0
     except (NaviError,OSError,ValueError,TypeError,KeyError,subprocess.SubprocessError) as exc:

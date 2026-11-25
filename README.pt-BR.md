@@ -26,3 +26,5 @@ Nenhuma configuração privada é distribuída. Licença MIT.
 ## Independência de provedores
 
 O Core não depende de nenhum assistente de IA. Escolha um único host: Codex, Claude Code, Gemini CLI ou GitHub Copilot. Papéis lógicos podem ser executados sequencialmente no mesmo host. Sem troca automática de provedor. Consulte [a arquitetura](docs/PROVIDER_INDEPENDENCE.md).
+
+Para novos projetos, `navi init --root . --profile documentation --host gemini` registra o host preferido. Use `--host none` para projetos sem IA. A preferência é opcional e não instala nenhum agente.

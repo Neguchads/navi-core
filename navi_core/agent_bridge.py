@@ -49,7 +49,12 @@ def adapters(root, host=None, mode="plan"):
         raise NaviError("Project root must be a directory")
     if host not in (*TARGETS, "all", None) or mode not in ("plan", "check", "apply"):
         raise NaviError("Invalid adapter selection")
-    profile = load_manifest(root)["project"]["profile"]
+    manifest = load_manifest(root)
+    profile = manifest["project"]["profile"]
+    if host is None:
+        preferred = manifest["agents"].get("host")
+        if preferred in TARGETS:
+            host = preferred
     if host is None:
         if mode != "plan":
             raise NaviError("Select one host explicitly (or all for an explicit compatibility operation)")

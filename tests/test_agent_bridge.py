@@ -98,3 +98,26 @@ class AgentBridgeTests(unittest.TestCase):
             bridge.adapters(self.root,mode="apply")
         self.assertFalse((self.root/"AGENTS.md").exists())
         self.assertFalse((self.root/"GEMINI.md").exists())
+
+    def test_manifest_preferred_host_is_single_and_optional(self):
+        for host,target in bridge.TARGETS.items():
+            with self.subTest(host=host), tempfile.TemporaryDirectory() as temp:
+                root=pathlib.Path(temp)/"project"
+                root.mkdir()
+                (root/"README.md").write_text("# fixture",encoding="utf-8")
+                cli.init(root,"documentation","private",host)
+                self.assertEqual(cli.load_manifest(root)["agents"]["parallel_workers"],1)
+                self.assertEqual(bridge.adapters(root,mode="apply")["created"],[target])
+                self.assertEqual(bridge.adapters(root,mode="check")["status"],"current")
+                self.assertTrue(all(not (root/p).exists() for h,p in bridge.TARGETS.items() if h!=host))
+
+    def test_explicit_no_ai_manifest(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=pathlib.Path(temp)/"project"
+            root.mkdir()
+            (root/"README.md").write_text("# fixture",encoding="utf-8")
+            cli.init(root,"documentation","private","none")
+            self.assertEqual(bridge.adapters(root)["files"],[])
+            self.assertEqual(cli.verify(root,True)["status"],"passed")
+            with self.assertRaises(cli.NaviError):
+                bridge.adapters(root,mode="apply")
