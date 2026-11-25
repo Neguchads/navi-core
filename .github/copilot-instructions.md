@@ -14,3 +14,5 @@ NAVI reserves 30% of the included allowance; use the manual copilot-plan gate
 before starting a task. This instruction file is advisory, not a spending cap.
 
 NAVI Core is provider-independent. This repository opts into the Free micro-task policy; no other AI provider is required. Use deterministic tools or pause for human review when limits are reached.
+
+For nontrivial tasks use NEF references, roadmap and handoff. If the objective or acceptance is materially ambiguous after checking context, ask concise questions and pause implementation. Never auto-save raw prompts; only explicitly approved sanitized lessons may be recorded locally. Free micro-task limits still apply.

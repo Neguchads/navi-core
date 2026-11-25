@@ -15,7 +15,7 @@ from . import __version__
 
 RES = files("navi_core")
 REGISTRY = json.loads(RES.joinpath("profiles/registry.json").read_text(encoding="utf-8"))
-CONTRACTS = ("project", "task", "skill", "evidence", "event")
+CONTRACTS = ("project", "task", "skill", "evidence", "event", "brief", "lesson")
 
 class NaviError(Exception):
     pass
@@ -273,10 +273,44 @@ def main(argv=None):
     p.add_argument("--submission",type=pathlib.Path)
     p.add_argument("--reported-version")
     p.add_argument("--output",type=pathlib.Path)
+    p=sub.add_parser("standard",help="NEF architecture and documentation references")
+    p.add_argument("--profile")
+    for name in ("audit","scaffold","migrate"):
+        p=sub.add_parser(name,help="NEF additive project structure workflow")
+        p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+        p.add_argument("--profile")
+        if name!="audit":p.add_argument("--apply",action="store_true")
+        if name=="scaffold":
+            p.add_argument("--sections",nargs="+")
+            p.add_argument("--include-folders",action="store_true")
+    p=sub.add_parser("intake",help="Validate an agent-supplied task brief")
+    p.add_argument("--brief",required=True,type=pathlib.Path)
+    for name in ("learn","recall"):
+        p=sub.add_parser(name,help="Explicit private reviewed learning, no model training")
+        p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
+        p.add_argument("--store",required=True,type=pathlib.Path)
+        if name=="learn":
+            p.add_argument("--lesson",required=True,type=pathlib.Path)
+            p.add_argument("--approve",action="store_true")
+        else:
+            p.add_argument("--ids",required=True,nargs="+")
+            p.add_argument("--budget-bytes",type=int,default=8192)
     p=sub.add_parser("validate");p.add_argument("kind",choices=CONTRACTS);p.add_argument("file",type=pathlib.Path)
     args=parser.parse_args(argv)
     try:
         if args.command=="doctor": out=doctor()
+        elif args.command in ("standard","audit","scaffold","migrate","intake","learn","recall"):
+            from . import nef
+            from .skill_registry import read_json
+            if args.command=="standard":out=nef.standard(args.profile)
+            elif args.command=="audit":out=nef.inspect(args.root,args.profile)
+            elif args.command=="scaffold":out=nef.scaffold(args.root,args.profile,args.sections,args.apply,args.include_folders)
+            elif args.command=="migrate":out=nef.migration(args.root,args.profile,args.apply)
+            elif args.command=="intake":out=nef.intake(read_json(args.brief))
+            elif args.command=="learn":out=nef.learn(args.root,args.store,read_json(args.lesson),args.approve)
+            else:out=nef.recall(args.root,args.store,args.ids,args.budget_bytes)
+            if out["status"] in ("clarify","blocked","review-required"):
+                print(json.dumps(out,ensure_ascii=False,indent=2));return 1
         elif args.command=="copilot-plan":
             from .copilot_free import plan as copilot_plan
             out=copilot_plan(args.kind,args.risk,args.visibility,args.files,args.lines,args.used_percent,args.estimate_percent,args.checked_on,args.paid_usage_blocked)

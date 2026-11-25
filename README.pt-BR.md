@@ -28,3 +28,7 @@ Nenhuma configuração privada é distribuída. Licença MIT.
 O Core não depende de nenhum assistente de IA. Escolha um único host: Codex, Claude Code, Gemini CLI ou GitHub Copilot. Papéis lógicos podem ser executados sequencialmente no mesmo host. Sem troca automática de provedor. Consulte [a arquitetura](docs/PROVIDER_INDEPENDENCE.md).
 
 Para novos projetos, `navi init --root . --profile documentation --host gemini` registra o host preferido. Use `--host none` para projetos sem IA. A preferência é opcional e não instala nenhum agente.
+
+## NAVI Engineering Framework (NEF)
+
+Referências de arquitetura e estrutura adaptáveis, documentação, roadmap, handoff, scaffold e migração aditiva, auditoria, esclarecimento de tarefas e aprendizado local revisado. Consulte [NEF](docs/NEF.md). Perfis de referência não equivalem a gates de execução homologados.

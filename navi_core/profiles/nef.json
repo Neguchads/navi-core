@@ -1,0 +1,382 @@
+{
+  "version": "0.1.0",
+  "common": [
+    {
+      "id": "overview",
+      "preferred": "README.md",
+      "alternatives": [
+        "README.md",
+        "README.rst",
+        "README.txt"
+      ],
+      "kind": "file",
+      "priority": "core-reference"
+    },
+    {
+      "id": "architecture",
+      "preferred": "docs/ARCHITECTURE.md",
+      "alternatives": [
+        "docs/ARCHITECTURE.md",
+        "ARCHITECTURE.md",
+        "docs/architecture.md",
+        "docs/architecture"
+      ],
+      "kind": "either",
+      "priority": "core-reference"
+    },
+    {
+      "id": "roadmap",
+      "preferred": "docs/ROADMAP.md",
+      "alternatives": [
+        "docs/ROADMAP.md",
+        "ROADMAP.md",
+        "docs/roadmap.md",
+        "docs/roadmap"
+      ],
+      "kind": "either",
+      "priority": "core-reference"
+    },
+    {
+      "id": "handoff",
+      "preferred": "docs/HANDOFF.md",
+      "alternatives": [
+        "docs/HANDOFF.md",
+        "HANDOFF.md",
+        "docs/handoff.md",
+        "docs/handoffs"
+      ],
+      "kind": "either",
+      "priority": "core-reference"
+    },
+    {
+      "id": "decisions",
+      "preferred": "docs/DECISIONS.md",
+      "alternatives": [
+        "docs/DECISIONS.md",
+        "DECISIONS.md",
+        "docs/adr",
+        "adr"
+      ],
+      "kind": "either",
+      "priority": "recommended"
+    },
+    {
+      "id": "testing",
+      "preferred": "docs/TESTING.md",
+      "alternatives": [
+        "docs/TESTING.md",
+        "TESTING.md",
+        "docs/testing.md",
+        "docs/testing"
+      ],
+      "kind": "either",
+      "priority": "recommended"
+    },
+    {
+      "id": "contributing",
+      "preferred": "CONTRIBUTING.md",
+      "alternatives": [
+        "CONTRIBUTING.md",
+        "docs/CONTRIBUTING.md"
+      ],
+      "kind": "file",
+      "priority": "recommended"
+    },
+    {
+      "id": "security",
+      "preferred": "SECURITY.md",
+      "alternatives": [
+        "SECURITY.md",
+        ".github/SECURITY.md",
+        "docs/SECURITY.md"
+      ],
+      "kind": "file",
+      "priority": "recommended"
+    },
+    {
+      "id": "changelog",
+      "preferred": "CHANGELOG.md",
+      "alternatives": [
+        "CHANGELOG.md",
+        "CHANGES.md",
+        "docs/CHANGELOG.md"
+      ],
+      "kind": "file",
+      "priority": "recommended"
+    },
+    {
+      "id": "license",
+      "preferred": "LICENSE",
+      "alternatives": [
+        "LICENSE",
+        "LICENSE.md",
+        "LICENSE.txt",
+        "COPYING"
+      ],
+      "kind": "file",
+      "priority": "recommended"
+    }
+  ],
+  "profiles": {
+    "typescript-backend": {
+      "architecture": "Modular monolith; domain boundaries, validated configuration, stable API/error contracts, tests for import direction; split services only with evidence.",
+      "folders": [
+        "src/modules",
+        "src/shared",
+        "src/config",
+        "tests"
+      ],
+      "checks": [
+        "API contracts",
+        "data migrations",
+        "observability"
+      ]
+    },
+    "typescript-frontend": {
+      "architecture": "Feature-oriented modules; separate state, views, API clients and reusable UI.",
+      "folders": [
+        "src/features",
+        "src/components",
+        "src/lib",
+        "tests"
+      ],
+      "checks": [
+        "accessibility",
+        "browser tests",
+        "bundle budgets"
+      ]
+    },
+    "python-tooling": {
+      "architecture": "Package-first modules; CLI entrypoint separated from domain logic and I/O; use src layout or existing package root.",
+      "folders": [
+        "src",
+        "tests",
+        "scripts"
+      ],
+      "checks": [
+        "packaging",
+        "CLI smoke",
+        "dependency constraints"
+      ]
+    },
+    "cpp-native": {
+      "architecture": "Separate public interfaces, implementation and platform adapters; deterministic CMake builds.",
+      "folders": [
+        "include",
+        "src",
+        "tests",
+        "cmake"
+      ],
+      "checks": [
+        "ABI",
+        "sanitizers",
+        "compiler matrix"
+      ]
+    },
+    "documentation": {
+      "architecture": "Documentation-as-code with audience and navigation; no source tree required.",
+      "folders": [
+        "docs",
+        "assets"
+      ],
+      "checks": [
+        "link validation",
+        "provenance",
+        "review cadence"
+      ]
+    },
+    "static-website": {
+      "architecture": "Static assets and page components; avoid unnecessary backend or build tools.",
+      "folders": [
+        "assets",
+        "css",
+        "js"
+      ],
+      "checks": [
+        "accessibility",
+        "link and browser smoke"
+      ]
+    },
+    "javascript-tooling": {
+      "architecture": "Small modules; explicit entrypoints; pure logic separated from I/O.",
+      "folders": [
+        "src",
+        "tests",
+        "scripts"
+      ],
+      "checks": [
+        "node:test",
+        "lockfile"
+      ]
+    },
+    "game-recomp": {
+      "architecture": "Separate guest adapters, generated code, handwritten runtime, platform services, patches and UI; CSR is a reference, not a dependency.",
+      "folders": [
+        "runtime",
+        "adapters",
+        "generated",
+        "patches",
+        "tests"
+      ],
+      "checks": [
+        "authorized input hashes",
+        "reference traces",
+        "save migration",
+        "provenance"
+      ]
+    },
+    "reverse-engineering": {
+      "architecture": "Separate analysis notes, recovered interfaces, reproducible scripts and evidence; keep restricted binaries outside Git.",
+      "folders": [
+        "analysis",
+        "scripts",
+        "docs",
+        "tests"
+      ],
+      "checks": [
+        "input provenance",
+        "reproduction steps",
+        "authorization"
+      ]
+    },
+    "godot-game": {
+      "architecture": "Scenes and components by feature; separate resources, runtime systems and editor tooling; respect project.godot and existing paths.",
+      "folders": [
+        "scenes",
+        "scripts",
+        "resources",
+        "assets"
+      ],
+      "checks": [
+        "import settings",
+        "gameplay smoke",
+        "asset licenses"
+      ]
+    },
+    "ai-workflow": {
+      "architecture": "Provider-independent contracts; tools, adapters, policies and deterministic verification; isolate untrusted context.",
+      "folders": [
+        "providers",
+        "tools",
+        "contracts",
+        "tests"
+      ],
+      "checks": [
+        "capability checks",
+        "evaluation",
+        "privacy"
+      ]
+    },
+    "knowledge-system": {
+      "architecture": "Separate ingestion, normalization, retrieval, indexing and storage boundaries; version schemas.",
+      "folders": [
+        "ingestion",
+        "retrieval",
+        "schemas",
+        "tests"
+      ],
+      "checks": [
+        "source citations",
+        "index reproducibility",
+        "deletion"
+      ]
+    },
+    "full-stack": {
+      "architecture": "Separate deployable apps and shared contracts; monorepo only where it improves coordination.",
+      "folders": [
+        "apps",
+        "packages",
+        "tests"
+      ],
+      "checks": [
+        "API versioning",
+        "end-to-end tests"
+      ]
+    },
+    "library": {
+      "architecture": "Stable public API, internal modules and examples; semantic versioning.",
+      "folders": [
+        "src",
+        "examples",
+        "tests"
+      ],
+      "checks": [
+        "API compatibility",
+        "package verification"
+      ]
+    },
+    "desktop": {
+      "architecture": "Separate presentation, domain logic, platform services and persistence.",
+      "folders": [
+        "src",
+        "tests",
+        "resources"
+      ],
+      "checks": [
+        "installer",
+        "OS matrix",
+        "upgrade"
+      ]
+    },
+    "mobile": {
+      "architecture": "Feature modules; separate UI, domain and data adapters.",
+      "folders": [
+        "features",
+        "core",
+        "tests"
+      ],
+      "checks": [
+        "permissions",
+        "device testing"
+      ]
+    },
+    "unity-game": {
+      "architecture": "Respect Unity Assets, Packages and ProjectSettings; organize runtime by feature.",
+      "folders": [
+        "Assets",
+        "Packages",
+        "ProjectSettings"
+      ],
+      "checks": [
+        "scene smoke",
+        "asset licenses"
+      ]
+    },
+    "unreal-game": {
+      "architecture": "Respect Unreal Source, Content and Config; isolate plugins and modules.",
+      "folders": [
+        "Source",
+        "Content",
+        "Config"
+      ],
+      "checks": [
+        "cook/package",
+        "asset licenses"
+      ]
+    },
+    "infrastructure": {
+      "architecture": "Declarative infrastructure; separate reusable modules, environments and policies.",
+      "folders": [
+        "modules",
+        "environments",
+        "policies"
+      ],
+      "checks": [
+        "plan review",
+        "drift",
+        "rollback"
+      ]
+    }
+  },
+  "templates": {
+    "README.md": "# Project overview\n\n> NEF starter: replace TODOs with verified project information.\n\n## Purpose\nTODO: goal, users and scope.\n\n## Setup and usage\nTODO: verified requirements and commands.\n\n## Verification\nTODO: actual test command and limitations.\n\n## Documentation\nTODO: link existing architecture, roadmap and handoff.\n",
+    "docs/ARCHITECTURE.md": "# Architecture\n\n> NEF starter: proposed structure is not implementation evidence.\n\n## Context and goals\nTODO\n\n## Components and boundaries\nTODO: dependencies, interfaces and data flow.\n\n## Decisions and alternatives\nTODO: link decision records.\n\n## Risks and verification\nTODO\n",
+    "docs/ROADMAP.md": "# Roadmap\n\n> NEF starter: no milestone is complete until evidence exists.\n\n## Objective and acceptance\nTODO\n\n## Milestones\n| ID | Deliverable | Depends on | Status | Acceptance evidence |\n|---|---|---|---|---|\n| M1 | TODO | None | planned | TODO |\n\n## Blockers and next milestone\nTODO\n",
+    "docs/HANDOFF.md": "# Handoff\n\n> NEF starter: update at session boundaries; never include secrets, raw prompts or private logs in tracked files.\n\n## Current objective and scope\nTODO\n\n## Revision and environment\nTODO: branch, commit, dirty state; do not expose credentials.\n\n## Completed and evidence\nTODO: commands, results, artifact references; distinguish not run from passed.\n\n## In progress and blockers\nTODO\n\n## Decisions and assumptions\nTODO\n\n## Next executable steps and acceptance\nTODO\n\n## Rollback and unresolved questions\nTODO\n",
+    "docs/DECISIONS.md": "# Decisions\n\nRecord date, context, options, choice, rationale, consequences and reversal criteria. TODO: first reviewed decision.\n",
+    "docs/TESTING.md": "# Testing\n\nTODO: actual commands, fixtures, supported platforms, scope, limitations and evidence. Never claim unexecuted tests passed.\n",
+    "CONTRIBUTING.md": "# Contributing\n\nTODO: setup, review, test gate, contribution rules and license scope. Human and AI contributions follow the same evidence policy.\n",
+    "SECURITY.md": "# Security\n\nTODO: supported versions, private reporting channel, trust boundaries and handling of sensitive data. Do not publish secrets.\n",
+    "CHANGELOG.md": "# Changelog\n\n## Unreleased\n\nTODO: record actual user-visible changes.\n"
+  }
+}
