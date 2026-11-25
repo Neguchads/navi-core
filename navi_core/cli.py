@@ -216,6 +216,15 @@ def main(argv=None):
     p.add_argument("--timeout",type=int,default=900)
     p=sub.add_parser("proof-check",help="Verify local log integrity; not attestation")
     p.add_argument("directory",type=pathlib.Path)
+    p=sub.add_parser("compare",help="Paired synthetic Ollama strategy experiment; plan by default")
+    p.add_argument("--model",required=True)
+    p.add_argument("--case",choices=("all","BENCH-DAG-001","BENCH-ARTIFACT-001","BENCH-BUDGET-001","BENCH-GOVERNANCE-001"),default="all")
+    p.add_argument("--trials",type=int,default=3)
+    p.add_argument("--max-output-tokens",type=int,default=512)
+    p.add_argument("--max-input-tokens",type=int,default=8192)
+    p.add_argument("--timeout",type=int,default=120)
+    p.add_argument("--execute",action="store_true")
+    p.add_argument("--output",type=pathlib.Path)
     p=sub.add_parser("validate");p.add_argument("kind",choices=CONTRACTS);p.add_argument("file",type=pathlib.Path)
     args=parser.parse_args(argv)
     try:
@@ -242,6 +251,13 @@ def main(argv=None):
                 content=packet(out,args.archives,args.budget_bytes)
                 write_private(args.output,content)
                 out={"status":"packet-created","selected":len(out["selected"]),"scope":"private-local; no execution or upload"}
+        elif args.command=="compare":
+            from . import paired_bench
+            from .skill_registry import write_private
+            out=paired_bench.run(args.model,args.case,args.trials,args.max_output_tokens,args.max_input_tokens,args.timeout,execute=args.execute)
+            if args.output is not None: write_private(args.output,out)
+            if out["status"] in ("blocked","failed"):
+                print(json.dumps(out,ensure_ascii=False,indent=2));return 1
         elif args.command=="bench":
             from .agent_bench import catalog, run_reference, evaluate, check_options
             from .skill_registry import read_json, write_private
