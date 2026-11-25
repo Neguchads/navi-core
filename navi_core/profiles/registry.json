@@ -38,15 +38,9 @@
     "tools": [
       "python"
     ],
-    "commands": [
-      [
-        "python",
-        "-c",
-        "import sys, unittest; suite = unittest.defaultTestLoader.discover(\"tests\"); count = suite.countTestCases(); print(\"Discovered tests:\", count); result = unittest.TextTestRunner(verbosity=2).run(suite); print(\"Executed non-skipped tests:\", result.testsRun-len(result.skipped)); sys.exit(0 if count > 0 and result.testsRun > len(result.skipped) and result.wasSuccessful() else 1)"
-      ]
-    ],
+    "commands": [],
     "install": [],
-    "description": "Python unittest profile, including standalone stdlib repositories; explicit project dependencies remain separate"
+    "description": "Scoped unittest discovery; default tests directory; rejects empty/all-skipped suites."
   },
   "cpp-native": {
     "status": "supported",
@@ -142,5 +136,22 @@
   "knowledge-system": {
     "status": "planned",
     "markers": []
+  },
+  "javascript-tooling": {
+    "status": "supported",
+    "markers": [
+      "package.json",
+      "tests"
+    ],
+    "required": [
+      "package.json"
+    ],
+    "tools": [
+      "node",
+      "python"
+    ],
+    "commands": [],
+    "install": [],
+    "description": "Explicit scoped Node built-in test files; no automatic dependency installation."
   }
 }

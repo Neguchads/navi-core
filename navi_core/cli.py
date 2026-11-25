@@ -81,6 +81,27 @@ def load_manifest(root):
     if p.is_symlink() or p.parent.is_symlink(): raise NaviError("Refusing symlink manifest")
     return validate("project",tomllib.loads(p.read_text(encoding="utf-8")))
 
+def scoped_tests(root, directory, suffixes):
+    # Only normalized relative paths. Reject links/junctions along every component.
+    parts=directory.split("/")
+    if not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_.-]*(/[A-Za-z0-9_][A-Za-z0-9_.-]*)*",directory):
+        raise NaviError("Invalid test directory")
+    path=root
+    for part in parts:
+        path=path/part
+        if path.is_symlink() or (hasattr(path,"is_junction") and path.is_junction()):
+            raise NaviError("Linked test directory")
+    if not path.is_dir() or not path.resolve().is_relative_to(root):
+        raise NaviError("Test directory missing or outside project")
+    found=[]
+    for child in sorted(path.iterdir()):
+        if child.suffix in suffixes and (suffixes!={".py"} or child.name.startswith("test")):
+            if child.is_symlink() or not child.is_file() or not child.resolve().is_relative_to(root):
+                raise NaviError("Invalid test file")
+            found.append(child.relative_to(root).as_posix())
+    if not found: raise NaviError("No scoped test files found")
+    return found
+
 def plan(root):
     root = root.resolve(strict=True)
     data=load_manifest(root); profile=data["project"]["profile"]; p=REGISTRY[profile]
@@ -91,8 +112,15 @@ def plan(root):
     if profile == "typescript-backend":
         pkg=json.loads((root/"package.json").read_text(encoding="utf-8"))
         if not pkg.get("scripts",{}).get("verify"): raise NaviError("npm verify script missing")
-    if profile == "python-tooling" and not any((root/"tests").glob("test*.py")):
-        raise NaviError("No top-level unittest test files found")
+    directory=data["verification"].get("test_dir","tests")
+    if "test_dir" in data["verification"] and profile not in ("python-tooling","javascript-tooling"):
+        raise NaviError("test_dir is only supported by scoped test profiles")
+    if profile == "python-tooling":
+        scoped_tests(root,directory,{".py"})
+        commands=[["python","-c","import sys, unittest; suite = unittest.defaultTestLoader.discover(sys.argv[1]); count = suite.countTestCases(); result = unittest.TextTestRunner(verbosity=2).run(suite); print('Discovered tests:', count, 'Executed non-skipped:', result.testsRun-len(result.skipped)); sys.exit(0 if count > 0 and result.testsRun > len(result.skipped) and result.wasSuccessful() else 1)",directory]]
+    if profile == "javascript-tooling":
+        paths=scoped_tests(root,directory,{".mjs",".cjs",".js"})
+        commands=[["python","-I","-m","navi_core.test_gates","node",*paths]]
     if profile == "static-website":
         # Check tracked JS only; never traverse dependencies or arbitrary symlinks.
         tracked=subprocess.run(["git","-C",str(root),"ls-files","-z"],check=True,capture_output=True).stdout.decode("utf-8").split("\0")
