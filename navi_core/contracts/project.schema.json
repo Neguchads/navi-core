@@ -40,7 +40,8 @@
             "reverse-engineering",
             "godot-game",
             "ai-workflow",
-            "knowledge-system"
+            "knowledge-system",
+            "javascript-tooling"
           ]
         }
       },
@@ -62,6 +63,12 @@
           "type": "integer",
           "minimum": 1,
           "maximum": 3600
+        },
+        "test_dir": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.-]*(/[A-Za-z0-9_][A-Za-z0-9_.-]*)*$"
         }
       },
       "required": [
