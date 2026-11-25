@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        project: [codex-config-universal, spec-to-proof, chad-recomp, navi-graphify, github-homepage, navyv-abyss, Neguchads]
+        project: [codex-config-universal, spec-to-proof, chad-recomp, navi-graphify, navi-githomepage, navi-abyss, Neguchads]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
