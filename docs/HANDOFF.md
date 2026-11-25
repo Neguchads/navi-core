@@ -37,3 +37,5 @@ Intelligence and Control Center follow-up: review docs/ENGINEERING_INTELLIGENCE.
 Installer follow-up: use docs/INSTALLATION.md; do not overwrite existing environments, install agents or claim third-party wheel provenance based only on local hashes.
 
 PR #30 consolidates the AKE #29 changes with Intelligence, Control Center, offline provisioning and optional reviewed skill context. Use the final exact combined CI and publication evidence. The isolated #29 macOS runner was queued; do not represent its incomplete CI as passed.
+
+Maintenance: combine Dependabot #2 and #3 on current main; test all platforms, audit dependencies, preserve existing immutable preview release. Experimental live coding benchmark #17 remains unaccepted until its failed model evaluation is resolved; no Nexus certification.
