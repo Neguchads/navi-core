@@ -47,7 +47,10 @@ jobs:
           navi public-status
       - name: Installed CLI outside source tree
         working-directory: ${{ runner.temp }}
-        run: navi doctor
+        run: |
+          navi doctor
+          navi standard --profile game-recomp
+          navi assist --profile documentation --format markdown
   mcp-smoke:
     runs-on: ubuntu-24.04
     timeout-minutes: 10

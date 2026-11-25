@@ -114,3 +114,13 @@ class NEFTests(unittest.TestCase):
         self.assertEqual(nef.search_lessons(self.root,self.store,query)["lessons"],[])
         self.assertTrue((self.store/"csv.json").is_file())
         self.assertEqual(nef.revoke(self.root,self.store,"csv",True)["status"],"revoked")
+
+    def test_cli_standard_and_scaffold(self):
+        from contextlib import redirect_stdout
+        from io import StringIO
+        with redirect_stdout(StringIO()) as output:
+            self.assertEqual(cli.main(["standard","--profile","game-recomp"]),0)
+        self.assertIn("game-recomp",json.loads(output.getvalue())["profiles"])
+        with redirect_stdout(StringIO()):
+            self.assertEqual(cli.main(["scaffold","--root",str(self.root),"--profile","documentation","--apply"]),0)
+            self.assertEqual(cli.main(["audit","--root",str(self.root),"--profile","documentation"]),0)

@@ -367,7 +367,7 @@ def main(argv=None):
             elif args.command=="intake":out=nef.intake(read_json(args.brief))
             elif args.command=="learn":out=nef.learn(args.root,args.store,read_json(args.lesson),args.approve)
             else:out=nef.search_lessons(args.root,args.store,args.query_file,args.budget_bytes) if args.query_file else nef.recall(args.root,args.store,args.ids,args.budget_bytes)
-            if out["status"] in ("clarify","blocked","review-required"):
+            if out.get("status") in ("clarify","blocked","review-required"):
                 print(json.dumps(out,ensure_ascii=False,indent=2));return 1
         elif args.command=="copilot-plan":
             from .copilot_free import plan as copilot_plan

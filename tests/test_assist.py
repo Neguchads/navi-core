@@ -51,3 +51,13 @@ class AssistTests(unittest.TestCase):
         data=self.handoff(state="complete",acceptance=[{"criterion":"CSV","status":"passed","evidence":"file"}],
                           verification=[{"command":"test","status":"failed","exit_code":1,"evidence":"failure"}])
         self.assertEqual(assist.check_handoff(data)["status"],"review-required")
+
+    def test_cli_portable_packet(self):
+        from contextlib import redirect_stdout
+        from io import StringIO
+        with redirect_stdout(StringIO()) as output:
+            self.assertEqual(cli.main(["assist","--profile","documentation"]),0)
+        self.assertIn("handoff",json.loads(output.getvalue())["contracts"])
+        with redirect_stdout(StringIO()) as output:
+            self.assertEqual(cli.main(["assist","--profile","documentation","--format","markdown"]),0)
+        self.assertIn("P11",output.getvalue())

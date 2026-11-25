@@ -38,3 +38,5 @@ the preview. A stable version needs the separate acceptance issue gates.
 ## UAI and managed workflow in 0.3.0rc2
 
 Portable Markdown/JSON, structured handoff, optional SDK-backed MCP, gated managed operations and private lesson revocation. Verify exact CI and artifact before adoption. The optional SDK has separate dependency risks; no authenticated external agent is certified by the protocol smoke.
+
+The RC1 wheel smoke failed at `navi standard` on all three platforms because the CLI assumed a status field. RC2 corrects status-free catalog responses and tests installed commands pre-merge. RC1 was not published.

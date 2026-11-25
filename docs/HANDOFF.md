@@ -25,3 +25,5 @@ Revert only the reviewed NEF commit if needed. Do not erase user documentation, 
 
 ## UAI follow-up
 NEF #26 passed all five pre-merge gates and was integrated. UAI adds portable public context and optional SDK-backed MCP. Review current CI, actual published artifact and host capability before adoption.
+
+RC1 main artifact installation (run 45601823906) found a CLI KeyError after zero-AI verification, before NEF smoke. Publication was correctly blocked. PR #27 fixes status-free reference output handling, adds CLI-level regression tests and pre-merge installed CLI smoke. RC2 replaces the unpublished RC1 only after actual evidence; do not overwrite release tags.
