@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_id": "navi-agent-policy",
-  "revision": "0.3.1",
+  "revision": "0.4.0",
   "rules": [
     {
       "id": "P01",
@@ -67,6 +67,11 @@
       "id": "P13",
       "title": "Portable continuity",
       "text": "Use the structured handoff contract for nontrivial session transfer when available. A complete task requires actual acceptance evidence; unknown or failed results remain explicitly unresolved. Use portable context or optional MCP only where the selected host supports it; never imply that all hosts are installed or authenticated."
+    },
+    {
+      "id": "P14",
+      "title": "Managed session lifecycle",
+      "text": "Use the local session lifecycle when configured. Record a validated brief before execution; resume with the current revision, checkpoint reviewed sanitized handoff, and close only after matching acceptance evidence. Native hooks are optional advisory context, never a permission boundary. Do not capture raw prompts or transcripts."
     }
   ]
 }
