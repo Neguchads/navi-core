@@ -25,10 +25,10 @@ class FoundationTests(unittest.TestCase):
             self.assertEqual(req.call_args.args[0]["options"]["num_predict"],512)
             self.assertFalse(result["provider"]["hard_deadline"])
     def test_provider_overbudget(self):
-        with patch("navi_core.providers._request",return_value={"done":True,"response":"{}","eval_count":513,"prompt_eval_count":1}):
+        with patch("navi_core.providers._request",return_value={"done":True,"model":"local:9b","response":"{}","eval_count":513,"prompt_eval_count":1}):
             with self.assertRaises(cli.NaviError):providers.run("local:9b","BENCH-DAG-001")
     def test_provider_failed_gate(self):
-        with patch("navi_core.providers._request",return_value={"done":True,"response":'{"allowed":["r2"],"denied":["r1","r3","r4"]}',"eval_count":10,"prompt_eval_count":50}):
+        with patch("navi_core.providers._request",return_value={"done":True,"model":"local:9b","response":'{"allowed":["r2"],"denied":["r1","r3","r4"]}',"eval_count":10,"prompt_eval_count":50}):
             self.assertEqual(providers.run("local:9b","BENCH-GOVERNANCE-001")["status"],"failed")
     def test_proof_recomputes(self):
         p=governance.proof("BENCH-BUDGET-001",{"admitted":["plan","build","extra"],"remaining":-5},4096)

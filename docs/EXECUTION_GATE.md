@@ -16,3 +16,7 @@ bind the authorized action/provider and enforce its requested cap in the
 actual provider call. Server-reported usage can be wrong. No hard external
 billing limit is implied. The API is not yet wired to Nexus or external
 agent CLIs. It is a testable prerequisite for such an integration.
+
+## Governed Ollama fixture call
+
+The explicitly executed `navi providers` path now reserves context plus output allowance before the HTTP transport. It binds the exact request to a one-use HMAC approval created by the local controller. Identity mismatch, incomplete/unknown usage and reported overrun fail closed. A failed request is charged conservatively in the ephemeral ledger; it is not retried automatically. Successful reports contain reservation and settlement metadata. The temporary ledger is deleted after the call, so this is not persistent account-wide or cross-session budget enforcement. The existing paired comparison still has its own requested caps; it does not share this ledger. The live public workflow includes a real governed call. Nexus integration and remote/human authorization remain separate gates.
