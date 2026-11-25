@@ -1,0 +1,35 @@
+name: Public recovery rehearsal
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/recovery-rehearsal.yml'
+      - 'scripts/recovery_rehearsal.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  restore:
+    if: github.repository == 'Neguchads/navi-core' && (github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository)
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        project: [codex-config-universal, spec-to-proof, chad-recomp, navi-graphify, github-homepage, navyv-abyss, Neguchads]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Restore public Git snapshot
+        env:
+          PROJECT: ${{ matrix.project }}
+        run: python3 scripts/recovery_rehearsal.py "$PROJECT" "$RUNNER_TEMP/restore.json"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: always()
+        with:
+          name: recovery-${{ matrix.project }}
+          path: ${{ runner.temp }}/restore.json
+          if-no-files-found: error
+          retention-days: 7
