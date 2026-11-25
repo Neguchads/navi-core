@@ -35,3 +35,5 @@ AKE follow-up: read docs/ADAPTIVE_KNOWLEDGE.md and check exact CI. Do not call l
 Intelligence and Control Center follow-up: review docs/ENGINEERING_INTELLIGENCE.md and docs/CONTROL_CENTER.md, confirm exact CI, do not imply semantic multi-language or administrative enforcement.
 
 Installer follow-up: use docs/INSTALLATION.md; do not overwrite existing environments, install agents or claim third-party wheel provenance based only on local hashes.
+
+PR #30 consolidates the AKE #29 changes with Intelligence, Control Center, offline provisioning and optional reviewed skill context. Use the final exact combined CI and publication evidence. The isolated #29 macOS runner was queued; do not represent its incomplete CI as passed.

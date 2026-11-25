@@ -6,6 +6,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 import venv
 from .cli import NaviError
 
@@ -111,6 +112,8 @@ def provision(manifest,expected,destination,apply=False):
 def uninstall(destination,apply=False):
     destination=_destination(destination)
     if not destination.is_dir():raise NaviError("Unknown environment")
+    if Path(sys.prefix).resolve().is_relative_to(destination.resolve()) or Path(sys.executable).resolve().is_relative_to(destination.resolve()):
+        raise NaviError("Do not remove the currently active Python environment")
     receipt=_safe(destination/RECEIPT)
     if not receipt.is_file() or receipt.stat().st_size>4096:raise NaviError("No managed installation receipt")
     data=json.loads(receipt.read_text(encoding="utf-8"))

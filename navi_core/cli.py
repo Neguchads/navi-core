@@ -303,6 +303,12 @@ def main(argv=None):
     p.add_argument("--query-file",type=pathlib.Path)
     p.add_argument("--session-id")
     p.add_argument("--embedding-query",type=pathlib.Path)
+    p.add_argument("--skill-inventory",type=pathlib.Path)
+    p.add_argument("--skill-approvals",type=pathlib.Path)
+    p.add_argument("--skill-archives",nargs="+",type=pathlib.Path)
+    p.add_argument("--skill-host",choices=("codex","claude","gemini","copilot","nexus"))
+    p.add_argument("--skill-budget",type=int,default=2048)
+    p.add_argument("--skill-max-risk",choices=("low","medium","high","critical"),default="low")
     p.add_argument("--budget-bytes",type=int,default=8192)
     sub.add_parser("hosts",help="Discover agent executables without running them")
     p=sub.add_parser("capabilities",help="Describe one host's declared integration capabilities")
@@ -409,7 +415,10 @@ def main(argv=None):
             elif args.action=="revoke":out=knowledge.revoke(args.root,args.store,args.id,args.kind,args.apply)
             else:
                 if not args.query_file:raise NaviError("Retrieve needs a local query file")
-                out=knowledge.retrieve(args.root,args.store,args.query_file,args.budget_bytes,args.session_id,read_json(args.embedding_query) if args.embedding_query else None)
+                skill_args=(args.skill_inventory,args.skill_approvals,args.skill_archives,args.skill_host)
+                if any(skill_args) and not all(skill_args):raise NaviError("Skill retrieval requires inventory, approvals, archives and one host")
+                skill_inputs={"inventory":read_json(args.skill_inventory),"approvals":read_json(args.skill_approvals),"archives":args.skill_archives,"host":args.skill_host,"budget":args.skill_budget,"risk":args.skill_max_risk} if all(skill_args) else None
+                out=knowledge.retrieve(args.root,args.store,args.query_file,args.budget_bytes,args.session_id,read_json(args.embedding_query) if args.embedding_query else None,skill_inputs)
         elif args.command in ("hosts","capabilities","connect","disconnect","health","hook","session"):
             from . import runtime,runtime_hooks
             from .skill_registry import read_json

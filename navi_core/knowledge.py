@@ -5,6 +5,7 @@ import math
 from pathlib import Path
 import re
 import sqlite3
+from contextlib import closing
 from . import nef, runtime
 from .cli import NaviError, validate
 from .agent_bridge import safe_target
@@ -180,7 +181,7 @@ def _rank(items,query,limit):
     tokens=_terms(query)
     if not tokens or not items:return [],"empty"
     # FTS5 is an in-memory derived index; revoked entries never survive a new request.
-    with sqlite3.connect(":memory:") as con:
+    with closing(sqlite3.connect(":memory:")) as con:
         try:con.execute("CREATE VIRTUAL TABLE corpus USING fts5(id UNINDEXED,title,body,tokenize='unicode61 remove_diacritics 2')")
         except sqlite3.OperationalError:
             terms=set(tokens)
@@ -240,16 +241,33 @@ def _fusion(a,b):
             k=item["id"];lookup[k]=item;scores[k]=scores.get(k,0)+1/(60+i)
     return [lookup[k] for k in sorted(scores,key=lambda k:(-scores[k],k))][:40]
 
-def retrieve(root,store,query_file,budget=8192,session_id=None,embedding_query=None):
+def retrieve(root,store,query_file,budget=8192,session_id=None,embedding_query=None,skill_inputs=None):
     if type(budget) is not int or not 1024<=budget<=32768:raise NaviError("Budget must be 1024..32768 bytes")
     query=_query(query_file);docs,graphs,vectors=_records(root,store)
     ranked,engine=_rank(docs,query,40)
     if embedding_query is not None:ranked=_fusion(ranked,_semantic(docs,vectors,embedding_query))
     nodes,edges,graph_engine=_graph_context(graphs,query)
     out={"status":"selected","scope":SCOPE,"retrieval":{"text":engine,"graph":graph_engine,"semantic_embeddings":embedding_query is not None},
-         "checkpoint":None,"evidence":[],"graph":{"nodes":[],"links":[]},"omitted":0}
+         "checkpoint":None,"evidence":[],"graph":{"nodes":[],"links":[]},"skills":[],"omitted":0}
     if session_id is not None:out["checkpoint"]=runtime.context(root,store,session_id,32768)
     if _size(out)>budget:raise NaviError("Required checkpoint exceeds context budget; review a smaller handoff")
+    if skill_inputs is not None:
+        from . import skill_registry
+        if not query.strip() or len(query)>2000:raise NaviError("Skill selection requires a nonempty query of at most 2000 characters")
+        cap=skill_inputs["budget"]
+        if type(cap) is not int or not 1<=cap<=budget:raise NaviError("Invalid skill sub-budget")
+        available=min(cap,budget-_size(out))
+        if available>0:
+            plan=skill_registry.select(skill_inputs["inventory"],skill_inputs["approvals"],skill_inputs["host"],query,available,skill_inputs["risk"])
+            # Reuse exact archive/hash checks. Select only a subset that fits the serialized combined budget.
+            for selected in plan["selected"]:
+                single={**plan,"selected":[selected]}
+                if selected["bytes"]+256>available:out["omitted"]+=1;continue
+                packet=skill_registry.packet(single,skill_inputs["archives"],available)
+                item=packet["skills"][0];out["skills"].append(item)
+                used=_size(out)
+                if used>budget-64 or _size(out["skills"])>cap:
+                    out["skills"].pop();out["omitted"]+=1
     seen=set()
     # Keep full evidence units and provenance. Never silently truncate an excerpt.
     for doc in ranked:

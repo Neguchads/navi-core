@@ -32,3 +32,5 @@ Recovery, security and licensing gates must be reviewed before adopting in produ
 - Control Center: private read-only JSON/HTML portfolio overview; no public export or administrative control plane.
 
 - Offline provisioning: explicit reviewed wheel bundle, install/update into new venv, exact-inventory uninstall and real multi-platform installation smoke. External host installation and authentication remain separate.
+
+- Combined reviewed skill retrieval within the AKE context budget; explicit host, license/risk review and exact archive integrity preserved.

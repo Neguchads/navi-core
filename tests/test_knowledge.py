@@ -103,3 +103,17 @@ class KnowledgeTests(unittest.TestCase):
         with self.assertRaises(cli.NaviError):knowledge._vector([0,0],2)
         with self.assertRaises(cli.NaviError):knowledge._vector([float("nan"),1],2)
         with self.assertRaises(cli.NaviError):knowledge._vector([1],2)
+
+    def test_combined_skill_pack_budget(self):
+        from unittest.mock import patch
+        self.save("csv",self.doc(),"document")
+        candidate={"id":"csv-skill","sha256":"a"*64,"bytes":100,"sources":[],"risk":"low","score":1}
+        inputs={"inventory":{},"approvals":{},"archives":[],"host":"codex","budget":2048,"risk":"low"}
+        with patch("navi_core.skill_registry.select",return_value={"host":"codex","selected":[candidate]}) as select:
+            with patch("navi_core.skill_registry.packet",return_value={"skills":[{"id":"csv-skill","sha256":"a"*64,"text":"Use CSV header"}]}) as packet:
+                r=knowledge.retrieve(self.root,self.store,self.query,4096,skill_inputs=inputs)
+                self.assertEqual(r["skills"][0]["id"],"csv-skill")
+                self.assertTrue(r["evidence"])
+                self.assertLessEqual(knowledge._size(r),4096)
+                self.assertEqual(select.call_args.args[2],"codex")
+                self.assertEqual(packet.call_args.args[0]["selected"],[candidate])
