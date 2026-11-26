@@ -100,8 +100,17 @@ def resolve(config):
     roles = config.get("roles", {} if mode == "none" else ({r: hosts[0] for r in ROLES} if mode == "single" else None))
     _require(type(roles) is dict, "Explicit multi-agent role assignment required")
     _require(set(roles) == (set() if mode == "none" else set(ROLES)), "Expected plan, implement and review roles")
-    _require(all(type(h) is str and h in hosts for h in roles.values()), "Role host must be selected")
-    _require(set(roles.values()) == set(hosts), "All selected agents must have a role")
+    assignments = {}
+    for role in ROLES:
+        if role not in roles:
+            continue
+        value = roles[role]
+        assigned = value if type(value) is list and role == "review" else [value]
+        _require(bool(assigned) and all(type(h) is str and h in hosts for h in assigned), "Role host must be selected")
+        _require(len(set(assigned)) == len(assigned), "Duplicate role assignment")
+        _require(role == "review" or len(assigned) == 1, "Plan and implementation require a single host")
+        assignments[role] = assigned
+    _require({h for assigned in assignments.values() for h in assigned} == set(hosts), "All selected agents must have a role")
     # Exactly one writer, sequential handoff; no automatic fallback or provider switch.
     extra = config.get("capabilities", [])
     _require(type(extra) is list and all(type(c) is str and c in CAPABILITIES for c in extra), "Unknown capability")
@@ -112,7 +121,7 @@ def resolve(config):
     for capability in wanted:
         options = CAPABILITIES[capability]
         proposed.append({"capability": capability, "preferred": options[0], "alternatives": list(options[1:]), "classification": by_id[options[0]]["classification"], "state": "review-required", "execution_allowed": False})
-    steps = [{"role": r, "host": roles[r], "access": "write" if r == "implement" else "read-only"} for r in ROLES if r in roles]
+    steps = [{"role": r, "host": h, "access": "write" if r == "implement" else "read-only"} for r in ROLES for h in assignments.get(r, [])]
     result = {"schema_version": 1, "status": "planned", "execution_allowed": False,
               "mode": mode, "policy": policy, "hosts": hosts, "steps": steps,
               "engine": engine, "profile": profile, "additional_budget_brl": 0,
