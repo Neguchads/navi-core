@@ -98,3 +98,7 @@ Read-only static Python import/cycle and reviewed boundary analysis via `navi ar
 [Offline versioned installation and update](docs/INSTALLATION.md): reviewed wheel bundles, isolated environments and non-destructive rollback.
 
 [NAVI canonical repositories](docs/REPOSITORY_NAMES.md).
+
+## Universal Mastermind Engine (foundation preview)
+
+A read-only integration catalog and policy planner: `navi mastermind catalog`, `navi mastermind doctor`, and `navi mastermind plan examples/mastermind/local.json`. Supports no AI, single host, and explicit sequential multi-host role assignment with zero additional spending policy. External tools remain unapproved candidates; no installation or invocation. See [Mastermind architecture and acceptance](docs/MASTERMIND.md).
