@@ -1,0 +1,17 @@
+{
+  "mode": "multi",
+  "hosts": [
+    "claude",
+    "codex"
+  ],
+  "policy": "external_opt_in",
+  "roles": {
+    "plan": "claude",
+    "implement": "codex",
+    "review": "claude"
+  },
+  "engine": "conductor",
+  "profile": "game-recomp",
+  "additional_budget_brl": 0,
+  "allow_billable_api": false
+}
