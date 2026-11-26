@@ -1,0 +1,1677 @@
+{
+  "schema_version": 1,
+  "source": "Mastermind v2.0 reference inventory (2026-11-26); metadata only, no license or runtime approval",
+  "installable": false,
+  "entries": [
+    {
+      "id": "anthropics/claude-code",
+      "url": "https://github.com/anthropics/claude-code",
+      "domain": "agents",
+      "classification": "external-opt-in",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "openai/codex",
+      "url": "https://github.com/openai/codex",
+      "domain": "agents",
+      "classification": "external-opt-in",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "google-gemini/gemini-cli",
+      "url": "https://github.com/google-gemini/gemini-cli",
+      "domain": "agents",
+      "classification": "external-opt-in",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "https://docs.github.com/en/copilot",
+      "url": "https://docs.github.com/en/copilot",
+      "domain": "agents",
+      "classification": "external-opt-in",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "anomalyco/opencode",
+      "url": "https://github.com/anomalyco/opencode",
+      "domain": "agents",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "block/goose",
+      "url": "https://github.com/block/goose",
+      "domain": "agents",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "cline/cline",
+      "url": "https://github.com/cline/cline",
+      "domain": "agents",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "openhands/openhands",
+      "url": "https://github.com/OpenHands/OpenHands",
+      "domain": "agents",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "aider-ai/aider",
+      "url": "https://github.com/Aider-AI/aider",
+      "domain": "agents",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "wshobson/agents",
+      "url": "https://github.com/wshobson/agents",
+      "domain": "agents",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "nousresearch/hermes-agent",
+      "url": "https://github.com/NousResearch/hermes-agent",
+      "domain": "agents",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "openclaw/openclaw",
+      "url": "https://github.com/openclaw/openclaw",
+      "domain": "agents",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "openai/openai-agents-python",
+      "url": "https://github.com/openai/openai-agents-python",
+      "domain": "agents",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "google/adk-python",
+      "url": "https://github.com/google/adk-python",
+      "domain": "agents",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "openhands/software-agent-sdk",
+      "url": "https://github.com/OpenHands/software-agent-sdk",
+      "domain": "agents",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "agentclientprotocol/agent-client-protocol",
+      "url": "https://github.com/agentclientprotocol/agent-client-protocol",
+      "domain": "protocols-skills",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "modelcontextprotocol/modelcontextprotocol",
+      "url": "https://github.com/modelcontextprotocol/modelcontextprotocol",
+      "domain": "protocols-skills",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "a2aproject/a2a",
+      "url": "https://github.com/a2aproject/A2A",
+      "domain": "protocols-skills",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "agentsmd/agents.md",
+      "url": "https://github.com/agentsmd/agents.md",
+      "domain": "protocols-skills",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "agentskills/agentskills",
+      "url": "https://github.com/agentskills/agentskills",
+      "domain": "protocols-skills",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "modelcontextprotocol/python-sdk",
+      "url": "https://github.com/modelcontextprotocol/python-sdk",
+      "domain": "protocols-skills",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "modelcontextprotocol/servers",
+      "url": "https://github.com/modelcontextprotocol/servers",
+      "domain": "protocols-skills",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "modelcontextprotocol/inspector",
+      "url": "https://github.com/modelcontextprotocol/inspector",
+      "domain": "protocols-skills",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "modelcontextprotocol/ext-skills",
+      "url": "https://github.com/modelcontextprotocol/ext-skills",
+      "domain": "protocols-skills",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "openai/skills",
+      "url": "https://github.com/openai/skills",
+      "domain": "protocols-skills",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "anthropics/skills",
+      "url": "https://github.com/anthropics/skills",
+      "domain": "protocols-skills",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "agentclientprotocol/python-sdk",
+      "url": "https://github.com/agentclientprotocol/python-sdk",
+      "domain": "protocols-skills",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "github/github-mcp-server",
+      "url": "https://github.com/github/github-mcp-server",
+      "domain": "protocols-skills",
+      "classification": "external-opt-in",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "microsoft/conductor",
+      "url": "https://github.com/microsoft/conductor",
+      "domain": "orchestration",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "openai/symphony",
+      "url": "https://github.com/openai/symphony",
+      "domain": "orchestration",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "temporalio/temporal",
+      "url": "https://github.com/temporalio/temporal",
+      "domain": "orchestration",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "langchain-ai/langgraph",
+      "url": "https://github.com/langchain-ai/langgraph",
+      "domain": "orchestration",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "dbos-inc/dbos-transact-py",
+      "url": "https://github.com/dbos-inc/dbos-transact-py",
+      "domain": "orchestration",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "restatedev/restate",
+      "url": "https://github.com/restatedev/restate",
+      "domain": "orchestration",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "pydantic/pydantic-ai",
+      "url": "https://github.com/pydantic/pydantic-ai",
+      "domain": "orchestration",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "conductor-oss/conductor",
+      "url": "https://github.com/conductor-oss/conductor",
+      "domain": "orchestration",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "prefecthq/prefect",
+      "url": "https://github.com/PrefectHQ/prefect",
+      "domain": "orchestration",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "crewaiinc/crewai",
+      "url": "https://github.com/crewAIInc/crewAI",
+      "domain": "orchestration",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "apache/airflow",
+      "url": "https://github.com/apache/airflow",
+      "domain": "orchestration",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "cadence-workflow/cadence",
+      "url": "https://github.com/cadence-workflow/cadence",
+      "domain": "orchestration",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "microsoft/agent-framework",
+      "url": "https://github.com/microsoft/agent-framework",
+      "domain": "orchestration",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "netflix/metaflow",
+      "url": "https://github.com/Netflix/metaflow",
+      "domain": "orchestration",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "gethamster/horde",
+      "url": "https://github.com/gethamster/horde",
+      "domain": "orchestration",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "github/spec-kit",
+      "url": "https://github.com/github/spec-kit",
+      "domain": "methodology",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "bmad-code-org/bmad-method",
+      "url": "https://github.com/bmad-code-org/BMAD-METHOD",
+      "domain": "methodology",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "fission-ai/openspec",
+      "url": "https://github.com/Fission-AI/OpenSpec",
+      "domain": "methodology",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "obra/superpowers",
+      "url": "https://github.com/obra/superpowers",
+      "domain": "methodology",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "garrytan/gstack",
+      "url": "https://github.com/garrytan/gstack",
+      "domain": "methodology",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "https://kiro.dev",
+      "url": "https://kiro.dev",
+      "domain": "methodology",
+      "classification": "excluded-strict-oss",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "buildermethods/agent-os",
+      "url": "https://github.com/buildermethods/agent-os",
+      "domain": "methodology",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "topoteretes/cognee",
+      "url": "https://github.com/topoteretes/cognee",
+      "domain": "memory-context",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "mem0ai/mem0",
+      "url": "https://github.com/mem0ai/mem0",
+      "domain": "memory-context",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "getzep/graphiti",
+      "url": "https://github.com/getzep/graphiti",
+      "domain": "memory-context",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "garrytan/gbrain",
+      "url": "https://github.com/garrytan/gbrain",
+      "domain": "memory-context",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "letta-ai/letta",
+      "url": "https://github.com/letta-ai/letta",
+      "domain": "memory-context",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "microsoft/graphrag",
+      "url": "https://github.com/microsoft/graphrag",
+      "domain": "memory-context",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "hkuds/lightrag",
+      "url": "https://github.com/HKUDS/LightRAG",
+      "domain": "memory-context",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "qdrant/qdrant",
+      "url": "https://github.com/qdrant/qdrant",
+      "domain": "memory-context",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "lancedb/lancedb",
+      "url": "https://github.com/lancedb/lancedb",
+      "domain": "memory-context",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "sqlite/sqlite",
+      "url": "https://github.com/sqlite/sqlite",
+      "domain": "memory-context",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "asg017/sqlite-vec",
+      "url": "https://github.com/asg017/sqlite-vec",
+      "domain": "memory-context",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "ukplab/sentence-transformers",
+      "url": "https://github.com/UKPLab/sentence-transformers",
+      "domain": "memory-context",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "microsoft/llmlingua",
+      "url": "https://github.com/microsoft/LLMLingua",
+      "domain": "memory-context",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "facebookresearch/faiss",
+      "url": "https://github.com/facebookresearch/faiss",
+      "domain": "memory-context",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "openai/tiktoken",
+      "url": "https://github.com/openai/tiktoken",
+      "domain": "memory-context",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "huggingface/tokenizers",
+      "url": "https://github.com/huggingface/tokenizers",
+      "domain": "memory-context",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "stanfordnlp/dspy",
+      "url": "https://github.com/stanfordnlp/dspy",
+      "domain": "memory-context",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "docling-project/docling",
+      "url": "https://github.com/docling-project/docling",
+      "domain": "memory-context",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "graphify-labs/graphify",
+      "url": "https://github.com/Graphify-Labs/graphify",
+      "domain": "code-intelligence",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "oraios/serena",
+      "url": "https://github.com/oraios/serena",
+      "domain": "code-intelligence",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "upstash/context7",
+      "url": "https://github.com/upstash/context7",
+      "domain": "code-intelligence",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "yamadashy/repomix",
+      "url": "https://github.com/yamadashy/repomix",
+      "domain": "code-intelligence",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "tree-sitter/tree-sitter",
+      "url": "https://github.com/tree-sitter/tree-sitter",
+      "domain": "code-intelligence",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "sourcegraph/scip",
+      "url": "https://github.com/sourcegraph/scip",
+      "domain": "code-intelligence",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "burntsushi/ripgrep",
+      "url": "https://github.com/BurntSushi/ripgrep",
+      "domain": "code-intelligence",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "universal-ctags/ctags",
+      "url": "https://github.com/universal-ctags/ctags",
+      "domain": "code-intelligence",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "sverweij/dependency-cruiser",
+      "url": "https://github.com/sverweij/dependency-cruiser",
+      "domain": "code-intelligence",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "seddonym/import-linter",
+      "url": "https://github.com/seddonym/import-linter",
+      "domain": "code-intelligence",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "morluto/rea",
+      "url": "https://github.com/morluto/rea",
+      "domain": "reverse-engineering",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "nationalsecurityagency/ghidra",
+      "url": "https://github.com/NationalSecurityAgency/ghidra",
+      "domain": "reverse-engineering",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "cyberkaida/reverse-engineering-assistant",
+      "url": "https://github.com/cyberkaida/reverse-engineering-assistant",
+      "domain": "reverse-engineering",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "lauriewired/ghidramcp",
+      "url": "https://github.com/LaurieWired/GhidraMCP",
+      "domain": "reverse-engineering",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "frida/frida",
+      "url": "https://github.com/frida/frida",
+      "domain": "reverse-engineering",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "rizinorg/rizin",
+      "url": "https://github.com/rizinorg/rizin",
+      "domain": "reverse-engineering",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "skylot/jadx",
+      "url": "https://github.com/skylot/jadx",
+      "domain": "reverse-engineering",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "angr/angr",
+      "url": "https://github.com/angr/angr",
+      "domain": "reverse-engineering",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "capstone-engine/capstone",
+      "url": "https://github.com/capstone-engine/capstone",
+      "domain": "reverse-engineering",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "unicorn-engine/unicorn",
+      "url": "https://github.com/unicorn-engine/unicorn",
+      "domain": "reverse-engineering",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "llvm/llvm-project",
+      "url": "https://github.com/llvm/llvm-project",
+      "domain": "reverse-engineering",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "nandhakishorm/laya",
+      "url": "https://github.com/NandhaKishorM/laya",
+      "domain": "reverse-engineering",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "promptfoo/promptfoo",
+      "url": "https://github.com/promptfoo/promptfoo",
+      "domain": "evaluation",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "ukgovernmentbeis/inspect_ai",
+      "url": "https://github.com/UKGovernmentBEIS/inspect_ai",
+      "domain": "evaluation",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "swe-bench/swe-bench",
+      "url": "https://github.com/SWE-bench/SWE-bench",
+      "domain": "evaluation",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "langfuse/langfuse",
+      "url": "https://github.com/langfuse/langfuse",
+      "domain": "evaluation",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "arize-ai/phoenix",
+      "url": "https://github.com/Arize-ai/phoenix",
+      "domain": "evaluation",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "open-telemetry/opentelemetry-specification",
+      "url": "https://github.com/open-telemetry/opentelemetry-specification",
+      "domain": "evaluation",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "microsoft/playwright",
+      "url": "https://github.com/microsoft/playwright",
+      "domain": "evaluation",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "hypothesisworks/hypothesis",
+      "url": "https://github.com/HypothesisWorks/hypothesis",
+      "domain": "evaluation",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "vitest-dev/vitest",
+      "url": "https://github.com/vitest-dev/vitest",
+      "domain": "evaluation",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "pytest-dev/pytest",
+      "url": "https://github.com/pytest-dev/pytest",
+      "domain": "evaluation",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "open-telemetry/opentelemetry-python",
+      "url": "https://github.com/open-telemetry/opentelemetry-python",
+      "domain": "evaluation",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "mlflow/mlflow",
+      "url": "https://github.com/mlflow/mlflow",
+      "domain": "evaluation",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "open-policy-agent/opa",
+      "url": "https://github.com/open-policy-agent/opa",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "github/codeql",
+      "url": "https://github.com/github/codeql",
+      "domain": "security",
+      "classification": "excluded-strict-oss",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "semgrep/semgrep",
+      "url": "https://github.com/semgrep/semgrep",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "aquasecurity/trivy",
+      "url": "https://github.com/aquasecurity/trivy",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "google/osv-scanner",
+      "url": "https://github.com/google/osv-scanner",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "gitleaks/gitleaks",
+      "url": "https://github.com/gitleaks/gitleaks",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "anchore/syft",
+      "url": "https://github.com/anchore/syft",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "anchore/grype",
+      "url": "https://github.com/anchore/grype",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "ossf/scorecard",
+      "url": "https://github.com/ossf/scorecard",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "woodruffw/zizmor",
+      "url": "https://github.com/woodruffw/zizmor",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "aboutcode-org/scancode-toolkit",
+      "url": "https://github.com/aboutcode-org/scancode-toolkit",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "fsfe/reuse-tool",
+      "url": "https://github.com/fsfe/reuse-tool",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "sigstore/cosign",
+      "url": "https://github.com/sigstore/cosign",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "google/gvisor",
+      "url": "https://github.com/google/gvisor",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "containers/bubblewrap",
+      "url": "https://github.com/containers/bubblewrap",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "firecracker-microvm/firecracker",
+      "url": "https://github.com/firecracker-microvm/firecracker",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "nvidia-nemo/guardrails",
+      "url": "https://github.com/NVIDIA-NeMo/Guardrails",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "openfga/openfga",
+      "url": "https://github.com/openfga/openfga",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "openbao/openbao",
+      "url": "https://github.com/openbao/openbao",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "pydantic/pydantic",
+      "url": "https://github.com/pydantic/pydantic",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "python-jsonschema/jsonschema",
+      "url": "https://github.com/python-jsonschema/jsonschema",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "pypa/pip-audit",
+      "url": "https://github.com/pypa/pip-audit",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "getsops/sops",
+      "url": "https://github.com/getsops/sops",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "containers/podman",
+      "url": "https://github.com/containers/podman",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "cyclonedx/specification",
+      "url": "https://github.com/CycloneDX/specification",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "spdx/spdx-spec",
+      "url": "https://github.com/spdx/spdx-spec",
+      "domain": "security",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "github/gh-aw",
+      "url": "https://github.com/github/gh-aw",
+      "domain": "automation-visual",
+      "classification": "external-opt-in",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "https://docs.github.com/en/actions",
+      "url": "https://docs.github.com/en/actions",
+      "domain": "automation-visual",
+      "classification": "external-opt-in",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "backstage/backstage",
+      "url": "https://github.com/backstage/backstage",
+      "domain": "automation-visual",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "renovatebot/renovate",
+      "url": "https://github.com/renovatebot/renovate",
+      "domain": "automation-visual",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "googleapis/release-please",
+      "url": "https://github.com/googleapis/release-please",
+      "domain": "automation-visual",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "dagger/dagger",
+      "url": "https://github.com/dagger/dagger",
+      "domain": "automation-visual",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "cli/cli",
+      "url": "https://github.com/cli/cli",
+      "domain": "automation-visual",
+      "classification": "external-opt-in",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "pre-commit/pre-commit",
+      "url": "https://github.com/pre-commit/pre-commit",
+      "domain": "automation-visual",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "anuraghazra/github-readme-stats",
+      "url": "https://github.com/anuraghazra/github-readme-stats",
+      "domain": "automation-visual",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "ishandutta2007/beautiful-github-homepage",
+      "url": "https://github.com/ishandutta2007/beautiful-github-homepage",
+      "domain": "automation-visual",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "noniv/abyssal-garden",
+      "url": "https://github.com/Noniv/abyssal-garden",
+      "domain": "automation-visual",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "mrdoob/three.js",
+      "url": "https://github.com/mrdoob/three.js",
+      "domain": "automation-visual",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "ollama/ollama",
+      "url": "https://github.com/ollama/ollama",
+      "domain": "inference",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "ggml-org/llama.cpp",
+      "url": "https://github.com/ggml-org/llama.cpp",
+      "domain": "inference",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "vllm-project/vllm",
+      "url": "https://github.com/vllm-project/vllm",
+      "domain": "inference",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "sgl-project/sglang",
+      "url": "https://github.com/sgl-project/sglang",
+      "domain": "inference",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "berriai/litellm",
+      "url": "https://github.com/BerriAI/litellm",
+      "domain": "inference",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "huggingface/transformers",
+      "url": "https://github.com/huggingface/transformers",
+      "domain": "inference",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "microsoft/onnxruntime",
+      "url": "https://github.com/microsoft/onnxruntime",
+      "domain": "inference",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "honojs/hono",
+      "url": "https://github.com/honojs/hono",
+      "domain": "backend",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "nodejs/node",
+      "url": "https://github.com/nodejs/node",
+      "domain": "backend",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "microsoft/typescript",
+      "url": "https://github.com/microsoft/TypeScript",
+      "domain": "backend",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "colinhacks/zod",
+      "url": "https://github.com/colinhacks/zod",
+      "domain": "backend",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "biomejs/biome",
+      "url": "https://github.com/biomejs/biome",
+      "domain": "backend",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "fastify/fastify",
+      "url": "https://github.com/fastify/fastify",
+      "domain": "backend",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "nestjs/nest",
+      "url": "https://github.com/nestjs/nest",
+      "domain": "backend",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "fastapi/fastapi",
+      "url": "https://github.com/fastapi/fastapi",
+      "domain": "backend",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "oai/openapi-specification",
+      "url": "https://github.com/OAI/OpenAPI-Specification",
+      "domain": "backend",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "openapitools/openapi-generator",
+      "url": "https://github.com/OpenAPITools/openapi-generator",
+      "domain": "backend",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "schemathesis/schemathesis",
+      "url": "https://github.com/schemathesis/schemathesis",
+      "domain": "backend",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "git/git",
+      "url": "https://github.com/git/git",
+      "domain": "storage",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "treeverse/dvc",
+      "url": "https://github.com/treeverse/dvc",
+      "domain": "storage",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "restic/restic",
+      "url": "https://github.com/restic/restic",
+      "domain": "storage",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "kubernetes/kubernetes",
+      "url": "https://github.com/kubernetes/kubernetes",
+      "domain": "storage",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "networkx/networkx",
+      "url": "https://github.com/networkx/networkx",
+      "domain": "storage",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "postgres/postgres",
+      "url": "https://github.com/postgres/postgres",
+      "domain": "storage",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "astral-sh/uv",
+      "url": "https://github.com/astral-sh/uv",
+      "domain": "distribution",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "astral-sh/ruff",
+      "url": "https://github.com/astral-sh/ruff",
+      "domain": "distribution",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    },
+    {
+      "id": "python/cpython",
+      "url": "https://github.com/python/cpython",
+      "domain": "distribution",
+      "classification": "candidate",
+      "approved": false,
+      "revision": null,
+      "sha256": null,
+      "license": null
+    }
+  ]
+}
