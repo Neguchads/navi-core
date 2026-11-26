@@ -1,0 +1,27 @@
+# Original NAVI deterministic smoke recipe; no agent, provider, network or secrets.
+# Schema reference: https://github.com/microsoft/conductor/blob/main/examples/local-retained-workspace.yaml
+workflow:
+  name: navi-deterministic-smoke
+  description: Validate a provider-independent script execution
+  entry_point: verify
+  limits:
+    max_iterations: 4
+agents:
+  - name: verify
+    type: script
+    command: python
+    args:
+      - "-c"
+      - 'import sys; sys.stdout.write("NAVI_CONDUCTOR_OK\n")'
+    routes:
+      - to: $end
+        when: "exit_code == 0"
+      - to: failed
+  - name: failed
+    type: terminate
+    status: failed
+    reason: Local deterministic check failed
+    output_template:
+      result: failed
+output:
+  result: "{{ verify.output.stdout | trim }}"

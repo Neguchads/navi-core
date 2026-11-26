@@ -191,6 +191,8 @@ def main(argv=None):
     parser.add_argument("--version",action="version",version=__version__)
     sub=parser.add_subparsers(dest="command",required=True)
     sub.add_parser("doctor")
+    from . import mastermind
+    mastermind.register(sub)
     for name in ("detect","init","verify"):
         p=sub.add_parser(name);p.add_argument("--root",type=pathlib.Path,default=pathlib.Path.cwd())
         if name=="init":
@@ -388,6 +390,7 @@ def main(argv=None):
     args=parser.parse_args(argv)
     try:
         if args.command=="doctor": out=doctor()
+        elif args.command=="mastermind": out=mastermind.command(args)
         elif args.command in ("install","update","uninstall"):
             from . import installer
             if args.command=="uninstall":out=installer.uninstall(args.destination,args.apply)

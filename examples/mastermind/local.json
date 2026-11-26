@@ -1,0 +1,11 @@
+{
+  "mode": "single",
+  "hosts": [
+    "opencode"
+  ],
+  "policy": "strict_oss",
+  "profile": "backend",
+  "engine": "direct",
+  "additional_budget_brl": 0,
+  "allow_billable_api": false
+}
