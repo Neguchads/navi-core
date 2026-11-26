@@ -27,3 +27,18 @@ Primary candidate: https://github.com/microsoft/conductor (MIT upstream; exact r
 5. Integrate Graphify/Serena, planning skills, security and memory one capability at a time; no forced installation, no private data export.
 
 Zero additional spending; no remote API calls, installation, secret handling, or publication by this command. Local model weights and external services require separate review. Existing project-specific verification remains available through navi verify.
+
+## Local Conductor qualification recipe
+
+The upstream release candidate examined is [v0.1.47](https://github.com/microsoft/conductor/releases/tag/v0.1.47). Its root license is MIT, its Python requirement is 3.12+, and its package metadata includes Microsoft Copilot SDK, Anthropic/OpenAI SDKs and other dependencies. SDK code licensing does not imply that associated runtimes or services are OSS or free. Review the complete resolved dependency tree, package contents, license notices and artifact hashes before approval; do not install this candidate as a mandatory dependency.
+
+With a manually reviewed installation in an isolated environment and network denied, run from the Core checkout:
+
+```sh
+conductor validate examples/mastermind/conductor-smoke.yaml
+conductor run examples/mastermind/conductor-smoke.yaml --no-interactive
+```
+
+Expected output result: `NAVI_CONDUCTOR_OK` and successful exit. This original local script recipe has not yet been executed with the real Conductor runtime. No provider or remote MCP is configured. Check the actual workflow trace, no credentials and no outbound connections; the recipe alone is not proof of isolation. Do not run the command if the runtime or dependency license is unapproved. The no-agent, direct path remains available through existing Core verification.
+
+Multi-agent examples: the `roles.review` value may be a host name or an ordered array of selected host names. Planning and implementation each have exactly one host; review can have several. The sequence is advisory and does not grant write access or invoke the hosts.
