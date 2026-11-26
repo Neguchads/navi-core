@@ -2,6 +2,12 @@
 
 This is an initial technical attribution audit, not a legal certification or a complete SBOM. Maintainers must preserve upstream rights and review the exact distributed revision.
 
+## Original authorship and license scope
+
+Copyright (c) 2026 Gustavo (Neguchads) — original NAVI Core / NEF contributions, under the existing MIT License. AAF Core and Nexus Engine are original projects of the same author, as confirmed by the owner. Nexus Engine is separately MIT-licensed; AAF Core's private source and separate license are not covered by NAVI Core's license.
+
+For original contributions, record the actual rights holder, year and applicable SPDX license. In forks preserve upstream notices and add a separate notice limited to original contributions. MIT forks retain MIT; NAVI Graphify retains Apache-2.0 and historical MIT notices. Do not automatically relicense third-party or contributor material, or assume every AI-assisted output has exclusive copyright protection.
+
 ## Provenance and references
 
 | Source | Relationship | Terms / status |
