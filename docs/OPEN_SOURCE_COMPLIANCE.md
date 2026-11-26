@@ -4,7 +4,7 @@ This is an initial technical attribution audit, not a legal certification or a c
 
 ## Original authorship and license scope
 
-Copyright (c) 2026 Gustavo (Neguchads) — original NAVI Core / NEF contributions, under the existing MIT License. AAF Core and Nexus Engine are original projects of the same author, as confirmed by the owner. Nexus Engine is separately MIT-licensed; AAF Core's private source and separate license are not covered by NAVI Core's license.
+Copyright (c) 2026 Gustavo (Neguchads) — original NAVI Core / NEF contributions, under the existing MIT License. AAF Core, Nexus Engine and Backend Template are original projects of the same author, as confirmed by the owner. Nexus Engine is separately MIT-licensed; AAF Core's private source and separate license are not covered by NAVI Core's license.
 
 For original contributions, record the actual rights holder, year and applicable SPDX license. In forks preserve upstream notices and add a separate notice limited to original contributions. MIT forks retain MIT; NAVI Graphify retains Apache-2.0 and historical MIT notices. Do not automatically relicense third-party or contributor material, or assume every AI-assisted output has exclusive copyright protection.
 
@@ -16,7 +16,7 @@ For original contributions, record the actual rights holder, year and applicable
 | [Spec-to-Proof](https://github.com/Neguchads/spec-to-proof) | Related acceptance/evidence methodology | MIT for its own material; see its origin attribution |
 | [Abyssal Garden](https://github.com/Noniv/abyssal-garden) — Maksymilian Dendura | Reference behind Spec-to-Proof's documented origin; not an assertion that its code is embedded in Core | MIT |
 | [Graphify](https://github.com/Graphify-Labs/graphify) — Safi Shamsi and contributors | External graph tooling and interoperability, through NAVI Graphify | Apache-2.0; historical MIT portions |
-| Backend template | Engineering reference; README describes original code; no root LICENSE was located during initial review | Rights unresolved for reuse; do not distribute copied material until authorized |
+| [Backend Template](https://github.com/Neguchads/backend-template) | Original engineering template developed by Gustavo (Neguchads), as confirmed by the owner; internal engineering reference | No root LICENSE was located; public redistribution terms remain to be selected by the owner; third-party dependencies retain their own terms |
 | [jsonschema](https://github.com/python-jsonschema/jsonschema) | Declared runtime dependency | Verify installed version's metadata and notices |
 | [MCP Python SDK](https://github.com/modelcontextprotocol/python-sdk) | Optional dependency | Verify installed version's metadata and notices |
 
