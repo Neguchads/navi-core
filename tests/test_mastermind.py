@@ -60,3 +60,11 @@ class MastermindTests(unittest.TestCase):
         from unittest.mock import patch
         with patch("shutil.which", return_value=None):
             self.assertTrue(all(not v for v in m.doctor()["tools"].values()))
+
+    def test_multi_more_than_three_hosts(self):
+        a = m.resolve({"mode": "multi", "policy": "external_opt_in",
+                       "hosts": ["claude", "codex", "gemini", "opencode"],
+                       "roles": {"plan": "claude", "implement": "codex",
+                                 "review": ["gemini", "opencode"]}})
+        self.assertEqual([s["host"] for s in a["steps"]], ["claude", "codex", "gemini", "opencode"])
+        self.assertEqual(sum(s["access"] == "write" for s in a["steps"]), 1)
