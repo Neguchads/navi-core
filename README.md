@@ -98,3 +98,5 @@ Read-only static Python import/cycle and reviewed boundary analysis via `navi ar
 [Offline versioned installation and update](docs/INSTALLATION.md): reviewed wheel bundles, isolated environments and non-destructive rollback.
 
 [NAVI canonical repositories](docs/REPOSITORY_NAMES.md).
+
+[Open-source credits, provenance and distribution review](docs/OPEN_SOURCE_COMPLIANCE.md).
