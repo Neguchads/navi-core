@@ -77,3 +77,16 @@ release verification is a separate read-only workflow. Do not call both for the
 same hash unless a deliberate recheck is needed. Local CLI access is reserved
 for final release artifacts by policy; the standalone CLI cannot prove release
 provenance. A hash-only report is not a new scan.
+
+## Published stable release check
+
+The second reusable workflow, `autoverify-published.yml`, accepts only the
+three allowlisted Recomp repositories, a published non-draft non-prerelease
+vX.Y.Z release, and either the release published event or a default-branch
+manual dispatch with the expected SHA-256. Automatic callers must opt in via
+repository configuration, choose one exact approved asset basename or `{tag}`
+filename template, and pass the same reviewed Core SHA in both positions.
+Automatic mode verifies the digest from GitHub release metadata, not an
+independent build receipt. Manual mode requires the expected hash. Only one
+artifact is checked; no automatic upload, retry, or publish. If the release
+was already checked before publication, avoid enabling duplicate queries.
