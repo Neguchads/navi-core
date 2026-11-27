@@ -48,8 +48,11 @@ hash. No automated binary upload in this preview.
 
 ## Reusable workflow
 
-The optional workflow is callable only from trusted main/tag push or manual
-dispatch in a public repository with explicit approval. It expects a single
+The optional workflow is callable only from trusted stable vX.Y.Z tag push or manual
+dispatch on that tag in one of the three allowlisted public Recomp repositories.
+It requires final_delivery=true, an independently verified expected SHA-256,
+and explicit public non-commercial approval. Main branch, PRs, development
+builds, prerelease tags and other repositories are refused. It expects a single
 named artifact from the same run and a basename within that artifact. Pass a
 reviewed immutable Core commit SHA both in the workflow reference and core_sha.
 Use one trusted caller, not fork PRs or pull_request_target. Add VT_API_KEY to
@@ -68,3 +71,9 @@ Offline tests cover classification, hash integrity, missing key, opt-in, HTTP
 errors, bounded responses and no retry. Live API authentication, workflow
 end-to-end acceptance and project-specific build provenance are separate.
 No real VT scan or release is claimed.
+
+The reusable job is exclusively a pre-publication final-delivery gate; published
+release verification is a separate read-only workflow. Do not call both for the
+same hash unless a deliberate recheck is needed. Local CLI access is reserved
+for final release artifacts by policy; the standalone CLI cannot prove release
+provenance. A hash-only report is not a new scan.
