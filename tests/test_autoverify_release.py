@@ -22,7 +22,7 @@ class AutoVerifyReleaseTests(unittest.TestCase):
         self.assertEqual(result["sha256"], SHA)
 
     def test_bad_input(self):
-        for tag, name, sha in [("../x", NAME, SHA, REPO), (TAG, "../game.exe", SHA),
+        for tag, name, sha in [("../x", NAME, SHA), (TAG, "../game.exe", SHA),
                                (TAG, "game.nds", SHA), (TAG, "*.exe", SHA),
                                (TAG, NAME, "bad")]:
             with self.subTest(tag=tag, name=name, sha=sha):
