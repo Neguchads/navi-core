@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 from urllib.error import HTTPError, URLError
 
 from navi_core import autoverify as av
@@ -44,7 +44,7 @@ class AutoVerifyTests(unittest.TestCase):
         self.assertEqual(av.classify({}, SHA, NOW)["status"], "invalid-response")
 
     def test_lookup_http(self):
-        opener = Mock()
+        opener = MagicMock()
         response = opener.open.return_value.__enter__.return_value
         response.status = 200
         response.read.return_value = json.dumps(sample()).encode()
@@ -68,7 +68,7 @@ class AutoVerifyTests(unittest.TestCase):
         self.assertEqual(av.lookup(SHA, "test-key", opener), {"status": "network-error"})
 
     def test_bad_payload_and_missing_key(self):
-        opener = Mock()
+        opener = MagicMock()
         response = opener.open.return_value.__enter__.return_value
         response.status = 200
         response.read.return_value = b"not JSON"
