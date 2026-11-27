@@ -98,3 +98,7 @@ Read-only static Python import/cycle and reviewed boundary analysis via `navi ar
 [Offline versioned installation and update](docs/INSTALLATION.md): reviewed wheel bundles, isolated environments and non-destructive rollback.
 
 [NAVI canonical repositories](docs/REPOSITORY_NAMES.md).
+
+## Optional AutoVerify (preview)
+
+Explicit public non-commercial VirusTotal SHA-256 lookup, offline by default. No uploads, no publishing, no AI or paid API requirement. See [AutoVerify](docs/AUTOVERIFY.md).
