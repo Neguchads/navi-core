@@ -1,0 +1,115 @@
+name: NAVI AutoVerify published Recomp release
+on:
+  workflow_call:
+    inputs:
+      core_sha:
+        required: true
+        type: string
+      release_tag:
+        required: true
+        type: string
+      asset_name:
+        required: true
+        type: string
+      expected_sha256:
+        required: false
+        type: string
+        default: ''
+      lookup_public_noncommercial:
+        required: true
+        type: boolean
+    secrets:
+      VT_API_KEY:
+        required: false
+permissions:
+  contents: read
+concurrency:
+  group: navi-autoverify-public
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Validate release-only scope
+        shell: bash
+        env:
+          REPO: ${{ github.repository }}
+          REF: ${{ github.ref }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          PRIVATE: ${{ github.event.repository.private }}
+          EVENT: ${{ github.event_name }}
+          ACTION: ${{ github.event.action }}
+          TAG: ${{ inputs.release_tag }}
+          ASSET: ${{ inputs.asset_name }}
+          EXPECTED: ${{ inputs.expected_sha256 }}
+          CORE_SHA: ${{ inputs.core_sha }}
+        run: |
+          set -euo pipefail
+          case "$REPO" in
+            Neguchads/cdos-nintendods-recomp|Neguchads/csotn-saturn-recomp|Neguchads/ccod-xbox-recomp) ;;
+            *) exit 2 ;;
+          esac
+          [[ "$PRIVATE" == "false" && "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          [[ "$CORE_SHA" =~ ^[a-f0-9]{40}$ ]]
+          if [[ "$EVENT" == "release" ]]; then
+            [[ "$ACTION" == "published" && "$REF" == "refs/tags/$TAG" ]]
+          elif [[ "$EVENT" == "workflow_dispatch" ]]; then
+            [[ "$REF" == "refs/heads/$DEFAULT_BRANCH" && "$EXPECTED" =~ ^[a-f0-9]{64}$ ]]
+          else
+            exit 2
+          fi
+          asset="${ASSET//\{tag\}/$TAG}"
+          [[ "$asset" =~ ^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$ ]]
+          printf 'NAVI_ASSET=%s\n' "$asset" >> "$GITHUB_ENV"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: Neguchads/navi-core
+          ref: ${{ inputs.core_sha }}
+          path: reviewed-core
+          persist-credentials: false
+      - name: Verify published asset identity and bytes
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ inputs.release_tag }}
+          EXPECTED: ${{ inputs.expected_sha256 }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          mkdir "$RUNNER_TEMP/navi-release"
+          cd "$RUNNER_TEMP/navi-release"
+          gh api "repos/$REPO/releases/tags/$TAG" > metadata.json
+          digest_source=independent_expected_hash
+          if [[ "$EVENT" == "release" && -z "$EXPECTED" ]]; then
+            EXPECTED="$(jq -er --arg asset "$NAVI_ASSET" '.assets | map(select(.name == $asset)) | if length == 1 then .[0].digest else error("asset missing or ambiguous") end | select(type == "string") | sub("^sha256:";"")' metadata.json)"
+            digest_source=github_release_metadata
+          fi
+          [[ "$EXPECTED" =~ ^[a-f0-9]{64}$ ]]
+          python3 -I "$GITHUB_WORKSPACE/reviewed-core/navi_core/autoverify_release.py" "$REPO" metadata.json "$TAG" "$NAVI_ASSET" "$EXPECTED" > selection.json
+          gh release download "$TAG" --repo "$REPO" --pattern "$NAVI_ASSET" --output artifact
+          [[ -f artifact && ! -L artifact ]]
+          [[ "$(stat -c%s artifact)" == "$(jq -r .size_bytes selection.json)" ]]
+          printf '%s  artifact\n' "$EXPECTED" | sha256sum --check --strict
+          mv -- artifact "$NAVI_ASSET"
+          jq --arg source "$digest_source" '. + {status:"local-hash-verified",digest_source:$source,scope:"integrity only; not malware scan or build attestation"}' selection.json > integrity.json
+          printf 'NAVI_EXPECTED=%s\n' "$EXPECTED" >> "$GITHUB_ENV"
+      - name: Optional public non-commercial hash report
+        if: inputs.lookup_public_noncommercial
+        shell: bash
+        env:
+          VT_API_KEY: ${{ secrets.VT_API_KEY }}
+        run: |
+          set -euo pipefail
+          python3 -I reviewed-core/navi_core/autoverify.py "$RUNNER_TEMP/navi-release/$NAVI_ASSET" --expected-sha256 "$NAVI_EXPECTED" --lookup-public-noncommercial > "$RUNNER_TEMP/navi-release/virustotal.json"
+      - name: Preserve reports, not binaries
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: autoverify-release-report
+          path: |
+            ${{ runner.temp }}/navi-release/integrity.json
+            ${{ runner.temp }}/navi-release/virustotal.json
+          if-no-files-found: warn
+          retention-days: 7
