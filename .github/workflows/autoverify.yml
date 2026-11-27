@@ -25,18 +25,24 @@ concurrency:
   cancel-in-progress: false
 jobs:
   check:
-    if: inputs.approved_public_noncommercial && github.event.repository.private == false && (github.event_name == 'workflow_dispatch' || github.event_name == 'push') && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - name: Validate trusted caller inputs
         shell: bash
         env:
+          APPROVED: ${{ inputs.approved_public_noncommercial }}
+          PRIVATE: ${{ github.event.repository.private }}
+          EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref }}
           CORE_SHA: ${{ inputs.core_sha }}
           FILE_NAME: ${{ inputs.filename }}
           ARTIFACT_NAME: ${{ inputs.artifact_name }}
         run: |
           set -euo pipefail
+          [[ "$APPROVED" == "true" && "$PRIVATE" == "false" ]]
+          [[ "$EVENT" == "workflow_dispatch" || "$EVENT" == "push" ]]
+          [[ "$REF" == "refs/heads/main" || "$REF" == refs/tags/* ]]
           [[ "$CORE_SHA" =~ ^[0-9a-f]{40}$ ]]
           [[ "$FILE_NAME" =~ ^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$ ]]
           [[ "$ARTIFACT_NAME" =~ ^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$ ]]
